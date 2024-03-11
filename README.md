@@ -16,7 +16,7 @@ There are several obvious issues with this if we want to evaluate web agents wit
 
 In this work, we plan on significantly expanding WebArena to a broader variety of tasks *motivated by tasks performed during real-world work*. 
 
-We want to have a reproducible, generalized recipe for finding tasks to include in the benchmark is important to enable scalability given a new expert domain (in our case a new job/profession).
+We want to have a reproducible, generalized recipe for finding tasks to include in the benchmark is important to enable scalability given a new expert domain (in our case a new job/profession), since we want to find realistic tasks that are mostly unbiased, and originate from the real professionals rather than making things up ourselves with fields we are not familiar with.
 That, as a part of the work's contribution, could justify the bias issues in task collection for domains that we are not an expert in.
 
 
