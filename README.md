@@ -2,7 +2,7 @@
 A benchmark for agents that could do professional jobs!
 
 ## Goal
-Goal is to create a realistic, reproducible, executable benchmark that tests agents' ability in performing tasks in professionals' work time from various fields, such as software engineers, designers, analyst, doctors, nurses and lawyers to name a few. 
+Goal is to create a realistic, reproducible, executable benchmark and environment suite that tests agents' ability in performing tasks in professionals' work time from various fields, such as software engineers, designers, analyst, doctors, nurses and lawyers to name a few. 
 Existing agent benchmark mostly focused on daily life scenarios, and cannot test the expert domain knowledge and complexities required in many professional tasks.
 
 ## Tasks
