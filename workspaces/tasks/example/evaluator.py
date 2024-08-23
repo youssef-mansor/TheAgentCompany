@@ -18,13 +18,6 @@ def check_api():
     return response.status_code == 200 and response.json() == {"message": "Welcome to the Flask API!"}
 
 if __name__ == "__main__":
-    # Define the URL
-    url = "http://localhost:8000/predict"
-    # Define the payload
-    payload = {
-        "text": "This is a test"
-    }
-    # Send the request
-    response = requests.post(url, json=payload)
-    # Print the response
-    print(response.json())
+    print(check_url("ACTION: goto('http://ogma.lti.cs.cmu.edu:8929/root/api-server')"))
+    print(check_code_clone())
+    print(check_api())
