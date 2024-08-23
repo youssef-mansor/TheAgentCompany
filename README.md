@@ -1,5 +1,5 @@
-# JobAgent
-A benchmark for agents that could do professional jobs!
+# JobBench
+A benchmark for agents that could do professional jobs! The main goal is to evaluate AI progress on "AI workers".
 
 Project tracker document: https://docs.google.com/document/d/1w8vjsha5tRHYkLgpJwruFIlsrjNLtH3X_PICpsGW04U/edit?usp=sharing
 
