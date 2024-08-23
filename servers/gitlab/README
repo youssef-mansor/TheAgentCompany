@@ -1,0 +1,7 @@
+## Server: gitlab
+
+```
+export GITLAB_HOME=/home/fangzhex/ogma3/jobbench_gitlab
+docker compose up -d
+docker ps
+```
