@@ -29,4 +29,4 @@ stop-gitlab:
 	cd gitlab && docker-compose down
 
 gitlab-root-password:
-	docker exec -it gitlab bash -c 'cat /etc/gitlab/initial_root_password'
+	docker exec -it gitlab bash -c "grep -oP 'Password:\s*\K\S+' /etc/gitlab/initial_root_password"
