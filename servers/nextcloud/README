@@ -14,7 +14,6 @@ docker exec -it nextcloud-aio-mastercontainer /bin/bash
 docker exec nextcloud-aio-mastercontainer cat /mnt/docker-aio-config/data/configuration.json
 
 data storage in `/mnt/docker-aio-config/data/configuration.json` in docker. 
-The default value should be `paced anthem clumsy prancing embroider evil ransack enlarged`
 
 Instruction about how to reset the nextcloud:
 https://github.com/nextcloud/all-in-one#how-to-properly-reset-the-instance
