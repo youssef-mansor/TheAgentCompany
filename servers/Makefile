@@ -16,7 +16,11 @@ stop-nextcloud:
 	cd nextcloud && docker-compose down
 
 start-file-server:
-	cd static && python3 -m http.server ${FILE_SERVER_PORT} -d files/ &
+	cd static && python3 -m http.server 8081 -d files/ &
+
+stop-file-server:
+	@echo "Killing process on port $(FILE_SERVER_PORT)"
+	@lsof -ti :$(FILE_SERVER_PORT) | xargs kill -9 || echo "No process found on port $(FILE_SERVER_PORT)"
 
 start-gitlab: init
 	cd gitlab && docker-compose up -d
