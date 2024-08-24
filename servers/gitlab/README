@@ -2,10 +2,14 @@
 
 
 ### Starting up server
-```
-export GITLAB_HOME=/home/fangzhex/ogma3/jobbench_gitlab
-docker compose up -d
-docker ps
+
+Navigate to parent directory (servers), and run the below commands:
+
+```bash
+# start gitlab
+make start-gitlab
+# reveal password for root user
+make gitlab-root-password
 ```
 
 ### Import data
