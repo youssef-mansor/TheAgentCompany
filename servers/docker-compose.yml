@@ -1,13 +1,14 @@
-version: '3.6'
+version: '0.1'
 services:
   gitlab:
-    image: gitlab/gitlab-ce:17.3.1-ce.0
+    build:
+      context: ./gitlab
     container_name: gitlab
     restart: always
-    hostname: 'ogma.lti.cs.cmu.edu'
+    hostname: '$HOSTNAME'
     environment:
       GITLAB_OMNIBUS_CONFIG: |
-        external_url 'http://ogma.lti.cs.cmu.edu:8929'
+        external_url 'http://$HOSTNAME:8929'
         gitlab_rails['gitlab_shell_ssh_port'] = 2424
     ports:
       - '8929:8929'
@@ -19,4 +20,3 @@ services:
       - '$GITLAB_HOME/logs:/var/log/gitlab'
       - '$GITLAB_HOME/data:/var/opt/gitlab'
     shm_size: '256m'
-
