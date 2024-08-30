@@ -1,6 +1,11 @@
 #!/bin/bash
 set -ex
 
+# start from a clean state without any configs or data
+rm -rf /etc/gitlab/*
+rm -rf /var/log/gitlab/*
+rm -rf /var/opt/gitlab/*
+
 # Run the original wrapper script, but remove the last five lines
 # NOTE: this magic number 2 comes from the fact that 17.3.1-ce.0 version's
 # wrapper file has last 2 lines of "waiting for SIGTERM",
@@ -30,7 +35,6 @@ if ls /assets/exports/*.tar.gz 1> /dev/null 2>&1; then
         filename=$(basename "$file" .tar.gz)
 
         echo "Importing $filename..."
-
         curl --request POST \
              --header "PRIVATE-TOKEN: root-token" \
              --form "path=$filename" \
@@ -51,7 +55,6 @@ curl --request POST --header "PRIVATE-TOKEN: root-token" \
         "with_merge_requests_enabled": "false",
         "visibility": "public"}' \
      --url "http://localhost:8929/api/v4/projects/"
-
 # TODO: change authorship of issues/prs/commits
 
 # Keep the container running

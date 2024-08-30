@@ -75,17 +75,18 @@ start-gitlab: init
 stop-gitlab:
 	docker compose stop gitlab
 
-reset-gitlab:
-	echo "stopping existing gitlab instance..."
+reset-gitlab: init
+	@echo "stopping existing gitlab instance..."
 	docker compose stop gitlab
-	echo "remove gitlab container..."
+	@echo "remove gitlab container..."
 	docker compose rm gitlab
-	echo "remove built gitlab image..."
-	docker image rm servers-gitlab
-	echo "remove existing gitlab data..."
-	sudo rm -rf $(GITLAB_HOME)
-	mkdir -p $(GITLAB_HOME)
-	echo "start gitlab from clean state..."
+	@if docker image inspect servers-gitlab >/dev/null 2>&1; then \
+		echo "Image servers-gitlab exists. Removing..."; \
+		docker image rm servers-gitlab; \
+	else \
+		echo "Image servers-gitlab does not exist. Skipping removal."; \
+	fi
+	@echo "start gitlab from clean state..."
 	docker compose up gitlab -d
 
 # RocketChat
