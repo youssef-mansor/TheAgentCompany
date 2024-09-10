@@ -1,5 +1,5 @@
-IMAGE_NAME=job-bench-rocketchat-npc-example
-CONTAINER_NAME=job-bench-rocketchat-npc-example
+IMAGE_NAME=job-bench-example
+CONTAINER_NAME=job-bench-example
 
 .PHONY: build run
 
@@ -16,6 +16,3 @@ stop:
 
 attach:
 	docker exec -it $(CONTAINER_NAME) /bin/bash
-
-kill-npc:
-	pkill -f 'python run_one_npc.py'

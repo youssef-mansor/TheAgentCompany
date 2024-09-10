@@ -1,5 +1,5 @@
-IMAGE_NAME=base-npc-image
-CONTAINER_NAME=base-npc-image
+IMAGE_NAME=base-image
+CONTAINER_NAME=base-image
 
 .PHONY: build run
 
