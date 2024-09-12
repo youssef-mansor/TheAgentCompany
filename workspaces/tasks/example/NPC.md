@@ -1,27 +1,56 @@
-# How to start NPC
-## Register the NPC in rocketchat
-NOTE: If you want to use an existing user in [npc_credential.json](../rocketchat-npc/npc_credential.json), you can skip this step.
+# NPC (Non-Player Character)
 
-Make sure you already create the NPC account in rocketchat. In [npc_credential.json](../rocketchat-npc/npc_credential.json), you should create records for username and password. The Key is first name. All data are case sensitive.
+Target audience of this doc: benchmark developers that would like to incorporate NPCs in their tasks.
 
-## Populate NPC definition in Redis
-NOTE: If you already populate the NPC data, or use an existing NPC definition, you can skip this step.
+## How to start NPC
 
-In [populate_data.py](../../../servers/rocketchat/npc/populate_data.py), we define the agent definitons. Execute the code, all data will popuate into redis. Pay attention, this data should match with NPC first name in rocketchat.
+### Step 1: Create NPC accounts in RocketChat
 
-## Build base-npc-image
-If you changed [npc_credential.json](../rocketchat-npc/npc_credential.json), you should rebuild it. Go `rocketchat-npc` directory and run `make build`
+NOTE: If you want to use an existing NPC that is already in
+[npc_credential.json](../../base_image/npc_credential.json), you can skip this step.
 
-## Definite the NPC you want to involve
-In this directory, we provide an example for you. You can directly run it.
+Otherwise, if you'd like to create a new NPC account, please do so in the hosted RocketChat service.
+As of now, this is a manual step that you have to do via web GUI. The idea is that
+NPCs are like normal employees in the company and thus their RocketChat accounts
+as well as their personalities are shared across all tasks.
 
-When try to build your own customized image:
-* Set your openai api key `Dockerfile`.
-* Change `scenarios.json`, each line will launch a sotopia NPC. The key is first name, the value is the instruction for NPC.
+After account crreation, please add the username and password to
+[npc_credential.json](../../base_image/npc_credential.json)
+in the following format:
 
-# NPC rules
+```json
+ "<first_name>" : {
+        "username": "<username>",
+        "password": "<password>"
+    },
+```
 
-* Keep data consistent. The user registed in rocketchat, and the NPC information in redis should match. Especially the name!
+where `<first_name>` MUST be unique. It is used as a global identifier which is
+also referenced in each individual task's `scenarios.json` and server's
+[npc_definition.json](../../../servers/rocketchat/npc/npc_definition.json).
+Everything in the credential file is case sensitive.
+
+### Step 2: Populate NPC definition to Sotopia
+
+NPCs are powered by [sotopia](https://github.com/sotopia-lab/sotopia/commits),
+which stores NPCs' definitions in a Redis server.
+
+NOTE: If you want to use an existing NPC, you can skip this step.
+
+Otherwise, please add NPC definition in [npc_definition.json](../../../servers/rocketchat/npc/npc_definition.json)
+and then run [populate_data.py](../../../servers/rocketchat/npc/populate_data.py)
+on the server side to populate data into Redis. The script is designed to be idempotent.
+The complete schema of NPC definition can be found in [NPC_CONFIG.md](../../../servers/rocketchat/npc/NPC_CONFIG.md).
+
+### Step 3: Define the NPCs' context in this task
+
+Write a `scenarios.json` like [this](./scenarios.json) that defines the NPCs
+that may involve in the task, and their context.
+
+## NPC rules
+
+* Keep data consistent. Please make sure the `<first_name>` in `npc_credential.json`
+matches the `first_name` field in `npc_definition.json` and the keys in `scenarios.json`.
 * When run one NPC, NPC will reply only when your send massage. It will talk with you TURN by TURN
 * When multiple NPC in one channel, they will only reply your message. NPC cannot talk with each other in channel. If you send one message, all NPC will reply you. We can let only related agent reply. It is feasible, but not support now. Unless you need this feature, or just keep design concise.
 * One NPC can run great now. Because of above problem. Unless neccessary in your task, don't use multiple NPC.
