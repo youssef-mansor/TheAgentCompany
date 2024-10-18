@@ -4,7 +4,7 @@ from rocketchat_API.rocketchat import RocketChat
 import datetime
 
 # Set environment variables
-SERVER_HOSTNAME = os.getenv('SERVER_HOSTNAME') or 'ogma.lti.cs.cmu.edu'
+SERVER_HOSTNAME = os.getenv('SERVER_HOSTNAME') or 'theagentcompany.com'
 ROCKETCHAT_PORT = os.getenv('ROCKETCHAT_PORT') or '3000'
 
 # Construct RocketChat URL
