@@ -143,19 +143,16 @@ backup-rocketchat:
 
 # Sotopia Redis
 start-sotopia-redis: init
-	docker compose up redis-stack -d
-	docker compose up redis-stack-npc-data-population -d
+	docker compose up -d redis-stack redis-stack-npc-data-population
 
 stop-sotopia-redis:
-	docker compose stop redis-stack
-	docker compose stop redis-stack-npc-data-population
+	docker compose stop redis-stack redis-stack-npc-data-population
 
 rm-sotopia-redis:
-	docker rm servers-redis-stack-1
-	docker rm redis-stack-npc-data-population
+	docker compose rm -f redis-stack redis-stack-npc-data-population
 
 attach-sotopia-redis:
-	docker exec -it servers-redis-stack-1 /bin/bash
+	docker exec -it redis-stack /bin/bash
 
 # Plane
 download-plane:
