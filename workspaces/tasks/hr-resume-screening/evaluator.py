@@ -6,12 +6,12 @@ from scoring import Result, Checkpoint
 
 from common import create_rocketchat_client
 from common import evaluate_chat_history_with_llm
-from common import get_rocketchat_personal_chat_history, checkpoint
+from common import get_rocketchat_personal_chat_history, grader
 
 # Initialize RocketChat client
 rocket = create_rocketchat_client()
 
-@checkpoint
+@grader
 def grade_checkpoint_1():
     messages = get_rocketchat_personal_chat_history(rocket, 'Chen Xinyi')
     if not messages:
@@ -22,7 +22,7 @@ def grade_checkpoint_1():
     return 'green card' in messages_cleaned or 'citizen' in messages_cleaned
 
 
-@checkpoint
+@grader
 def grade_checkpoint_2():
     return evaluate_chat_history_with_llm(
         rocket,
