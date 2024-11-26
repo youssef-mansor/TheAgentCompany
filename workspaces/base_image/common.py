@@ -507,7 +507,8 @@ PROJECT_FILES = {
     'janusgraph': '.backportrc.json',
     'colly': 'xmlelement_test.go',
     'streamlit': '.ruff.toml',
-    'risingwave': 'risedev.yml'
+    'risingwave': 'risedev.yml',
+    'bustub': 'CMakeLists.txt'
 }
 
 def check_repo_exists(project_name: str):
