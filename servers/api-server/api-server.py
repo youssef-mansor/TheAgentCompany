@@ -1,107 +1,7 @@
 from flask import Flask, jsonify
-import subprocess
-import os
-import json
-import threading
-import requests
-import os
-import time
-from rocketchat_API.rocketchat import RocketChat
-import redis
-
-SERVER_HOSTNAME = os.getenv('SERVER_HOSTNAME') or 'localhost'
-ROCKETCHAT_PORT = os.getenv('ROCKETCHAT_PORT') or '3000'
-PLANE_PORT = os.getenv('PLANE_PORT') or '8091'
-PLANE_BASEURL = f"http://{SERVER_HOSTNAME}:{PLANE_PORT}"
-PLANE_WORKSPACE_SLUG = os.getenv("PLANE_WORKSPACE_SLUG") or "tac"
-PLANE_API_KEY = os.environ.get("PLANE_API_KEY") or "plane_api_83f868352c6f490aba59b869ffdae1cf"
-PLANE_HEADERS = {
-    "x-api-key": PLANE_API_KEY,
-    "Content-Type": "application/json"
-}
-
-def login_to_plane():
-    res = []
-    try:
-        res = get_all_plane_projects()
-        if len(res) == 0:
-            return 400, "failed to login"
-        else:
-            return 200, "login success"
-    except Exception as e:
-        print(f"{e}")
-        return 400, "failed to login"
-
-def get_all_plane_projects():
-    """Get all projects in plane."""
-    url = f"{PLANE_BASEURL}/api/v1/workspaces/{PLANE_WORKSPACE_SLUG}/projects/"
-    try:
-        response = requests.get(url, headers=PLANE_HEADERS)
-        response.raise_for_status()
-        return response.json().get('results', [])
-    except Exception as e:
-        print(f"Get all projects failed: {e}")
-        return []
-
-def create_rocketchat_client(username='theagentcompany', password='theagentcompany'):
-    SERVER_HOSTNAME = os.getenv('SERVER_HOSTNAME') or 'localhost'
-    ROCKETCHAT_PORT = os.getenv('ROCKETCHAT_PORT') or '3000'
-    
-    # Construct RocketChat URL
-    ROCKETCHAT_URL = f"http://{SERVER_HOSTNAME}:{ROCKETCHAT_PORT}"
-    
-    try:
-        return RocketChat(username, password, server_url=ROCKETCHAT_URL)
-    except:
-        logging.warning("Fail to connect to rocketchat")
-    return None
-
-def wait_for_redis(host='localhost', port=6379, password='theagentcompany', retries=3, delay=1):
-    client = redis.StrictRedis(host=host, port=port, password=password)
-    
-    for attempt in range(retries):
-        try:
-            # Test if Redis is responding to PING command
-            if client.ping():
-                print("Redis is up and running!")
-                return True
-        except redis.exceptions.ConnectionError:
-            print(f"Attempt {attempt + 1} failed: Redis not available yet, retrying in {delay} seconds...")
-            time.sleep(delay)
-    print("Failed to connect to Redis after several retries.")
-    return False
+from utils import *
 
 app = Flask(__name__)
-
-HOSTNAME= os.getenv('HOSTNAME', "localhost")
-
-EXECUTION_DIR = os.getenv('EXECUTION_DIR', "/workspace")
-
-def check_url(url):
-    try:
-        response = requests.get(url)
-        if response.status_code == 200:
-            print("Web service is up!")
-            return 200, "Web service is up!"
-        else:
-            return response.status_code, "Web service is not available yet"
-    except requests.ConnectionError:
-        print("Web service is not available yet. Retrying...")
-        return 500, "Web service is not available yet"
-
-def execute_command(command):
-    try:
-        print(EXECUTION_DIR, command)
-        os.chdir(EXECUTION_DIR)
-        result = subprocess.run(command, shell=True, check=True, capture_output=True, text=True)
-        return result.stdout.strip()
-    except subprocess.CalledProcessError as e:
-        return f"Command execute failed: {e}"
-    except Exception as e:
-        return f"Error : {e}"
-
-def async_execute_command(command):
-    threading.Thread(target=execute_command, args=(command,)).start()
 
 @app.route('/api/reset-owncloud', methods=['POST'])
 def reset_owncloud():
@@ -145,9 +45,13 @@ def healthcheck_gitlab():
 def healthcheck_rocketchat():
     rocketchat_cli = create_rocketchat_client()
     rocketchat_code = 400 if rocketchat_cli is None else 200
-    redis_msg, redis_code = healthcheck_redis()
-    code = 200 if redis_code == 200 and rocketchat_code == 200 else 400
-    return jsonify({"redis": redis_code, "rocketchat": rocketchat_code}), code
+    _, redis_code = healthcheck_redis()
+    # Sotopia is optional if no NPC is needed for the task,
+    # but for simplicity, we always check Sotopia NPC profiles are correctly
+    # loaded whenever RocketChat service is needed
+    _, sotopia_code = healthcheck_sotopia()
+    code = 200 if redis_code == 200 and rocketchat_code == 200 and sotopia_code == 200 else 400
+    return jsonify({"redis": redis_code, "rocketchat": rocketchat_code, "sotopia": sotopia_code}), code
 
 @app.route('/api/healthcheck/plane', methods=['GET'])
 def healthcheck_plane():
@@ -161,6 +65,28 @@ def healthcheck_redis():
         return jsonify({"message":"success connect to redis"}), 200
     else:
         return jsonify({"message":"failed connect to redis"}), 400
+
+def get_by_name(first_name, last_name):
+    return AgentProfile.find(
+        (AgentProfile.first_name == first_name) & 
+        (AgentProfile.last_name == last_name)
+    ).all()
+
+@app.route('/api/healthcheck/sotopia', methods=['GET'])
+def healthcheck_sotopia():
+    success = wait_for_redis()
+    assert len(agent_definitions) > 0
+    if success:
+        for definition in agent_definitions:
+            if not AgentProfile.find((AgentProfile.first_name == definition["first_name"]) & (AgentProfile.last_name == definition["last_name"])).all():
+                success = False
+                print(f"NPC ({definition['first_name']} {definition['last_name']}) not found")
+                break
+        
+    if success:
+        return jsonify({"message":"sotopia npc profiles loaded successfully"}), 200
+    else:
+        return jsonify({"message":"sotopia npc profiles not loaded"}), 400
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=2999)
