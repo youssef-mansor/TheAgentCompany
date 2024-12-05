@@ -149,10 +149,27 @@ reset-owncloud: init
 
 # api-server
 start-api-server: init
-	docker compose -p theagentcompany up api-server -d
+	docker run -d \
+		--name api-server \
+		--network host \
+		--restart always \
+		-v /var/run/docker.sock:/var/run/docker.sock \
+		ghcr.io/theagentcompany/servers-api-server:latest
+
+start-api-server-with-setup: init
+	docker run -d \
+		--name api-server \
+		--network host \
+		--restart always \
+		-e SKIP_SETUP=True \
+		-v /var/run/docker.sock:/var/run/docker.sock \
+		ghcr.io/theagentcompany/servers-api-server:latest
 
 stop-api-server:
-	docker compose -p theagentcompany stop api-server
+	docker stop api-server
 
-rm-api-server:
-	docker compose -p theagentcompany rm -f api-server
+rm-api-server: stop-api-server
+	docker rm api-server
+
+get-ip:
+	curl ifconfig.me
