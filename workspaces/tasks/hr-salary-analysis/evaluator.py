@@ -10,12 +10,6 @@ from scoring import Result, Checkpoint, bonus_for_completing_any
 from common import grader, check_file_in_owncloud_directory, get_binary_file_content_owncloud
 
 
-@grader
-def grade_checkpoint1(trajectory):
-    urls = [f"dir=/Documents/Human%20Resources%20Team"]
-    return any(url in trajectory for url in urls)
-
-
 def calculate_salary_statistics(file_path):
     df = pd.read_csv(file_path)
     average_salary = df['Salary'].mean()
@@ -23,24 +17,11 @@ def calculate_salary_statistics(file_path):
     lowest_salary = df['Salary'].min()
     median_salary = df['Salary'].median()
     
-    return [average_salary, highest_salary, lowest_salary, median_salary]
+    return [int(average_salary), int(highest_salary), int(lowest_salary), int(median_salary)]
 
-
-@grader
-def grade_checkpoint2():
-    file_name = "Salary_Analysis_Report.odt"
-    dir_name = "Documents/Human%20Resources%20Team"
-    try: 
-        if check_file_in_owncloud_directory(file_name, dir_name):
-            return 1
-        else:
-            return 0
-    except Exception as e:
-        print(f"Error: {e}")
-        return 0
     
 @grader
-def grade_checkpoint3():
+def grade_checkpoint1():
     file_name = "Salary_Analysis_Report.odt"
     dir_name = "Documents/Human%20Resources%20Team"
 
@@ -50,7 +31,7 @@ def grade_checkpoint3():
         if binary_content:
             text_content = extract_text_from_odt(binary_content)
 
-            keywords = calculate_salary_statistics("./salary.txt")
+            keywords = calculate_salary_statistics("/utils/salary.txt")
             print(f"Keywords: {keywords}")
             
             found_keywords, keyword_score = check_keywords_in_content(text_content, keywords)
@@ -90,9 +71,7 @@ def check_keywords_in_content(content, keywords):
 def grade_checkpoints(trajectory=""):
     checkpoints: List[Checkpoint] = []
     result = Result(checkpoints, bonus_for_completing_any)
-    checkpoints.append(Checkpoint(1, grade_checkpoint1(trajectory)))
-    checkpoints.append(Checkpoint(1, grade_checkpoint2()))
-    checkpoints.append(Checkpoint(1, grade_checkpoint3()))
+    checkpoints.append(Checkpoint(2, int(grade_checkpoint1()*2) ))
     return result
 
 
