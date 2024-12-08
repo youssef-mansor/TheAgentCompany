@@ -1,6 +1,6 @@
 SHELL = /bin/bash
 
-HOSTNAME?=ogma.lti.cs.cmu.edu
+HOSTNAME?=localhost
 FILE_SERVER_PORT?=8081
 GITLAB_PORT?=8929
 PLANE_DOCKER_FILE_PATH=./plane/plane-app/docker-compose.yaml
@@ -148,7 +148,9 @@ reset-owncloud: init
 	docker compose -p theagentcompany up owncloud owncloud-collabora -d
 
 # api-server
-setup: init
+start-api-server-with-setup: init
+	docker stop api-server
+	docker rm api-server
 	docker run -d \
 		--name api-server \
 		--network host \
@@ -157,6 +159,8 @@ setup: init
 		ghcr.io/theagentcompany/servers-api-server:latest
 
 start-api-server: init
+	docker stop api-server
+	docker rm api-server
 	docker run -d \
 		--name api-server \
 		--network host \
@@ -195,18 +199,48 @@ pull-image:
 	docker pull registry.rocket.chat/rocketchat/rocket.chat:5.3.0
 
 check:
-	@echo "check docker version"
+	@echo "Checking if docker is installed..."
+	@if ! command -v docker >/dev/null 2>&1; then \
+		echo "Error: docker is not installed"; \
+		echo "Please install docker first"; \
+		exit 1; \
+	fi
+	
+	@echo "Checking if docker compose is installed..."
+	@if ! docker compose version >/dev/null 2>&1; then \
+		echo "Error: docker compose is not installed or docker daemon is not running"; \
+		echo "Please install docker compose"; \
+		exit 1; \
+	fi
+	
+	@echo "✓ Docker is installed"
 	docker version
-	@echo "check docker compose version"
+	@echo "\n✓ Docker Compose is installed"
 	docker compose version
 
 health-check:
+	@echo "Checking if api-server is running on port 2999..."
+	@until curl -s -o /dev/null localhost:2999; do \
+		echo "Waiting for api-server to start on port 2999..."; \
+		sleep 15; \
+	done
+	@echo "api-server is running on port 2999!"
+
 	@echo "Starting health checks..."
-	@for service in owncloud gitlab rocketchat plane; do \
+	@for service in rocketchat owncloud gitlab plane; do \
 		until curl -s -o /dev/null -w "%{http_code}" localhost:2999/api/healthcheck/$$service | grep -q "200"; do \
 			echo "Waiting for $$service to be ready..."; \
-			sleep 5; \
+			sleep 10; \
 		done; \
 		echo "$$service is ready!"; \
 	done
 	@echo "All services are up and running!"
+
+setup:
+	@echo "Starting Pull Image..."
+	make pull-image
+	@echo "Starting Setup service"
+	make start-api-server-with-setup
+	sleep 120
+	@echo "Starting health check"
+	make health-check
