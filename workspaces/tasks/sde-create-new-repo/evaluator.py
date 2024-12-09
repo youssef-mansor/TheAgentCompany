@@ -24,35 +24,31 @@ rocket = create_rocketchat_client()
 
 @grader
 def check_repo_exist():
-    try:
-        response = make_gitlab_request(project_path)
- 
-        if response is not None and response.status_code == 200:
-            logging.info(f"New repository '{project_path}' created successfully.")
-            return True
-        else:
-            logging.info(f"Repository '{project_path}' not found.")
-            return False
-    except requests.RequestException as e:
-        logging.error(f"Error occurred while checking the repository: {e}")
+    response = make_gitlab_request(project_path)
+
+    if response is not None and response.status_code == 200:
+        logging.info(f"New repository '{project_path}' created successfully.")
+        return True
+    else:
+        logging.error(f"Repository '{project_path}' not found.")
         return False
+    
 
 @grader
 def check_readme_content():
     readme_encoded_path = urllib.parse.quote(readme_path, safe='')
-    try:
-        readme = make_gitlab_request(project_path, f"repository/files/{readme_encoded_path}/raw?ref=main")
-        readme = readme.text
-    except requests.RequestException as e:
-        logging.error(f"Error occurred while checking readme file: {e}")
-        return False
     
-    if not readme:
-        logging.warning("Readme file doesn't exist or is empty")
+    response = make_gitlab_request(project_path, f"repository/files/{readme_encoded_path}/raw?ref=main")
+    if response is not None and response.status_code == 200:
+        readme = response.text
+        if not readme:
+            logging.warning("Readme file doesn't exist or is empty")
+            return False
+        predicate = "some details about a new storage system project"
+        return evaluate_with_llm(readme, predicate)
+    else:
+        logging.error("Fail to fetch readme.md file")
         return False
-
-    predicate = "some details about a new storage system project"
-    return evaluate_with_llm(readme, predicate)
 
 @grader
 def check_conversation_with_leader():
