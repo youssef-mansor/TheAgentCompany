@@ -27,6 +27,7 @@ from browsing import pre_login
 
 def get_config(
     base_container_image: str,
+    task_short_name: str,
     mount_path_on_host: str,
     llm_config: LLMConfig
 ) -> AppConfig:
@@ -34,7 +35,7 @@ def get_config(
         run_as_openhands=False,
         max_budget_per_task=4,
         max_iterations=100,
-        trajectories_path=os.path.join(mount_path_on_host, f'traj_{base_container_image}.json'),
+        trajectories_path=os.path.join(mount_path_on_host, f'traj_{task_short_name}.json'),
         sandbox=SandboxConfig(
             base_container_image=base_container_image,
             enable_auto_lint=True,
@@ -168,7 +169,7 @@ if __name__ == '__main__':
     parser.add_argument(
         '--task-image-name',
         type=str,
-        default='example-image',
+        default='ghcr.io/theagentcompany/example-image:1.0.0',
         help='Task image name',
     )
     parser.add_argument(
@@ -218,7 +219,8 @@ if __name__ == '__main__':
     if env_llm_config.api_key is None:
         raise ValueError(f'LLM API key is not set for evaluation environment')
 
-    logger.info(f"Task image name is {args.task_image_name}")
+    task_short_name = args.task_image_name.split('/')[-1].split(':')[0]
+    logger.info(f"Task image name is {args.task_image_name}, short name is {task_short_name}")
 
     # mount a temporary directory to pass trajectory from host to container, and to
     # pass the evaluation result from container to host
@@ -230,7 +232,7 @@ if __name__ == '__main__':
         temp_dir = os.path.abspath(os.getenv('TMPDIR'))
     else:
         temp_dir = tempfile.mkdtemp()
-    config: AppConfig = get_config(args.task_image_name, temp_dir, agent_llm_config)
+    config: AppConfig = get_config(args.task_image_name, task_short_name, temp_dir, agent_llm_config)
     runtime: Runtime = create_runtime(config)
     call_async_from_sync(runtime.connect)
 
@@ -248,16 +250,16 @@ if __name__ == '__main__':
         init_task_env(runtime, args.server_hostname, env_llm_config)
         pre_login(runtime, dependencies, save_screenshots=True, screenshots_dir=os.path.join(os.path.abspath(args.outputs_path), "screenshots"))
 
-    state = run_solver(runtime, args.task_image_name, config, dependencies,
+    state = run_solver(runtime, task_short_name, config, dependencies,
                        save_final_state=True, state_dir=os.path.abspath(args.outputs_path),
                        save_screenshots=True, screenshots_dir=os.path.join(os.path.abspath(args.outputs_path), "screenshots"))
 
     # this path is the absolute path in the runtime container
-    trajectory_path = f'/outputs/traj_{args.task_image_name}.json'
-    result_path = f'/outputs/eval_{args.task_image_name}.json'
+    trajectory_path = f'/outputs/traj_{task_short_name}.json'
+    result_path = f'/outputs/eval_{task_short_name}.json'
 
     run_evaluator(runtime, env_llm_config, trajectory_path, result_path)
 
     # finally, move trajectory file and evaluation result from mount path on host (temp dir) to outputs path
-    shutil.move(os.path.join(temp_dir, f'traj_{args.task_image_name}.json'), os.path.join(os.path.abspath(args.outputs_path), f'traj_{args.task_image_name}.json'))
-    shutil.move(os.path.join(temp_dir, f'eval_{args.task_image_name}.json'), os.path.join(os.path.abspath(args.outputs_path), f'eval_{args.task_image_name}.json'))
+    shutil.move(os.path.join(temp_dir, f'traj_{task_short_name}.json'), os.path.join(os.path.abspath(args.outputs_path), f'traj_{task_short_name}.json'))
+    shutil.move(os.path.join(temp_dir, f'eval_{task_short_name}.json'), os.path.join(os.path.abspath(args.outputs_path), f'eval_{task_short_name}.json'))
