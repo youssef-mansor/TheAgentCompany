@@ -23,8 +23,6 @@ Please refer to the [website](https://the-agent-company.com/) for more details.
   <img src="./docs/images/TAC_architecture.png">
 </div>
 
-
-
 Today we interact with computers on an everyday basis, be it life or work.
 Today, many aspects of professional work can be done entirely with access to a computer and the Internet.
 At the same time, thanks to improvements in large language models (LLMs), there has also been a rapid development in AI agents that interact with and affect change in their surrounding environments.
@@ -35,8 +33,12 @@ We build a self-contained environment with internal web sites and data that mimi
 We test baseline agents powered by both closed API-based and open-weights language models (LMs), and find that with the most competitive agent, 24% of the tasks can be completed autonomously.
 This paints a nuanced picture on task automation with LM agents -- in a realistic setting simulating a real workplace, a good portion of simpler tasks could be solved autonomously, but more difficult long-horizon tasks are still beyond the reach of current systems.
 
-## Set Up
-Check out the [docs](./docs/SETUP.md) for more details.
+## Quick Start
+
+To use the benchmark, you need to set up the servers first. They can be hosted locally or on the cloud
+in a few minutes. Check out the [SERVER SETUP DOC](./docs/SETUP.md) for more details.
+
+Once you have the servers running, you can start running the benchmark. Check out the [EVALUATION DOC](./docs/EVALUATION.md) for more details.
 
 ## Exciting Features
 
