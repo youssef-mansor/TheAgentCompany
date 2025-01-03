@@ -106,6 +106,7 @@ A complete list of 175 task images can be found [here](./workspaces/README.md).
 ##### Step 2.2: Initialize the Task Environment
 
 ```bash
+SERVER_HOSTNAME=<hostname, default value is localhost> \
 LITELLM_API_KEY=<environment_llm_api_key> \
 LITELLM_BASE_URL=<environment_llm_base_url> \
 LITELLM_MODEL=<environment_llm_model_name> \
@@ -118,7 +119,7 @@ Now you can prompt the agent to work on the task. The task instruction is in `/i
 
 > Complete the task in /instruction/task.md
 
-##### Step 2.4: Evaluate the Result
+##### Step 2.4: Grade the Result
 
 ```bash
 LITELLM_API_KEY=<environment_llm_api_key> \
