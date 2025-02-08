@@ -80,7 +80,7 @@ def init_task_env(runtime: Runtime, hostname: str, env_llm_config: LLMConfig):
         f"LITELLM_API_KEY={env_llm_config.api_key} "
         f"LITELLM_BASE_URL={env_llm_config.base_url} "
         f"LITELLM_MODEL={env_llm_config.model} "
-        f"echo 'make a 4-bit counter and put the implementation in a file you create: counter.v file in /openhands/workspace' > /instruction/task.md"
+        # f"echo 'make a 4-bit counter and put the implementation in a file you create: counter.v file in /openhands/workspace' > /instruction/task.md"
         # "bash /utils/init.sh"
     )
     action = CmdRunAction(command=command)
@@ -262,7 +262,7 @@ if __name__ == '__main__':
     trajectory_path = f'/outputs/traj_{task_short_name}.json'
     result_path = f'/outputs/eval_{task_short_name}.json'
 
-    # run_evaluator(runtime, env_llm_config, trajectory_path, result_path)
+    run_evaluator(runtime, env_llm_config, trajectory_path, result_path)
 
     # # finally, move trajectory file and evaluation result from mount path on host (temp dir) to outputs path
     # shutil.move(os.path.join(temp_dir, f'traj_{task_short_name}.json'), os.path.join(os.path.abspath(args.outputs_path), f'traj_{task_short_name}.json'))
