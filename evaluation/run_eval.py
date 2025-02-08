@@ -35,8 +35,7 @@ def get_config(
         run_as_openhands=False,
         max_budget_per_task=4,
         max_iterations=100,
-        # trajectories_path=os.path.join(mount_path_on_host, f'traj_{task_short_name}.json'),
-        trajectories_path=os.path.join(mount_path_on_host, f'traj.json'),
+        trajectories_path=os.path.join(mount_path_on_host, f'traj_{task_short_name}.json'),
         sandbox=SandboxConfig(
             base_container_image=base_container_image,
             enable_auto_lint=True,
@@ -80,8 +79,7 @@ def init_task_env(runtime: Runtime, hostname: str, env_llm_config: LLMConfig):
         f"LITELLM_API_KEY={env_llm_config.api_key} "
         f"LITELLM_BASE_URL={env_llm_config.base_url} "
         f"LITELLM_MODEL={env_llm_config.model} "
-        # f"echo 'make a 4-bit counter and put the implementation in a file you create: counter.v file in /openhands/workspace' > /instruction/task.md"
-        # "bash /utils/init.sh"
+        "bash /utils/init.sh"
     )
     action = CmdRunAction(command=command)
     action.timeout = 900
@@ -119,8 +117,8 @@ def run_solver(runtime: Runtime, task_name: str, config: AppConfig, dependencies
                save_screenshots: bool, screenshots_dir: str) -> State:
     instruction = "Complete the task in /instruction/task.md"
 
-    # if 'gitlab' in dependencies:
-    #     instruction += "\n\nGitlab username is 'root' and password is 'theagentcompany'"
+    if 'gitlab' in dependencies:
+        instruction += "\n\nGitlab username is 'root' and password is 'theagentcompany'"
 
     state: State | None = asyncio.run(
         run_controller(
@@ -156,7 +154,7 @@ def run_evaluator(runtime: Runtime, env_llm_config: LLMConfig, trajectory_path: 
         f"LITELLM_BASE_URL={env_llm_config.base_url} "
         f"LITELLM_MODEL={env_llm_config.model} "
         f"DECRYPTION_KEY='theagentcompany is all you need' "  # Hardcoded Key
-        f"python_default /utils/eval.py --trajectory_path {trajectory_path} --result_path {result_path}"
+        f"python3 /utils/eval.py --trajectory_path {trajectory_path} --result_path {result_path}"
     )
     action = CmdRunAction(command=command)
     action.timeout = 600
@@ -230,29 +228,31 @@ if __name__ == '__main__':
     # evaluator (in container), so we mount a temporary directory to pass it in
     # 2) evaluation result is written by evaluator (in container), but we need to persist
     # it on host machine, so we mount a temporary directory to pass it out
-    # if os.getenv('TMPDIR') and os.path.exists(os.getenv('TMPDIR')):
-    #     temp_dir = os.path.abspath(os.getenv('TMPDIR'))
-    # else:
-    #     temp_dir = tempfile.mkdtemp()
-    temp_dir = "/tmp/openhands"
+    if os.getenv('TMPDIR') and os.path.exists(os.getenv('TMPDIR')):
+        temp_dir = os.path.abspath(os.getenv('TMPDIR'))
+    else:
+        temp_dir = tempfile.mkdtemp()
+
+    os.chmod(temp_dir, 0o777)
+
     config: AppConfig = get_config(args.task_image_name, task_short_name, temp_dir, agent_llm_config)
     runtime: Runtime = create_runtime(config)
     call_async_from_sync(runtime.connect)
 
-    init_task_env(runtime, args.server_hostname, env_llm_config)
+    # init_task_env(runtime, args.server_hostname, env_llm_config)
 
     # dependencies = load_dependencies(runtime)
     dependencies = []
-    # logger.info(f"Service dependencies: {dependencies}")
+    logger.info(f"Service dependencies: {dependencies}")
 
     # try:
     #     pre_login(runtime, dependencies, save_screenshots=True, screenshots_dir=os.path.join(os.path.abspath(args.outputs_path), "screenshots"))
     # except Exception as e:
     #     logger.error(f"Failed to pre-login: {e}")
-
-        # # before giving up, let's try to init and login again
-        # init_task_env(runtime, args.server_hostname, env_llm_config)
-        # pre_login(runtime, dependencies, save_screenshots=True, screenshots_dir=os.path.join(os.path.abspath(args.outputs_path), "screenshots"))
+    #
+    #     # before giving up, let's try to init and login again
+    #     init_task_env(runtime, args.server_hostname, env_llm_config)
+    #     pre_login(runtime, dependencies, save_screenshots=True, screenshots_dir=os.path.join(os.path.abspath(args.outputs_path), "screenshots"))
 
     state = run_solver(runtime, task_short_name, config, dependencies,
                        save_final_state=True, state_dir=os.path.abspath(args.outputs_path),
@@ -264,6 +264,6 @@ if __name__ == '__main__':
 
     run_evaluator(runtime, env_llm_config, trajectory_path, result_path)
 
-    # # finally, move trajectory file and evaluation result from mount path on host (temp dir) to outputs path
-    # shutil.move(os.path.join(temp_dir, f'traj_{task_short_name}.json'), os.path.join(os.path.abspath(args.outputs_path), f'traj_{task_short_name}.json'))
-    # shutil.move(os.path.join(temp_dir, f'eval_{task_short_name}.json'), os.path.join(os.path.abspath(args.outputs_path), f'eval_{task_short_name}.json'))
+    # finally, move trajectory file and evaluation result from mount path on host (temp dir) to outputs path
+    shutil.move(os.path.join(temp_dir, f'traj_{task_short_name}.json'), os.path.join(os.path.abspath(args.outputs_path), f'traj_{task_short_name}.json'))
+    shutil.move(os.path.join(temp_dir, f'eval_{task_short_name}.json'), os.path.join(os.path.abspath(args.outputs_path), f'eval_{task_short_name}.json'))
