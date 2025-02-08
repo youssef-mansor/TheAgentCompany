@@ -195,19 +195,18 @@ def grade_checkpoint3(cov_file_path=COV_FILE, ut_file_path=UT_FILE, function_nam
 
 @grader
 def grade_checkpoint4():
-    # test_content = get_function_content(file_path='/workspaces/openhands/tests/unit/test_agent_skill.py', function_name='test_scroll_down')
-    # func_content = get_function_content(file_path='/workspaces/openhands/openhands/runtime/plugins/agent_skills/file_ops/file_ops.py', function_name='scroll_down')
+    test_content = get_function_content(file_path='/workspaces/openhands/tests/unit/test_agent_skill.py', function_name='test_scroll_down')
+    func_content = get_function_content(file_path='/workspaces/openhands/openhands/runtime/plugins/agent_skills/file_ops/file_ops.py', function_name='scroll_down')
 
-    # if not test_content:
-    #     return False
-    # if not func_content:
-    #     return False
+    if not test_content:
+        return False
+    if not func_content:
+        return False
 
-    # return check_with_llm(
-    #     test_code=test_content,
-    #     func_code=func_content,
-    # )
-    return True
+    return check_with_llm(
+        test_code=test_content,
+        func_code=func_content,
+    )
 
 
 def grade_checkpoints(trajectory="") -> Result:
@@ -216,9 +215,9 @@ def grade_checkpoints(trajectory="") -> Result:
 
     # Define the scores corresponding to when each function is True
     scores = {
-        # grade_checkpoint1: 1,
-        # grade_checkpoint2: 1,
-        # grade_checkpoint3: 2,
+        grade_checkpoint1: 1,
+        grade_checkpoint2: 1,
+        grade_checkpoint3: 2,
         grade_checkpoint4: 1
     }
 
@@ -226,6 +225,5 @@ def grade_checkpoints(trajectory="") -> Result:
         checkpoints.append(Checkpoint(total_score, total_score * int(func())))
 
     return result
-
 
 
