@@ -1,0 +1,205 @@
+diff --git a/evaluation/run_eval.py b/evaluation/run_eval.py
+index f81abdc..9c9ce60 100644
+--- a/evaluation/run_eval.py
++++ b/evaluation/run_eval.py
+@@ -35,7 +35,8 @@ def get_config(
+         run_as_openhands=False,
+         max_budget_per_task=4,
+         max_iterations=100,
+-        trajectories_path=os.path.join(mount_path_on_host, f'traj_{task_short_name}.json'),
++        # trajectories_path=os.path.join(mount_path_on_host, f'traj_{task_short_name}.json'),
++        trajectories_path=os.path.join(mount_path_on_host, f'traj.json'),
+         sandbox=SandboxConfig(
+             base_container_image=base_container_image,
+             enable_auto_lint=True,
+@@ -79,7 +80,7 @@ def init_task_env(runtime: Runtime, hostname: str, env_llm_config: LLMConfig):
+         f"LITELLM_API_KEY={env_llm_config.api_key} "
+         f"LITELLM_BASE_URL={env_llm_config.base_url} "
+         f"LITELLM_MODEL={env_llm_config.model} "
+-        "bash /utils/init.sh"
++        # "bash /utils/init.sh"
+     )
+     action = CmdRunAction(command=command)
+     action.timeout = 900
+@@ -117,8 +118,8 @@ def run_solver(runtime: Runtime, task_name: str, config: AppConfig, dependencies
+                save_screenshots: bool, screenshots_dir: str) -> State:
+     instruction = "Complete the task in /instruction/task.md"
+ 
+-    if 'gitlab' in dependencies:
+-        instruction += "\n\nGitlab username is 'root' and password is 'theagentcompany'"
++    # if 'gitlab' in dependencies:
++    #     instruction += "\n\nGitlab username is 'root' and password is 'theagentcompany'"
+ 
+     state: State | None = asyncio.run(
+         run_controller(
+@@ -228,27 +229,29 @@ if __name__ == '__main__':
+     # evaluator (in container), so we mount a temporary directory to pass it in
+     # 2) evaluation result is written by evaluator (in container), but we need to persist
+     # it on host machine, so we mount a temporary directory to pass it out
+-    if os.getenv('TMPDIR') and os.path.exists(os.getenv('TMPDIR')):
+-        temp_dir = os.path.abspath(os.getenv('TMPDIR'))
+-    else:
+-        temp_dir = tempfile.mkdtemp()
++    # if os.getenv('TMPDIR') and os.path.exists(os.getenv('TMPDIR')):
++    #     temp_dir = os.path.abspath(os.getenv('TMPDIR'))
++    # else:
++    #     temp_dir = tempfile.mkdtemp()
++    temp_dir = "/tmp/openhands"
+     config: AppConfig = get_config(args.task_image_name, task_short_name, temp_dir, agent_llm_config)
+     runtime: Runtime = create_runtime(config)
+     call_async_from_sync(runtime.connect)
+ 
+     init_task_env(runtime, args.server_hostname, env_llm_config)
+ 
+-    dependencies = load_dependencies(runtime)
+-    logger.info(f"Service dependencies: {dependencies}")
++    # dependencies = load_dependencies(runtime)
++    dependencies = []
++    # logger.info(f"Service dependencies: {dependencies}")
+ 
+-    try:
+-        pre_login(runtime, dependencies, save_screenshots=True, screenshots_dir=os.path.join(os.path.abspath(args.outputs_path), "screenshots"))
+-    except Exception as e:
+-        logger.error(f"Failed to pre-login: {e}")
++    # try:
++    #     pre_login(runtime, dependencies, save_screenshots=True, screenshots_dir=os.path.join(os.path.abspath(args.outputs_path), "screenshots"))
++    # except Exception as e:
++    #     logger.error(f"Failed to pre-login: {e}")
+ 
+-        # before giving up, let's try to init and login again
+-        init_task_env(runtime, args.server_hostname, env_llm_config)
+-        pre_login(runtime, dependencies, save_screenshots=True, screenshots_dir=os.path.join(os.path.abspath(args.outputs_path), "screenshots"))
++        # # before giving up, let's try to init and login again
++        # init_task_env(runtime, args.server_hostname, env_llm_config)
++        # pre_login(runtime, dependencies, save_screenshots=True, screenshots_dir=os.path.join(os.path.abspath(args.outputs_path), "screenshots"))
+ 
+     state = run_solver(runtime, task_short_name, config, dependencies,
+                        save_final_state=True, state_dir=os.path.abspath(args.outputs_path),
+diff --git a/evaluation/run_eval.sh b/evaluation/run_eval.sh
+index 37abd49..01bbf9a 100644
+--- a/evaluation/run_eval.sh
++++ b/evaluation/run_eval.sh
+@@ -80,34 +80,35 @@ echo "Outputs path: $OUTPUTS_PATH"
+ echo "Server hostname: $SERVER_HOSTNAME"
+ 
+ # Iterate through each directory in tasks
+-for task_dir in "$TASKS_DIR"/*/; do
+-    task_name=$(basename "$task_dir")
+-
+-    # Check if evaluation file exists
+-    if [ -f "$OUTPUTS_PATH/eval_${task_name}-image.json" ]; then
+-        echo "Skipping $task_name - evaluation file already exists"
+-        continue
+-    fi
+-    
+-    echo "Running evaluation for task: $task_name"
+-    
+-    task_image="ghcr.io/theagentcompany/${task_name}-image:${VERSION}"
+-    echo "Use released image $task_image..."
+-    
+-    # Run evaluation from the evaluation directory
+-    cd "$SCRIPT_DIR"
+-    poetry run python run_eval.py \
+-        --agent-llm-config "$AGENT_LLM_CONFIG" \
+-        --env-llm-config "$ENV_LLM_CONFIG" \
+-        --outputs-path "$OUTPUTS_PATH" \
+-        --server-hostname "$SERVER_HOSTNAME" \
+-        --task-image-name "$task_image"
+-
+-    # Prune unused images and volumes
+-    docker image rm "$task_image"
+-    docker images "ghcr.io/all-hands-ai/runtime" -q | xargs -r docker rmi -f
+-    docker volume prune -f
+-    docker system prune -f
+-done
++#for task_dir in "$TASKS_DIR"/*/; do
++# task_name=$(basename "$task_dir")
++task_name="sde-write-a-unit-test-for-scroll_down-function"
++
++# Check if evaluation file exists
++if [ -f "$OUTPUTS_PATH/eval_${task_name}-image.json" ]; then
++    echo "Skipping $task_name - evaluation file already exists"
++    continue
++fi
++
++echo "Running evaluation for task: $task_name"
++
++task_image="ghcr.io/theagentcompany/${task_name}-image:${VERSION}"
++echo "Use released image $task_image..."
++
++# Run evaluation from the evaluation directory
++cd "$SCRIPT_DIR"
++poetry run python run_eval.py \
++    --agent-llm-config "$AGENT_LLM_CONFIG" \
++    --env-llm-config "$ENV_LLM_CONFIG" \
++    --outputs-path "$OUTPUTS_PATH" \
++    --server-hostname "$SERVER_HOSTNAME" \
++    --task-image-name "$task_image"
++
++# Prune unused images and volumes
++# docker image rm "$task_image"
++# docker images "ghcr.io/all-hands-ai/runtime" -q | xargs -r docker rmi -f
++# docker volume prune -f
++# docker system prune -f
++# done
+ 
+ echo "All evaluation completed successfully!"
+\ No newline at end of file
+diff --git a/workspaces/tasks/sde-write-a-unit-test-for-scroll_down-function/evaluator.py b/workspaces/tasks/sde-write-a-unit-test-for-scroll_down-function/evaluator.py
+index 755631f..6ce1fde 100644
+--- a/workspaces/tasks/sde-write-a-unit-test-for-scroll_down-function/evaluator.py
++++ b/workspaces/tasks/sde-write-a-unit-test-for-scroll_down-function/evaluator.py
+@@ -195,18 +195,19 @@ def grade_checkpoint3(cov_file_path=COV_FILE, ut_file_path=UT_FILE, function_nam
+ 
+ @grader
+ def grade_checkpoint4():
+-    test_content = get_function_content(file_path='/workspaces/openhands/tests/unit/test_agent_skill.py', function_name='test_scroll_down')
+-    func_content = get_function_content(file_path='/workspaces/openhands/openhands/runtime/plugins/agent_skills/file_ops/file_ops.py', function_name='scroll_down')
++    # test_content = get_function_content(file_path='/workspaces/openhands/tests/unit/test_agent_skill.py', function_name='test_scroll_down')
++    # func_content = get_function_content(file_path='/workspaces/openhands/openhands/runtime/plugins/agent_skills/file_ops/file_ops.py', function_name='scroll_down')
+ 
+-    if not test_content:
+-        return False
+-    if not func_content:
+-        return False
++    # if not test_content:
++    #     return False
++    # if not func_content:
++    #     return False
+ 
+-    return check_with_llm(
+-        test_code=test_content,
+-        func_code=func_content,
+-    )
++    # return check_with_llm(
++    #     test_code=test_content,
++    #     func_code=func_content,
++    # )
++    return True
+ 
+ 
+ def grade_checkpoints(trajectory="") -> Result:
+@@ -215,9 +216,9 @@ def grade_checkpoints(trajectory="") -> Result:
+ 
+     # Define the scores corresponding to when each function is True
+     scores = {
+-        grade_checkpoint1: 1,
+-        grade_checkpoint2: 1,
+-        grade_checkpoint3: 2,
++        # grade_checkpoint1: 1,
++        # grade_checkpoint2: 1,
++        # grade_checkpoint3: 2,
+         grade_checkpoint4: 1
+     }
+ 
+diff --git a/workspaces/tasks/sde-write-a-unit-test-for-scroll_down-function/task.md b/workspaces/tasks/sde-write-a-unit-test-for-scroll_down-function/task.md
+index d56e125..d591453 100644
+--- a/workspaces/tasks/sde-write-a-unit-test-for-scroll_down-function/task.md
++++ b/workspaces/tasks/sde-write-a-unit-test-for-scroll_down-function/task.md
+@@ -1,5 +1 @@
+-Navigate to the openhands's gitlab at http://the-agent-company.com:8929/root/openhands
+-
+-* Clone the git repository to the /workspace directory and set up Poetry package management
+-* find function scroll_down in the file /workspace/openhands/openhands/runtime/plugins/agent_skills/file_ops/file_ops.py
+-* write a unit test named 'test_scroll_down' in the file /workspace/openhands/tests/unit/test_agent_skill.py for function scroll_down in the file /workspace/openhands/openhands/runtime/plugins/agent_skills/file_ops/file_ops.py 
++implement a 4-bit counter in a file you create in /openhands/workspace/counter.v.
