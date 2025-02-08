@@ -7,7 +7,7 @@ GHCR_NAME=task-base-image
 .PHONY: build run
 
 build:
-	docker rmi ${IMAGE_NAME}:${IMAGE_TAG} || true && docker build -t $(IMAGE_NAME) . --no-cache
+	docker rmi ${IMAGE_NAME}:${IMAGE_TAG} || true && docker buildx build -t $(IMAGE_NAME) . --no-cache --load
 
 run:
 	docker run -d --name $(CONTAINER_NAME) $(IMAGE_NAME)

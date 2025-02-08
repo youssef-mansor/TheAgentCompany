@@ -1,5 +1,5 @@
-FROM python:3.12
-
+# FROM python:3.12
+FROM ghcr.io/ahmed-alllam/rtl-sandbox:latest
 RUN apt-get update && apt-get install -y iputils-ping vim
 
 ################## Basic SETUP ################################
@@ -68,8 +68,6 @@ ENV PYTHONPATH="/utils:$PYTHONPATH"
 ################## ONBUILD (child images) SETUP #############
 # persist utilities files in the exam image
 ONBUILD COPY *.py /utils/
-
-ONBUILD COPY dependencies.yml /utils/
 
 # persist instruction files needed by the examinee
 ONBUILD COPY task.md /instruction/
