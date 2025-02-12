@@ -82,19 +82,25 @@ echo "Server hostname: $SERVER_HOSTNAME"
 # Iterate through each directory in tasks
 for task_dir in "$TASKS_DIR"/*/; do
     task_name=$(basename "$task_dir")
+    # task_name="k-map-4variable-general"
+
 
     # Check if evaluation file exists
     if [ -f "$OUTPUTS_PATH/eval_${task_name}-image.json" ]; then
         echo "Skipping $task_name - evaluation file already exists"
         continue
     fi
-    
+
     echo "Running evaluation for task: $task_name"
-    
+
+    # build the task image
+    docker images counter-4bit-general -q | xargs -r docker rmi -f || true && cd ~/TheAgentCompany/workspaces/tasks/$task_name/ && make build;
+
+
     # NOTE: MY EDIT
     task_image="${task_name}:latest"
     echo "Use released image $task_image..."
-    
+
     # Run evaluation from the evaluation directory
     cd "$SCRIPT_DIR"
     poetry run python run_eval.py \
@@ -104,11 +110,13 @@ for task_dir in "$TASKS_DIR"/*/; do
         --server-hostname "$SERVER_HOSTNAME" \
         --task-image-name "$task_image"
 
-    # Prune unused images and volumes
-    # docker image rm "$task_image"
-    # docker images "ghcr.io/all-hands-ai/runtime" -q | xargs -r docker rmi -f
-    # docker volume prune -f
-    # docker system prune -f
+        # Prune unused images and volumes
+    #   docker image rm "$task_image"
+        docker images "ghcr.io/ahmed-alllam/runtime" -q | xargs -r docker rmi -f
+        docker images counter-4bit-general -q | xargs -r docker rmi -f
+        docker volume prune -f
+        docker system prune -f
+        
 done
 
 echo "All evaluation completed successfully!"

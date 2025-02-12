@@ -15,7 +15,6 @@ REPO_DIR = '/workspace/openhands/'
 UT_FILE = REPO_DIR + 'tests/unit/test_agent_skill.py'
 COV_FILE = REPO_DIR + 'tests/unit/test_agent_skill_coverage.xml'
 
-
 with open('/instruction/checkpoints.md', 'r') as f:
     content = f.read()
 
@@ -30,11 +29,6 @@ sections = re.split(r'\n\s*-{3,}\s*\n', content)
 CHECK_POINTS_MODULE = sections[1].strip()
 CHECK_POINTS_TB = sections[2].strip()
 CHECK_POINTS_REPORT = sections[3].strip()
-
-# print("Main Module Section:\n", main_module)
-# print("\nTestbench Section:\n", testbench)
-# print("\nFunctionality Section:\n", functionality)
-
 
 def config_env(dir_path):
     """configure enviroment"""
@@ -144,15 +138,15 @@ def is_file_exist(file_path):
 def grade_checkpoint1():
 
     score = 0.0
-    if is_file_exist("/openhands/workspace/counter.v"):
+    if is_file_exist("/openhands/workspace/shifter.v"):
         score += 1
     else:
-        print("file counter.v doesn't exist")
+        print("file shifter.v doesn't exist")
 
-    if is_file_exist("/openhands/workspace/counter_tb.v"):
+    if is_file_exist("/openhands/workspace/shifter_tb.v"):
         score += 1
     else:
-        print("file counter_tb.v does not exist")
+        print("file shifter_tb.v does not exist")
 
     if is_file_exist("/openhands/workspace/report.md"):
         score += 1
@@ -162,133 +156,12 @@ def grade_checkpoint1():
     # round score to the nearest integer
     return int(score)
 
-    
-# @grader
-# def grade_checkpoint2():
-
-#     CHECK_POINTS = """## Main Module Checkpoints - Total 2 pts (grade_checkpoint2)
-
-# ### 1. Increment Logic  (0.5 pts)
-#     Adds 1 to the count on each rising edge of `clk`. 
-
-# ### 2. Reset Priority  (0.5 pts)
-#     If `reset` is active, the counter resets regardless of the clock.
-
-# ### 3. Width Constraint  (0.5 pts)
-#     Limits the counter to a range of 0 to 15 (4 bits).
-
-# ### 4. Interface  (0.5 pts)
-#     The module header correctly defines the required ports:  
-#     ```verilog
-#     input wire clk;          // Clock signal  
-#     input wire reset;        // Reset signal  
-#     output reg [3:0] count;  // 4-bit count output  
-#     ```
-# # File Content
-
-# ## counter.v"""
-
-#     file_content = None
-#     # check if the file /openhands/workspace/counter.v exists
-#     if is_file_exist('/openhands/workspace/counter.v'):
-#         # read it content into file
-#         with open('/openhands/workspace/counter.v', 'r') as file:
-#             file_content = file.read()
-#             file_content = "\nverilog```\n" + file_content + "\n```\n"
-
-#         return check_with_llm(CHECK_POINTS, file_content)
-    
-#     else:
-#         print("counter.v does not exist")
-#         return 0
-    
-# @grader
-# def grade_checkpoint3():
-
-#     CHECK_POINTS = """## Testbench checkpoints - Total 2 pts (grade_checkpoint3)
-
-# ### Initial Reset:  (2/7 pts)
-#      Verify the counter starts at 0 after reset.
-# ### Normal Increment: (2/7 pts)
-#      Allow the counter to increment and observe proper functionality from 0 to 15
-# ### Reset During Operation: (2/7 pts)
-#      Assert reset at a random count value and verify the counter resets to 0.
-# ### Wrap-Around: (2/7 pts)
-#      Ensure the counter wraps back to 0 after reaching 15 (4-bit overflow).
-# ### Clock Behavior: (2/7 pts)
-#      Validate the counter only increments on the rising edge of the clock.
-# ### Randomized Test: (2/7 pts)
-#      Introduce random reset pulses during operation and confirm correct behavior.
-# ### Stability: (2/7 pts)
-#      Confirm the counter holds its value when the clock is inactive or held constant.
-
-# # File Content
-
-# ## counter_tb.v"""
-
-#     file_content = None
-#     # check if the file /openhands/workspace/counter.v exists
-#     if is_file_exist('/openhands/workspace/counter_tb.v'):
-#         # read it content into file
-#         with open('/openhands/workspace/counter_tb.v', 'r') as file:
-#             file_content = file.read()
-#             file_content = "\nverilog```\n" + file_content + "\n```\n"
-
-#         return check_with_llm(CHECK_POINTS, file_content)
-    
-#     else:
-#         print("counter_tb.v does not exist")
-#         return 0
-    
-# @grader
-# def grade_checkpoint4():
-
-#     CHECK_POINTS = """## Functionality - Total 5 pts (grade_checkpoint4)
-
-# ### Partial Functionality (f * 1 pts) 
-#     The module passes fraction (f) of the set of tests defined by the testbench stated in report.md
-
-# ### Full Functionality (4 pts)
-#     The module passes all the set of tests defined by the testbench stated in report.md
-
-# # File Content
-
-# ## report.md"""
-
-#     file_content = None
-#     # check if the file /openhands/workspace/counter.v exists
-#     if is_file_exist('/openhands/workspace/report.md'):
-#         # read it content into file
-#         with open('/openhands/workspace/report.md', 'r') as file:
-#             file_content = file.read()
-#             file_content = "\nmarkdown```\n" + file_content + "\n```\n"
-
-#         return check_with_llm(CHECK_POINTS, file_content)
-    
-#     else:
-#         print("report.md does not exist")
-#         return 0
-
-# @grader
-# def grade_checkpoint_llm(CHECK_POINTS, file_path, file_type):
-#     file_content = None
-#     # check if the file /openhands/workspace/counter.v exists
-#     if is_file_exist(file_path):
-#         # read it content into file
-#         with open(file_path, 'r') as file:
-#             file_content = file.read()
-#             file_content = f"\n{file_type}```\n" + file_content + "\n```\n"
-
-#         return check_with_llm_F(CHECK_POINTS, file_content)
-    
-#     else:
-#         print(f"{file_path} does not exist")
-#         return 0
+ 
     
 @grader
 def grade_checkpoint_llm(CHECK_POINTS, file_path, file_type):
     file_content = None
-    # check if the file /openhands/workspace/counter.v exists
+    # check if the file /openhands/workspace/shifter.v exists
     if is_file_exist(file_path):
         # read it content into file
         with open(file_path, 'r') as file:
@@ -309,10 +182,10 @@ def grade_checkpoints(trajectory="") -> Result:
     # Define the total scores corresponding to each checkpoint function with unique keys
     scores = {
         'checkpoint1': (grade_checkpoint1(), 3),
-        # 'checkpoint_llm_module': (grade_checkpoint_llm(CHECK_POINTS_MODULE, '/openhands/workspace/counter.v', 'verilog'), 4),
-        'checkpoint_llm_module': grade_checkpoint_llm(CHECK_POINTS_MODULE, '/openhands/workspace/counter.v', 'verilog'),
-        # 'checkpoint_llm_tb': (grade_checkpoint_llm(CHECK_POINTS_TB, '/openhands/workspace/counter_tb.v', 'verilog'), 7),
-        'checkpoint_llm_tb': grade_checkpoint_llm(CHECK_POINTS_TB, '/openhands/workspace/counter_tb.v', 'verilog'),
+        # 'checkpoint_llm_module': (grade_checkpoint_llm(CHECK_POINTS_MODULE, '/openhands/workspace/shifter.v', 'verilog'), 4),
+        'checkpoint_llm_module': grade_checkpoint_llm(CHECK_POINTS_MODULE, '/openhands/workspace/shifter.v', 'verilog'),
+        # 'checkpoint_llm_tb': (grade_checkpoint_llm(CHECK_POINTS_TB, '/openhands/workspace/shifter_tb.v', 'verilog'), 7),
+        'checkpoint_llm_tb': grade_checkpoint_llm(CHECK_POINTS_TB, '/openhands/workspace/shifter_tb.v', 'verilog'),
         # 'checkpoint_llm_report': (grade_checkpoint_llm(CHECK_POINTS_REPORT, '/openhands/workspace/report.md', 'markdown'), 5),
         'checkpoint_llm_report': grade_checkpoint_llm(CHECK_POINTS_REPORT, '/openhands/workspace/report.md', 'markdown')
     }
@@ -345,7 +218,6 @@ def grade_checkpoints(trajectory="") -> Result:
         F = scores["checkpoint_llm_report"][0] / scores["checkpoint_llm_report"][1]
     else:
         F = 0
-
 
     scores_checkpoints = {
         'checkpoint1':(A*W_A, W_A),
