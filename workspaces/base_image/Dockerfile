@@ -71,6 +71,7 @@ ONBUILD COPY *.py /utils/
 
 # persist instruction files needed by the examinee
 ONBUILD COPY task.md /instruction/
+ONBUILD COPY checkpoints.md /instruction/
 
 # prevent examinee from accessing evaluator
 ONBUILD RUN python /utils/encrypt.py && rm /utils/evaluator.py /utils/encrypt.py
