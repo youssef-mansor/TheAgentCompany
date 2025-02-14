@@ -81,8 +81,8 @@ echo "Server hostname: $SERVER_HOSTNAME"
 
 # Iterate through each directory in tasks
 for task_dir in "$TASKS_DIR"/*/; do
-    task_name=$(basename "$task_dir")
-    # task_name="k-map-4variable-general"
+    # task_name=$(basename "$task_dir")
+    task_name="gpio-integration-caravel"
 
 
     # Check if evaluation file exists
@@ -94,7 +94,7 @@ for task_dir in "$TASKS_DIR"/*/; do
     echo "Running evaluation for task: $task_name"
 
     # build the task image
-    docker images counter-4bit-general -q | xargs -r docker rmi -f || true && cd ~/TheAgentCompany/workspaces/tasks/$task_name/ && make build;
+    docker images $task_name -q | xargs -r docker rmi -f || true && cd ~/TheAgentCompany/workspaces/tasks/$task_name/ && make build;
 
 
     # NOTE: MY EDIT
@@ -116,6 +116,8 @@ for task_dir in "$TASKS_DIR"/*/; do
         docker images counter-4bit-general -q | xargs -r docker rmi -f
         docker volume prune -f
         docker system prune -f
+
+        break
         
 done
 

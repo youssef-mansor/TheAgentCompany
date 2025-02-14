@@ -1,0 +1,1 @@
+Install EF_I2S IP using ipm.

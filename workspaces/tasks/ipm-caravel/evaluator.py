@@ -5,53 +5,11 @@ import logging
 import subprocess
 import time
 import re
-import subprocess
-
 
 
 from typing import List
 from scoring import Result, Checkpoint
 from common import *
-
-
-def find_file(file_name):
-    try:
-        result = subprocess.check_output(['find', '/', '-name', file_name], text=True).strip()
-        return result
-    except subprocess.CalledProcessError:
-        return "File not found"
-    except Exception as e:
-        return f"Error: {e}"
-    
-# def find_file_specific(file_name):
-#     try:
-#         result = subprocess.check_output(['find', '/', '-name', file_name], text=True).strip()
-#         lines = result.split("\n")  # Split the output into lines
-#         for line in lines:
-#             if "rtl/{file_name}" in line or "workspace/{file_name}" in line or "outputs/{file_name}":
-#                 return line  # Return the first matching line
-#         return "No matching file found"
-#     except subprocess.CalledProcessError:
-#         return "File not found"
-#     except Exception as e:
-#         return f"Error: {e}"
-    
-
-def find_file_specific(filename = "user_proj_wrapper.v"):
-    search_paths = ["/openhands", "/home", "/outputs", "/workspace"]
-    for path in search_paths:
-        try:
-            result = subprocess.check_output(['find', path, '-name', filename], text=True).strip()
-            lines = result.split("\n")
-            for line in lines:
-                if line.strip():
-                    return line  # Return the first matching result
-        except subprocess.CalledProcessError:
-            continue  # If no results are found in this path, continue to the next
-    
-    return "No matching file found"
-
-
 
 REPO_DIR = '/workspace/openhands/'
 UT_FILE = REPO_DIR + 'tests/unit/test_agent_skill.py'
@@ -60,13 +18,13 @@ COV_FILE = REPO_DIR + 'tests/unit/test_agent_skill_coverage.xml'
 with open('/instruction/checkpoints.md', 'r') as f:
     content = f.read()
 
-# Split by lines containing only hyphens (allowing extra dashes)
-sections = re.split(r'\n\s*-{3,}\s*\n', content)
+# # Split by lines containing only hyphens (allowing extra dashes)
+# sections = re.split(r'\n\s*-{3,}\s*\n', content)
 
-# sections[0]: Action Checkpoints (ignored)
-# sections[1]: Integration Checkpoints
+# # sections[0]: Action Checkpoints (ignored)
+# # sections[1]: Integration Checkpoints
 
-CHECK_POINTS_INTEGRATION = sections[1].strip()
+# CHECK_POINTS_INTEGRATION = sections[1].strip()
 
 def config_env(dir_path):
     """configure enviroment"""
@@ -175,13 +133,21 @@ def is_file_exist(file_path):
 @grader
 def grade_checkpoint1():
 
-    #
-
     score = 0.0
-    if is_file_exist(find_file_specific("user_proj_wrapper.v")):
+    if is_file_exist("/outputs/ip/EF_I2S/hdl/rtl/EF_I2S.v"):
         score += 1
     else:
-        print("file user_proj_wrapper.v doesn't exist")
+        print("file EF_I2S.v doesn't exist")
+
+    # if is_file_exist("/openhands/workspace/shifter_tb.v"):
+    #     score += 1
+    # else:
+    #     print("file shifter_tb.v does not exist")
+
+    # if is_file_exist("/openhands/workspace/report.md"):
+    #     score += 1
+    # else:
+    #     print("file report.md does not exist")
     
     # round score to the nearest integer
     return int(score)
@@ -211,41 +177,39 @@ def grade_checkpoints(trajectory="") -> Result:
 
     # Define the total scores corresponding to each checkpoint function with unique keys
     scores = {
-        'checkpoint1': (grade_checkpoint1(), 1),
+        'checkpoint1': (grade_checkpoint1(), 1)
         # 'checkpoint_llm_module': (grade_checkpoint_llm(CHECK_POINTS_MODULE, '/openhands/workspace/shifter.v', 'verilog'), 4),
-        # 'checkpoint_llm_integration': grade_checkpoint_llm(CHECK_POINTS_INTEGRATION, '/openhands/workspace/caravel_user_project_ol2/verilog/rtl/user_proj_wrapper.v', 'verilog')
-        'checkpoint_llm_integration': grade_checkpoint_llm(CHECK_POINTS_INTEGRATION, find_file_specific("user_proj_wrapper.v"), 'verilog')
+        # 'checkpoint_llm_integration': grade_checkpoint_llm(CHECK_POINTS_INTEGRATION, '/openhands/workspace/caravel_user_project_ol2/verilog/rtl/user_proj_example.v', 'verilog')
     }
-    W_A = 30
-    W_M = 70
-    Final = 0
+
+    W_A = 100
+    # W_M = 70
+    # Final = 0
 
     # Checkpoint 1
     if scores['checkpoint1'][1] != 0:
         A = scores['checkpoint1'][0] / scores['checkpoint1'][1]
-        print(f"A: {A}")
     else:
         A = 0
 
-    print(f"find_file_specific('user_proj_wrapper.v'): {find_file_specific('user_proj_wrapper.v')}")
-    print(f"find_file('user_proj_wrapper.v'): {find_file('user_proj_wrapper.v')}")
-
-
-    # Checkpoint LLM Module
-    if scores["checkpoint_llm_integration"][1] != 0:
-        M = scores["checkpoint_llm_integration"][0] / scores["checkpoint_llm_integration"][1]
-    else:
-        M = 0
+    # # Checkpoint LLM Module
+    # if scores["checkpoint_llm_integration"][1] != 0:
+    #     M = scores["checkpoint_llm_integration"][0] / scores["checkpoint_llm_integration"][1]
+    # else:
+    #     M = 0
 
     scores_checkpoints = {
-        'checkpoint1':(A*W_A, W_A),
-        'checkpoint_llm_integration':(M*W_M,W_M)
+        'checkpoint1':(A*W_A, W_A)
+        # 'checkpoint_llm_integration':(M*W_M,W_M)
     }
 
-    print(find_file("user_proj_wrapper.v"))
+    print(f"A:{A}     W_A{W_A}")
+
     for final_score_key, (final_score, total_score) in scores_checkpoints.items():
         # Append the checkpoint with the total score and the calculated score
         checkpoints.append(Checkpoint(int(total_score), int(final_score)))
+
+    print("result being returned")
 
     return result
 

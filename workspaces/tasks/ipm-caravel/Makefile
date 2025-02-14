@@ -1,5 +1,5 @@
-IMAGE_NAME=gpio-integration-caravel
-CONTAINER_NAME=gpio-integration-caravel
+IMAGE_NAME=ipm-caravel
+CONTAINER_NAME=ipm-caravel
 
 .PHONY: build run stop
 
