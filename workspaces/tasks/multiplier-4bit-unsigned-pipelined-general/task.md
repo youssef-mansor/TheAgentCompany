@@ -19,6 +19,10 @@ Place the implemented multiplier into `/openhands/workspace/multiplier.v`
   - **Test title**
   - **Pass/Fail status**
 
+
+Place the implemented testbench into `/openhands/workspace/multiplier_tb.v`
+Place the test report into `/openhands/workspace/report.md` even if not all tests passed. make sure to print testbench results into report.md
+
 Ensure the following points are addressed within the testbench:
 
 ### Pipeline Latency: (1 pts)
@@ -33,8 +37,6 @@ Ensure the following points are addressed within the testbench:
 ### Valid Signal: (1 pts)
    - Ensure valid signal is asserted only when pipeline result is ready.
 
-Place the implemented testbench into `/openhands/workspace/multiplier_tb.v`
-Place the test report into `/openhands/workspace/report.md`
 
 ## Step 3: Debug and Fix Issues
 - If the module does not pass all test cases, revisit and refine the Verilog code.

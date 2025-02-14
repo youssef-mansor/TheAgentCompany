@@ -56,40 +56,40 @@ def config_env(dir_path):
         logging.info(f"Dependencies installed successfully.")
 
 
-def check_with_llm(checkpoints, file_content):
+# def check_with_llm(checkpoints, file_content):
 
-    if len(checkpoints) == 0:
-        return 0
+#     if len(checkpoints) == 0:
+#         return 0
 
-    messages = [
-        {
-            "content": f"{checkpoints}",
-            "role": "user"}
-    ]
+#     messages = [
+#         {
+#             "content": f"{checkpoints}",
+#             "role": "user"}
+#     ]
 
-    llm_response = llm_complete(messages, file_content)
-
-
-    print("\n************************************LLM Response*************************************************")
-    print(llm_response)
-    print("*************************************************************************************************\n")
-
-    print("\n************************************Evaluation Report*******************************************")
-    llm_response_txt = llm_response['choices'][0]['message']['content'].lower()
-    print(llm_response_txt)
-    print("*************************************************************************************************\n")
+#     llm_response = llm_complete(messages, file_content)
 
 
-    score = re.search(r'(?i)Final Score: (\d+)/2', llm_response_txt)
-    if score:
-        return int(score.group(1))
-    else:
-        return 0
+#     print("\n************************************LLM Response*************************************************")
+#     print(llm_response)
+#     print("*************************************************************************************************\n")
+
+#     print("\n************************************Evaluation Report*******************************************")
+#     llm_response_txt = llm_response['choices'][0]['message']['content'].lower()
+#     print(llm_response_txt)
+#     print("*************************************************************************************************\n")
+
+
+#     score = re.search(r'(?i)Final Score: (\d+)/2', llm_response_txt)
+#     if score:
+#         return int(score.group(1))
+#     else:
+#         return 0
     
 def check_with_llm_F(checkpoints, file_content): # to handle the case of functinality score
 
     if len(checkpoints) == 0:
-        return 0
+        return (0, 0)
 
     messages = [
         {
@@ -115,7 +115,7 @@ def check_with_llm_F(checkpoints, file_content): # to handle the case of functin
     if score:
         return (int(score.group(1)), int(total_score.group(1)))
     else:
-        return 0
+        return (0, 0)
 
 
 def is_file_exist(file_path):

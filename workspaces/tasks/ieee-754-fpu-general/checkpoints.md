@@ -15,11 +15,21 @@
 
 ### 1. Interface & Modularity (1 pts)
    - The module correctly implements all required ports:
-     - Clock signal (clk)
-     - Control signals (rounding_mode, operation)
-     - Data ports (operand_A, operand_B, out)
-     - Exception flags (overflow, underflow, div_by_zero, inexact, invalid_operation)
-   - Design is modular with separate units for each operation
+     ```verilog
+      module fpu(
+         input wire clk,                  // Clock signal for pipelining
+         input wire [1:0] rounding_mode,  // Selects the rounding mode
+         input wire [2:0] operation,      // Selects the FPU operation
+         input wire [31:0] operand_A,     // First operand (single-precision)
+         input wire [31:0] operand_B,     // Second operand (single-precision)
+         output wire [31:0] out,          // Result of the operation
+         output wire overflow,            // Overflow exception
+         output wire underflow,           // Underflow exception
+         output wire div_by_zero,         // Division by zero exception
+         output wire inexact,             // Inexact result exception
+         output wire invalid_operation    // Invalid operation exception
+      );
+      ```
 
 ### 2. Operations Support (1 pts)
    - Implements all required operations:
