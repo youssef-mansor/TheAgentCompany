@@ -17,7 +17,7 @@ Place the implemented flip-flop into `/openhands/workspace/dff.v`
   - **Pass/Fail status**  
 
 Place the implemented testbench into `/openhands/workspace/dff_tb.v`  
-Place the test report into `/openhands/workspace/report.md`  
+Place the test report into `/openhands/workspace/report.md` even if not all tests passed. make sure to print testbench results into report.md
 
 ## Step 3: Debug and Fix Issues  
 - If the module does not pass all test cases, revisit and refine the Verilog code.  

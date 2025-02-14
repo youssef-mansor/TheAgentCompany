@@ -121,7 +121,7 @@ def check_with_llm_F(checkpoints, file_content): # to handle the case of functin
     if score:
         return (int(score.group(1)), int(total_score.group(1)))
     else:
-        return 0
+        return (0, 0)
 
 
 def is_file_exist(file_path):
