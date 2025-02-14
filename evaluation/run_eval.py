@@ -154,7 +154,7 @@ def run_evaluator(runtime: Runtime, env_llm_config: LLMConfig, trajectory_path: 
         f"LITELLM_BASE_URL={env_llm_config.base_url} "
         f"LITELLM_MODEL={env_llm_config.model} "
         f"DECRYPTION_KEY='theagentcompany is all you need' "  # Hardcoded Key
-        f"python3 /utils/eval.py --trajectory_path {trajectory_path} --result_path {result_path}"
+        f"python3 /utils/eval.py --trajectory_path {trajectory_path} --result_path {result_path} "
     )
     action = CmdRunAction(command=command)
     action.timeout = 600
