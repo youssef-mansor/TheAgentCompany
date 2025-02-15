@@ -13,72 +13,87 @@
 
 ## Main Module Checkpoints - Total 4 pts (grade_checkpoint2)
 
-### 1. Input/Output Interface (1 pts)
-   - The module correctly implements all required ports:
-     - 4-bit inputs A and B
-     - Carry-in signal cin
-     - 4-bit sum output S
-     - Carry-out signal cout
+### 1. Interface & Modularity (1 pts)
+   - The code implements the following ports:
+     - The code has two 4-bit input buses for operands (A[3:0], B[3:0])
+     - The code has a 1-bit carry input (Cin)
+     - The code has a 4-bit output sum bus (Sum[3:0])
+     - The code has a 1-bit carry output (Cout)
+     - The code uses proper port directions (input/output)
 
-### 2. Generate and Propagate Logic (1 pts)
-   - Correctly implements:
-     - Generate signals (G[i] = A[i] AND B[i])
-     - Propagate signals (P[i] = A[i] XOR B[i])
+### 2. Generate & Propagate Logic (1 pts)
+   - The code implements bit-level logic:
+     - The code calculates generate signals (Gi = Ai AND Bi)
+     - The code calculates propagate signals (Pi = Ai XOR Bi)
+     - The code implements these for each bit position (i = 0 to 3)
+     - The code maintains proper bit correspondence
 
 ### 3. Carry Lookahead Logic (1 pts)
-   - Implements carry lookahead equations:
-     - C1 = G0 + P0 * cin
-     - C2 = G1 + P1 * C1
-     - C3 = G2 + P2 * C2
-     - C4 = G3 + P3 * C3 (cout)
+   - The code implements CLA equations:
+     - The code calculates C1 = G0 + (P0 AND Cin)
+     - The code calculates C2 = G1 + (P1 AND G0) + (P1 AND P0 AND Cin)
+     - The code calculates C3 = G2 + (P2 AND G1) + (P2 AND P1 AND G0) + (P2 AND P1 AND P0 AND Cin)
+     - The code calculates Cout = G3 + (P3 AND G2) + (P3 AND P2 AND G1) + (P3 AND P2 AND P1 AND G0) + (P3 AND P2 AND P1 AND P0 AND Cin)
 
-### 4. Interface (1 pts)
-   - The module header correctly defines the required ports:
-   ```verilog
-   input wire [3:0] A,      // 4-bit input A
-   input wire [3:0] B,      // 4-bit input B
-   input wire cin,          // Carry-in
-   output wire [3:0] S,     // 4-bit sum
-   output wire cout         // Carry-out
-   ```
-
-# File Content
-
-## cla.v
+### 4. Sum Generation (1 pts)
+   - The code implements sum computation:
+     - The code calculates Sum[0] = P0 XOR Cin
+     - The code calculates Sum[1] = P1 XOR C1
+     - The code calculates Sum[2] = P2 XOR C2
+     - The code calculates Sum[3] = P3 XOR C3
 
 ---
 
 ## Testbench Comprehensiveness checkpoints - Total 7 pts (grade_checkpoint3)
 
-Ensure the following points are addressed within the test bench:
-
-### Full Combinatorial Test: (1 pts)
-   - Test all possible combinations of inputs (A, B, cin).
-
-### Edge Cases: (1 pts)
-   - Test boundary conditions:
-     - A = 0, B = 0, cin = 0
-     - A = 15, B = 15, cin = 1
-     - A = 8, B = 7, cin = 1
+### Basic Addition: (1 pts)
+   - The testbench code tests:
+     - The code tests simple additions without carry
+     - The code tests additions with carry-in
+     - The code tests additions generating carry-out
+     - The code verifies all sum bits are correct
 
 ### Carry Propagation: (1 pts)
-   - Verify correct carry propagation through all bits.
+   - The testbench code tests:
+     - The code tests carry propagation across all bits
+     - The code tests with different carry-in values
+     - The code tests maximum carry propagation (all 1's)
+     - The code verifies carry-out timing
 
-### Lookahead Logic: (1 pts)
-   - Validate proper implementation of generate and propagate signals.
+### Boundary Values: (1 pts)
+   - The testbench code tests:
+     - The code tests zero operands (0000 + 0000)
+     - The code tests maximum values (1111 + 1111)
+     - The code tests single bit operations
+     - The code tests alternating bit patterns
 
-### Random Tests: (1 pts)
-   - Perform randomized testing of inputs.
+### Carry Generation: (1 pts)
+   - The testbench code tests:
+     - The code tests generate conditions at each bit
+     - The code tests propagate conditions at each bit
+     - The code tests mixed generate/propagate scenarios
+     - The code verifies internal carry signals
 
-### Performance: (1 pts)
-   - Verify carry lookahead behavior vs ripple carry.
+### Timing Verification: (1 pts)
+   - The testbench code tests:
+     - The code tests input to sum delay
+     - The code tests input to carry-out delay
+     - The code tests carry-in to carry-out delay
+     - The code verifies parallel computation
 
-### Error Cases: (1 pts)
-   - Test overflow conditions and boundary scenarios.
+### Corner Cases: (1 pts)
+   - The testbench code tests:
+     - The code tests one-hot patterns
+     - The code tests walking ones/zeros
+     - The code tests adjacent bit interactions
+     - The code tests all bits toggling
 
-# File Content
-
-## cla_tb.v
+### Exhaustive Testing: (1 pts)
+   - The testbench code tests:
+     - The code tests all input combinations (2^9 cases)
+     - The code verifies against ripple carry results
+     - The code checks for any timing violations
+     - The code ensures no missing cases
 
 ---
 
