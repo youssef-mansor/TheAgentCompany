@@ -93,7 +93,12 @@ def codeact_user_response(state: State) -> str:
     msg = (
         'Please continue working on the task on whatever approach you think is suitable.\n'
         'If you think you have solved the task, please finish the interaction.\n'
-        'IMPORTANT: YOU SHOULD NEVER ASK FOR HUMAN HELP.\n'
+        'IMPORTANT:\n'
+        '- YOU SHOULD NEVER ASK FOR HUMAN HELP.\n'
+        '- If you feel stuck, try a different approach or backtrack to a previous working state.\n'
+        '- Consider alternative solutions and think through the problem from different angles.\n'
+        '- Make sure to document your solution and progress in report.md before finishing.\n'
+        '- If one approach is not working after multiple attempts, try a completely different strategy.\n'
     )
 
     if state.history:
@@ -107,7 +112,9 @@ def codeact_user_response(state: State) -> str:
             # let the agent know that it can give up when it has tried 3 times
             return (
                 msg
-                + 'If you want to give up, run: <execute_bash> exit </execute_bash>.\n'
+                + 'If you have genuinely tried multiple approaches and still cannot solve the task, '
+                + 'you can give up by running: <execute_bash> exit </execute_bash>.\n'
+                + 'But before giving up, ensure you have documented your attempts and reasoning in report.md.\n'
             )
     return msg
 
