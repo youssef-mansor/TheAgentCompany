@@ -14,28 +14,46 @@
 ## Main Module Checkpoints - Total 4 pts (grade_checkpoint2)
 
 ### 1. Interface & Modularity (1 pts)
-   - The module correctly implements all required ports and submodules:
-     - Clock and reset signals
-     - Memory interfaces (instruction and data)
-     - Debug interface
-     - Separate functional units (IF, ID, ALU, etc.)
+   - The code implements the following components:
+     - The code has synchronous clock and active-high reset inputs
+     - The code implements separate instruction and data memory interfaces with 32-bit addresses
+     - The code includes a debug interface to read register file contents
+     - The code organizes pipeline stages:
+       - Instruction Fetch (PC, instruction memory interface)
+       - Instruction Decode (register file, immediate generation)
+       - Execute (ALU, branch computation)
+       - Memory (data memory interface)
+       - Writeback (register write control)
 
 ### 2. Control & Datapath (1 pts)
-   - Implements correct control and data flow:
-     - Control signal generation
-     - ALU operation selection
-     - Memory access control
-     - Register file control
+   - The code implements control and data flow:
+     - The code decodes instructions to generate control signals:
+       - ALU operation selection (ADD, SUB, AND, OR, etc.)
+       - Memory operation control (read/write, byte/half/word)
+       - Register file write enable and source selection
+       - Branch and jump control
+     - The code implements data hazard handling:
+       - Data forwarding paths between pipeline stages
+       - Pipeline stall logic when needed
+       - Branch prediction or flush mechanism
 
 ### 3. Instruction Support (1 pts)
-   - Implements required instruction types:
-     - Load/Store instructions
-     - ALU operations
-     - Branch and jump instructions
-     - Proper instruction decoding
+   - The code implements RV32I instructions:
+     - Load/Store:
+       - The code handles LW, LH, LB (with sign extension)
+       - The code handles SW, SH, SB
+       - The code handles memory alignment
+     - Arithmetic/Logic:
+       - The code implements ADD, SUB, AND, OR, XOR
+       - The code implements SLL, SRL, SRA
+       - The code handles immediate variants (ADDI, etc.)
+     - Control Flow:
+       - The code implements BEQ, BNE, BLT, BGE
+       - The code implements JAL with return address
+       - The code implements JALR for indirect jumps
 
 ### 4. Interface (1 pts)
-   - The module header correctly defines the required ports:
+   - The code implements the module with these ports:
    ```verilog
    input wire clk,                      // Clock signal
    input wire reset,                    // Reset signal
@@ -49,54 +67,58 @@
    output wire [31:0] regfile_debug_read_data // Debug register data
    ```
 
-# File Content
-
-## riscv32i.v
-
 ---
 
 ## Testbench Comprehensiveness checkpoints - Total 7 pts (grade_checkpoint3)
 
-Ensure the following points are addressed within the test bench:
-
 ### ALU Operations: (1 pts)
-   - Test arithmetic operations (ADD, SUB, etc.)
-   - Test logical operations (AND, OR, XOR)
-   - Test shift operations (SLL, SRL, SRA)
+   - The testbench code tests arithmetic:
+     - The code tests ADD/SUB with positive/negative numbers
+     - The code tests logical operations (AND, OR, XOR)
+     - The code tests shifts with different amounts
+     - The code verifies results against expected values
 
 ### Memory Operations: (1 pts)
-   - Test load instructions (LW, LH, LB)
-   - Test store instructions (SW, SH, SB)
-   - Test memory alignment
+   - The testbench code tests memory access:
+     - The code tests word/half/byte loads with sign extension
+     - The code tests word/half/byte stores
+     - The code tests unaligned access handling
+     - The code verifies data persistence in memory
 
 ### Branch & Jump: (1 pts)
-   - Test conditional branches (BEQ, BNE, etc.)
-   - Test unconditional jumps (JAL, JALR)
-   - Test branch prediction
+   - The testbench code tests control flow:
+     - The code tests branch taken/not-taken paths
+     - The code tests forward and backward jumps
+     - The code tests JAL/JALR return address saving
+     - The code verifies branch prediction accuracy
 
 ### Control Flow: (1 pts)
-   - Test instruction sequencing
-   - Test control signal generation
-   - Test pipeline hazards
+   - The testbench code tests execution:
+     - The code tests instruction pipeline flow
+     - The code tests hazard detection and handling
+     - The code tests pipeline stalls and flushes
+     - The code verifies control signal timing
 
 ### Register File: (1 pts)
-   - Test register read/write
-   - Test x0 behavior
-   - Test register forwarding
+   - The testbench code tests registers:
+     - The code tests x0 remains zero
+     - The code tests read-after-write hazards
+     - The code tests forwarding paths
+     - The code verifies register file integrity
 
 ### Edge Cases: (1 pts)
-   - Test overflow conditions
-   - Test boundary conditions
-   - Test error cases
+   - The testbench code tests boundaries:
+     - The code tests arithmetic overflow scenarios
+     - The code tests memory access at boundaries
+     - The code tests maximum branch ranges
+     - The code tests instruction combinations causing hazards
 
 ### Stress Testing: (1 pts)
-   - Test complex instruction sequences
-   - Test random instruction patterns
-   - Test system stability
-
-# File Content
-
-## riscv32i_tb.v
+   - The testbench code tests reliability:
+     - The code runs sequences of dependent instructions
+     - The code tests all instruction types mixed
+     - The code verifies long-running stability
+     - The code tests recovery from pipeline hazards
 
 ---
 
