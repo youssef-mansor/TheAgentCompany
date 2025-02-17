@@ -174,20 +174,21 @@ def is_file_exist(file_path):
 
 @grader
 def grade_checkpoint1():
-
-    #
-
     score = 0.0
-    if is_file_exist(find_file_specific("user_proj_wrapper.v")):
+    if is_file_exist(find_file_path("caravel_user_project_ol2/verilog/rtl/user_proj_wrapper.v")):
         score += 1
     else:
         print("file user_proj_wrapper.v doesn't exist")
-    
-    # round score to the nearest integer
-    return int(score)
+    return score
 
- 
-    
+def grade_checkpoint2():
+    score = 0.0
+    if is_file_exist(find_file_path("report.md")):
+        score += 1
+    else:
+        print("file report.md does not exist")
+    return score
+
 @grader
 def grade_checkpoint_llm(CHECK_POINTS, file_path, file_type):
     file_content = None
@@ -211,10 +212,9 @@ def grade_checkpoints(trajectory="") -> Result:
 
     # Define the total scores corresponding to each checkpoint function with unique keys
     scores = {
-        'checkpoint1': (grade_checkpoint1(), 1),
-        # 'checkpoint_llm_module': (grade_checkpoint_llm(CHECK_POINTS_MODULE, '/openhands/workspace/shifter.v', 'verilog'), 4),
-        # 'checkpoint_llm_integration': grade_checkpoint_llm(CHECK_POINTS_INTEGRATION, '/openhands/workspace/caravel_user_project_ol2/verilog/rtl/user_proj_wrapper.v', 'verilog')
-        'checkpoint_llm_integration': grade_checkpoint_llm(CHECK_POINTS_INTEGRATION, find_file_specific("user_proj_wrapper.v"), 'verilog')
+        'checkpoint1': (grade_checkpoint1(), 3),
+        'checkpoint2': (grade_checkpoint2(), 7),
+        'checkpoint_llm_integration': grade_checkpoint_llm(CHECK_POINTS_INTEGRATION, find_file_path("caravel_user_project_ol2/verilog/rtl/user_proj_wrapper.v"), 'verilog')
     }
     W_A = 30
     W_M = 70
