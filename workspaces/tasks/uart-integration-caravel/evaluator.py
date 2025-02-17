@@ -5,11 +5,67 @@ import logging
 import subprocess
 import time
 import re
+import subprocess
+
 
 
 from typing import List
 from scoring import Result, Checkpoint
 from common import *
+
+
+def find_file(file_name):
+    try:
+        result = subprocess.check_output(['find', '/', '-name', file_name], text=True).strip()
+        return result
+    except subprocess.CalledProcessError:
+        return "File not found"
+    except Exception as e:
+        return f"Error: {e}"
+    
+# def find_file_specific(file_name):
+#     try:
+#         result = subprocess.check_output(['find', '/', '-name', file_name], text=True).strip()
+#         lines = result.split("\n")  # Split the output into lines
+#         for line in lines:
+#             if "rtl/{file_name}" in line or "workspace/{file_name}" in line or "outputs/{file_name}":
+#                 return line  # Return the first matching line
+#         return "No matching file found"
+#     except subprocess.CalledProcessError:
+#         return "File not found"
+#     except Exception as e:
+#         return f"Error: {e}"
+    
+
+# def find_file_specific(filename = "user_proj_wrapper.v"):
+#     search_paths = ["/workspace", "/home", "/outputs", "/openhands"]
+#     for path in search_paths:
+#         try:
+#             result = subprocess.check_output(['find', path, '-name', filename], text=True).strip()
+#             lines = result.split("\n")
+#             for line in lines:
+#                 if line.strip():
+#                     return line  # Return the first matching result
+#         except subprocess.CalledProcessError:
+#             continue  # If no results are found in this path, continue to the next
+    
+#     return "No matching file found"
+
+def find_file_specific_v2(file_path):
+    search_paths = ["/workspace", "/home", "/outputs", "/openhands"]
+    for path in search_paths:
+        print(f"current path: {path}")
+        try:
+            command = ["find", path, "-path", f"*/{file_path}"]
+            result = subprocess.run(command, stdout=subprocess.PIPE, stderr=subprocess.DEVNULL, text=True)
+            lines = result.stdout.splitlines()
+            # if lines:
+            #     print(f"I will return lines[0]: {lines[0]} from this list {lines}")
+            # print(f"lines: \n{lines}")
+            if lines:
+                return lines[0]
+        except subprocess.CalledProcessError:
+            continue  # If no results are found in this path, continue to the next
 
 REPO_DIR = '/workspace/openhands/'
 UT_FILE = REPO_DIR + 'tests/unit/test_agent_skill.py'
@@ -19,12 +75,17 @@ with open('/instruction/checkpoints.md', 'r') as f:
     content = f.read()
 
 # Split by lines containing only hyphens (allowing extra dashes)
+
+print("************************************************************************************************* inside evaluator.py *********************")
+
 sections = re.split(r'\n\s*-{3,}\s*\n', content)
 
 # sections[0]: Action Checkpoints (ignored)
 # sections[1]: Main Module Checkpoints
 # sections[2]: Testbench Comprehensiveness
 # sections[3]: Functionality
+print(f"content: {content}")
+print(f"Sections: {sections}")
 
 CHECK_POINTS_MODULE = sections[1].strip()
 CHECK_POINTS_TB = sections[2].strip()
@@ -117,21 +178,6 @@ def check_with_llm_F(checkpoints, file_content): # to handle the case of functin
     else:
         return 0
 
-def find_file_specific_v2(file_path):
-    search_paths = ["/workspace", "/home", "/outputs", "/openhands"]
-    for path in search_paths:
-        print(f"current path: {path}")
-        try:
-            command = ["find", path, "-path", f"*/{file_path}"]
-            result = subprocess.run(command, stdout=subprocess.PIPE, stderr=subprocess.DEVNULL, text=True)
-            lines = result.stdout.splitlines()
-            # if lines:
-            #     print(f"I will return lines[0]: {lines[0]} from this list {lines}")
-            # print(f"lines: \n{lines}")
-            if lines:
-                return lines[0]
-        except subprocess.CalledProcessError:
-            continue  # If no results are found in this path, continue to the next
 
 def is_file_exist(file_path):
     """
@@ -152,22 +198,29 @@ def is_file_exist(file_path):
 @grader
 def grade_checkpoint1():
 
-    score = 0.0
-    if is_file_exist(find_file_specific_v2("shifter.v")):
-        score += 1
-    else:
-        print("file shifter.v doesn't exist")
+    #
 
-    if is_file_exist(find_file_specific_v2("shifter_tb.v")):
+    score = 0.0
+    if is_file_exist(find_file_specific_v2("uart/.git/HEAD")):
         score += 1
     else:
-        print("file shifter_tb.v does not exist")
+        print("file uart/.git/HEAD not found")
+
+    if is_file_exist(find_file_specific_v2("verilog/rtl/user_project_wrapper.v")):
+        score += 1
+    else:
+        print("file user_proj_wrapper.v not found")
+
+    if is_file_exist(find_file_specific_v2("verilog/dv/test_user_project_wrapper.py")):
+        score += 1
+    else:
+        print("file test_user_project_wrapper.py not found")
 
     if is_file_exist(find_file_specific_v2("report.md")):
         score += 1
     else:
-        print("file report.md does not exist")
-    
+        print("file report.md not found")
+
     # round score to the nearest integer
     return int(score)
 
@@ -196,14 +249,12 @@ def grade_checkpoints(trajectory="") -> Result:
 
     # Define the total scores corresponding to each checkpoint function with unique keys
     scores = {
-        'checkpoint1': (grade_checkpoint1(), 3),
-        # 'checkpoint_llm_module': (grade_checkpoint_llm(CHECK_POINTS_MODULE, '/openhands/workspace/shifter.v', 'verilog'), 4),
-        'checkpoint_llm_module': grade_checkpoint_llm(CHECK_POINTS_MODULE,find_file_specific_v2("shifter.v"), 'verilog'),
-        # 'checkpoint_llm_tb': (grade_checkpoint_llm(CHECK_POINTS_TB, '/openhands/workspace/shifter_tb.v', 'verilog'), 7),
-        'checkpoint_llm_tb': grade_checkpoint_llm(CHECK_POINTS_TB, find_file_specific_v2("shifter_tb.v"), 'verilog'),
-        # 'checkpoint_llm_report': (grade_checkpoint_llm(CHECK_POINTS_REPORT, '/openhands/workspace/report.md', 'markdown'), 5),
+        'checkpoint1': (grade_checkpoint1(), 4),
+        'checkpoint_llm_module': grade_checkpoint_llm(CHECK_POINTS_MODULE, find_file_specific_v2("verilog/rtl/user_project_wrapper.v"), 'verilog'),
+        'checkpoint_llm_tb': grade_checkpoint_llm(CHECK_POINTS_TB, find_file_specific_v2("verilog/dv/test_user_project_wrapper.py"), 'verilog'),
         'checkpoint_llm_report': grade_checkpoint_llm(CHECK_POINTS_REPORT, find_file_specific_v2("report.md"), 'markdown')
     }
+
     W_A = 10
     W_M = 20
     W_T = 20
