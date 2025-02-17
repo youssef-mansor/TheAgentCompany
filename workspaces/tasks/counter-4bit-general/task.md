@@ -1,11 +1,17 @@
 # Verilog Four-Bit Counter Implementation and Testing
 
+## Step 0: Files creation
+Create the following files
+- `/workspace/report.md`
+- `/workspace/counter.v`
+- `/workspace/counter_tb.v`
+
 ## Step 1: Implement a Four-Bit Counter
 Design a four-bit counter in Verilog with the following interface:  
 - `clk` 
 - `reset`
 - `count` 
-Place the implemented counter into /openhands/workspace/counter.v
+Place the implemented counter into `/workspace/counter.v`
 
 ## Step 2: Create a Self-Checking Testbench  
 - Develop a comprehensive testbench for the counter module that covers all possible cases.  
@@ -21,8 +27,8 @@ Ensure the following points are addressed within the test bench
 **Wrap-Around: (1 pts)**
      Ensure the counter wraps back to 0 after reaching 15 (4-bit overflow).
 
-Place the implemented testbench into /openhands/workspace/counter_tb.v
-Place the implemented report into /openhands/workspace/report.md
+Place the implemented testbench into `/workspace/counter_tb.v`
+Place the implemented report into `/workspace/report.md`
 
 ## Step 3: Debug and Fix Issues  
 - If the module does not pass all test cases, revisit and refine the Verilog code.  

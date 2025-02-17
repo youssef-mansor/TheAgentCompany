@@ -1,5 +1,11 @@
 # Boolean Logic Simplification and Verilog Implementation
 
+## Step 0: Files creation
+Create the following files
+- `/workspace/report.md`
+- `/workspace/logic_module.v` 
+- `/workspace/logic_tb.v`
+
 ## Step 1: Simplify the Boolean Logic
 - Simplify the following Boolean logic equation using the provided K-map:
   
@@ -17,7 +23,7 @@
   - Inputs: `a`, `b`, `c`, `d`
   - Output: `f`
   
-  Place the implemented module into `/openhands/workspace/logic_module.v`
+  Place the implemented module into `/workspace/logic_module.v`
 
 ---
 
@@ -36,8 +42,8 @@ Ensure the following points are addressed within the testbench:
 ### Correct Behavior: (1 pt)
     Check that the logic matches the original K-map truth table.
 
-  Place the implemented testbench into `/openhands/workspace/logic_tb.v`
-  Place the implemented report into `/openhands/workspace/report.md`
+  Place the implemented testbench into `/workspace/logic_tb.v`
+  Place the implemented report into `/workspace/report.md`
 
 ---
 

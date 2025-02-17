@@ -1,5 +1,11 @@
 # Verilog Neural Network Implementation and Testing
 
+## Step 0: Files creation
+Create the following files
+- `/workspace/report.md`
+- `/workspace/neural_network.v`
+- `/workspace/neural_network_tb.v`
+
 ## Step 1: Implement a Neural Network in Verilog
 Design a synthesizable neural network module in Verilog that implements the following Python model:
 
@@ -58,7 +64,7 @@ Requirements:
 - Sigmoid activation function implementation
 - Control signals for operation flow
 
-Place the implemented neural network into `/openhands/workspace/neural_network.v`
+Place the implemented neural network into `/workspace/neural_network.v`
 
 ## Step 2: Create a Self-Checking Testbench
 - Develop a comprehensive testbench that verifies the neural network against the Python model.
@@ -90,8 +96,8 @@ Ensure the following points are addressed within the testbench:
 ### Reset Behavior: (1 pts)
    - Test reset functionality and state clearing.
 
-Place the implemented testbench into `/openhands/workspace/neural_network_tb.v`
-Place the test report into `/openhands/workspace/report.md`
+Place the implemented testbench into `/workspace/neural_network_tb.v`
+Place the test report into `/workspace/report.md`
 
 ## Step 3: Debug and Fix Issues
 - If the module does not pass all test cases, revisit and refine the Verilog code.

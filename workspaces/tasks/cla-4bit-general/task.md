@@ -1,5 +1,11 @@
 # Verilog 4-bit Carry Lookahead Adder Implementation and Testing
 
+## Step 0: Files creation
+Create the following files
+- `/workspace/report.md`
+- `/workspace/cla.v`
+- `/workspace/cla_tb.v`
+
 ## Step 1: Implement a 4-bit Carry Lookahead Adder
 Design a 4-bit CLA in Verilog with the following interface:
 - `A` (4-bit input)
@@ -14,7 +20,7 @@ The CLA should:
 - Implement efficient carry propagation
 - Calculate sum using P and carry signals
 
-Place the implemented CLA into `/openhands/workspace/cla.v`
+Place the implemented CLA into `/workspace/cla.v`
 
 ## Step 2: Create a Self-Checking Testbench
 - Develop a comprehensive testbench for the CLA module that covers all possible cases.
@@ -46,8 +52,8 @@ Ensure the following points are addressed within the testbench:
 ### Error Cases: (1 pts)
    - Test overflow conditions and boundary scenarios.
 
-Place the implemented testbench into `/openhands/workspace/cla_tb.v`
-Place the test report into `/openhands/workspace/report.md`
+Place the implemented testbench into `/workspace/cla_tb.v`
+Place the test report into `/workspace/report.md`
 
 ## Step 3: Debug and Fix Issues
 - If the module does not pass all test cases, revisit and refine the Verilog code.

@@ -1,4 +1,4 @@
-first of all create /openhands/workspace/report.md file as it will be used later.
+first of all create /workspace/report.md file as it will be used later.
 
 # Clone and Run UART Testbench  
 
@@ -28,4 +28,4 @@ Save the output in a Markdown report file containing:
 - **Pass/Fail status**  
 
 Place the report into:  
-`/openhands/workspace/report.md`  
+`/workspace/report.md`  

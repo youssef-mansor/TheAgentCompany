@@ -1,5 +1,11 @@
 # Verilog RISC-V32I Single-Cycle Implementation and Testing
 
+## Step 0: Files creation
+Create the following files
+- `/workspace/report.md`
+- `/workspace/riscv32i.v`
+- `/workspace/riscv32i_tb.v`
+
 ## Step 1: Implement a RISC-V32I Single-Cycle Processor
 Design a RISC-V32I processor in Verilog with the following interface:
 ```verilog
@@ -32,7 +38,7 @@ Required modules:
 5. Branch & Jump Logic
 6. Data Memory Interface
 
-Place the implemented processor into `/openhands/workspace/riscv32i.v`
+Place the implemented processor into `/workspace/riscv32i.v`
 
 ## Step 2: Create a Self-Checking Testbench
 - Develop a comprehensive testbench for the processor that covers all instruction types.
@@ -64,8 +70,8 @@ Ensure the following points are addressed within the testbench:
 ### Stress Testing: (1 pts)
    - Test complex instruction sequences and corner cases.
 
-Place the implemented testbench into `/openhands/workspace/riscv32i_tb.v`
-Place the test report into `/openhands/workspace/report.md`
+Place the implemented testbench into `/workspace/riscv32i_tb.v`
+Place the test report into `/workspace/report.md`
 
 ## Step 3: Debug and Fix Issues
 - If the module does not pass all test cases, revisit and refine the Verilog code.

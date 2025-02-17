@@ -1,5 +1,11 @@
 # Verilog Vending Machine FSM Implementation and Testing
 
+## Step 0: Files creation
+Create the following files
+- `/workspace/report.md`
+- `/workspace/vending_machine.v`
+- `/workspace/vending_machine_tb.v`
+
 ## Step 1: Implement a Vending Machine FSM
 Design a vending machine FSM in Verilog with the following interface:
 - `clk`
@@ -18,7 +24,7 @@ The FSM should handle:
 - Change calculation and return
 - Error conditions (invalid coins, insufficient payment, invalid selection)
 
-Place the implemented FSM into `/openhands/workspace/vending_machine.v`
+Place the implemented FSM into `/workspace/vending_machine.v`
 
 ## Step 2: Create a Self-Checking Testbench
 - Develop a comprehensive testbench for the vending machine FSM that covers all possible cases.
@@ -50,8 +56,8 @@ Ensure the following points are addressed within the testbench:
 ### State Transitions: (1 pts)
    - Verify correct FSM state transitions through all operational modes.
 
-Place the implemented testbench into `/openhands/workspace/vending_machine_tb.v`
-Place the test report into `/openhands/workspace/report.md`
+Place the implemented testbench into `/workspace/vending_machine_tb.v`
+Place the test report into `/workspace/report.md`
 
 ## Step 3: Debug and Fix Issues
 - If the module does not pass all test cases, revisit and refine the Verilog code.

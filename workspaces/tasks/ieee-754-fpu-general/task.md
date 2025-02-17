@@ -1,5 +1,11 @@
 # Verilog IEEE 754 Single-Precision FPU Implementation and Testing
 
+## Step 0: Files creation
+Create the following files
+- `/workspace/report.md`
+- `/workspace/fpu.v` 
+- `/workspace/fpu_tb.v`
+
 ## Step 1: Implement an IEEE 754 Single-Precision FPU
 Design a pipelined single-precision floating-point unit (FPU) in Verilog with the following interface:
 ```verilog
@@ -36,7 +42,7 @@ The FPU must implement:
 - Full exception handling
 - Pipelined architecture for high throughput
 
-Place the implemented FPU into `/openhands/workspace/fpu.v`
+Place the implemented FPU into `/workspace/fpu.v`
 
 ## Step 2: Create a Self-Checking Testbench
 - Develop a comprehensive testbench for the FPU that covers all operations and cases.
@@ -68,8 +74,8 @@ Ensure the following points are addressed within the testbench:
 ### Pipeline: (1 pts)
    - Test pipeline throughput and hazard handling.
 
-Place the implemented testbench into `/openhands/workspace/fpu_tb.v`
-Place the test report into `/openhands/workspace/report.md`
+Place the implemented testbench into `/workspace/fpu_tb.v`
+Place the test report into `/workspace/report.md`
 
 ## Step 3: Debug and Fix Issues
 - If the module does not pass all test cases, revisit and refine the Verilog code.

@@ -1,5 +1,11 @@
 # Verilog 8-Bit Shifter Implementation and Testing
 
+## Step 0: Files creation
+Create the following files
+- `/workspace/report.md`
+- `/workspace/shifter.v`
+- `/workspace/shifter_tb.v`
+
 ## Step 1: Implement an 8-Bit Shifter
 Design an 8-bit shifter in Verilog with the following interface:
 - clk  
@@ -8,7 +14,7 @@ Design an 8-bit shifter in Verilog with the following interface:
 - shift_out  
 - direction  (when 1 shift left)
 The module should be capable of performing both left and right shifts based on the value of the direction input.  
-Place the implemented shifter into `/openhands/workspace/shifter.v`
+Place the implemented shifter into `/workspace/shifter.v`
 
 ## Step 2: Create a Self-Checking Testbench  
 - Develop a comprehensive testbench for the shifter module.  
@@ -28,8 +34,8 @@ Ensure the following points are addressed within the testbench:
 ### Boundary Tests: (1 pt)
     Verify that bits shifted out of the register are discarded, and verify that no unexpected data appears at the empty positions.
 
-Place the implemented testbench into `/openhands/workspace/shifter_tb.v`  
-Place the implemented report into `/openhands/workspace/report.md`
+Place the implemented testbench into `/workspace/shifter_tb.v`  
+Place the implemented report into `/workspace/report.md`
 
 ## Step 3: Debug and Fix Issues  
 - If the module does not pass all test cases, revisit and refine the Verilog code.  
