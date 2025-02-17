@@ -91,6 +91,21 @@ def llm_complete(checkpoints_list_msg, file_content=None):
         messages=messages
     ).json()
 
+def find_file_path(file_path):
+    search_paths = ["/workspace", "/home", "/outputs", "/openhands"]
+    for path in search_paths:
+        print(f"current path: {path}")
+        try:
+            command = ["find", path, "-path", f"*/{file_path}"]
+            result = subprocess.run(command, stdout=subprocess.PIPE, stderr=subprocess.DEVNULL, text=True)
+            lines = result.stdout.splitlines()
+            # if lines:
+            #     print(f"I will return lines[0]: {lines[0]} from this list {lines}")
+            # print(f"lines: \n{lines}")
+            if lines:
+                return lines[0]
+        except subprocess.CalledProcessError:
+            continue  # If no results are found in this path, continue to the next
 
 def create_rocketchat_client(username='theagentcompany', password='theagentcompany'):
     SERVER_HOSTNAME = os.getenv('SERVER_HOSTNAME') or 'the-agent-company.com'

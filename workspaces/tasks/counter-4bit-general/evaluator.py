@@ -144,17 +144,17 @@ def is_file_exist(file_path):
 def grade_checkpoint1():
 
     score = 0.0
-    if is_file_exist("/openhands/workspace/counter.v"):
+    if is_file_exist(find_file_path("counter.v")):
         score += 1
     else:
         print("file counter.v doesn't exist")
 
-    if is_file_exist("/openhands/workspace/counter_tb.v"):
+    if is_file_exist(find_file_path("counter_tb.v")):
         score += 1
     else:
         print("file counter_tb.v does not exist")
 
-    if is_file_exist("/openhands/workspace/report.md"):
+    if is_file_exist(find_file_path("report.md")):
         score += 1
     else:
         print("file report.md does not exist")
@@ -310,11 +310,11 @@ def grade_checkpoints(trajectory="") -> Result:
     scores = {
         'checkpoint1': (grade_checkpoint1(), 3),
         # 'checkpoint_llm_module': (grade_checkpoint_llm(CHECK_POINTS_MODULE, '/openhands/workspace/counter.v', 'verilog'), 4),
-        'checkpoint_llm_module': grade_checkpoint_llm(CHECK_POINTS_MODULE, '/openhands/workspace/counter.v', 'verilog'),
+        'checkpoint_llm_module': grade_checkpoint_llm(CHECK_POINTS_MODULE, find_file_path('counter.v'), 'verilog'),
         # 'checkpoint_llm_tb': (grade_checkpoint_llm(CHECK_POINTS_TB, '/openhands/workspace/counter_tb.v', 'verilog'), 7),
-        'checkpoint_llm_tb': grade_checkpoint_llm(CHECK_POINTS_TB, '/openhands/workspace/counter_tb.v', 'verilog'),
+        'checkpoint_llm_tb': grade_checkpoint_llm(CHECK_POINTS_TB,  find_file_path('counter_tb.v'), 'verilog'),
         # 'checkpoint_llm_report': (grade_checkpoint_llm(CHECK_POINTS_REPORT, '/openhands/workspace/report.md', 'markdown'), 5),
-        'checkpoint_llm_report': grade_checkpoint_llm(CHECK_POINTS_REPORT, '/openhands/workspace/report.md', 'markdown')
+        'checkpoint_llm_report': grade_checkpoint_llm(CHECK_POINTS_REPORT,  find_file_path('report.md'), 'markdown')
     }
     W_A = 10
     W_M = 20
