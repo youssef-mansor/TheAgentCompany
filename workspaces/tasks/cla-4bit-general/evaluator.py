@@ -136,28 +136,29 @@ def is_file_exist(file_path):
 
 @grader
 def grade_checkpoint1():
-
     score = 0.0
-    if is_file_exist("/openhands/workspace/cla.v"):
+    if is_file_exist(find_file_path("cla.v")):
         score += 1
     else:
         print("file cla.v doesn't exist")
+    return score
 
-    if is_file_exist("/openhands/workspace/cla_tb.v"):
+def grade_checkpoint2():
+    score = 0.0
+    if is_file_exist(find_file_path("cla_tb.v")):
         score += 1
     else:
         print("file cla_tb.v does not exist")
+    return score
 
-    if is_file_exist("/openhands/workspace/report.md"):
+def grade_checkpoint3():
+    score = 0.0
+    if is_file_exist(find_file_path("report.md")):
         score += 1
     else:
         print("file report.md does not exist")
-    
-    # round score to the nearest integer
-    return int(score)
+    return score
 
- 
-    
 @grader
 def grade_checkpoint_llm(CHECK_POINTS, file_path, file_type):
     file_content = None
@@ -182,9 +183,11 @@ def grade_checkpoints(trajectory="") -> Result:
     # Define the total scores corresponding to each checkpoint function with unique keys
     scores = {
         'checkpoint1': (grade_checkpoint1(), 3),
-        'checkpoint_llm_module': grade_checkpoint_llm(CHECK_POINTS_MODULE, '/openhands/workspace/cla.v', 'verilog'),
-        'checkpoint_llm_tb': grade_checkpoint_llm(CHECK_POINTS_TB, '/openhands/workspace/cla_tb.v', 'verilog'),
-        'checkpoint_llm_report': grade_checkpoint_llm(CHECK_POINTS_REPORT, '/openhands/workspace/report.md', 'markdown')
+        'checkpoint2': (grade_checkpoint2(), 7),
+        'checkpoint3': (grade_checkpoint3(), 5),
+        'checkpoint_llm_module': grade_checkpoint_llm(CHECK_POINTS_MODULE, find_file_path("cla.v"), 'verilog'),
+        'checkpoint_llm_tb': grade_checkpoint_llm(CHECK_POINTS_TB, find_file_path("cla_tb.v"), 'verilog'),
+        'checkpoint_llm_report': grade_checkpoint_llm(CHECK_POINTS_REPORT, find_file_path("report.md"), 'markdown')
     }
     W_A = 10
     W_M = 20
