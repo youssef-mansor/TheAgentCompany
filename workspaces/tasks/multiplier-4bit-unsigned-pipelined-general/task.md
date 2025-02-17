@@ -1,5 +1,11 @@
 # Verilog Four-Bit Pipelined Multiplier Implementation and Testing
 
+## Step 0: Files creation
+Create the following files
+- `/workspace/report.md`
+- `/workspace/multiplier.v` 
+- `/workspace/multiplier_tb.v`
+
 ## Step 1: Implement a Four-Bit Pipelined Multiplier
 Design a 4-bit unsigned pipelined multiplier in Verilog with the following interface:
 - `clk`
@@ -10,7 +16,7 @@ Design a 4-bit unsigned pipelined multiplier in Verilog with the following inter
 - `valid` (output)
 
 The multiplier should have a three-cycle pipeline latency.
-Place the implemented multiplier into `/openhands/workspace/multiplier.v`
+Place the implemented multiplier into `/workspace/multiplier.v`
 
 ## Step 2: Create a Self-Checking Testbench
 - Develop a comprehensive testbench for the multiplier module that covers all possible cases.
@@ -20,8 +26,8 @@ Place the implemented multiplier into `/openhands/workspace/multiplier.v`
   - **Pass/Fail status**
 
 
-Place the implemented testbench into `/openhands/workspace/multiplier_tb.v`
-Place the test report into `/openhands/workspace/report.md` even if not all tests passed. make sure to print testbench results into report.md
+Place the implemented testbench into `/workspace/multiplier_tb.v`
+Place the test report into `/workspace/report.md` even if not all tests passed. make sure to print testbench results into report.md
 
 Ensure the following points are addressed within the testbench:
 

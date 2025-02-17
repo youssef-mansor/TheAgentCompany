@@ -1,5 +1,11 @@
 # Verilog UART Implementation and Testing
 
+## Step 0: Files creation
+Create the following files
+- `/workspace/report.md`
+- `/workspace/uart.v`
+- `/workspace/uart_tb.v`
+
 ## Step 1: Implement a UART Module
 Design a UART module in Verilog with the following interface:
 ```verilog
@@ -25,7 +31,7 @@ The UART should implement:
 - Status signaling for transmission and reception states
 - Proper reset behavior for all states
 
-Place the implemented UART into `/openhands/workspace/uart.v`
+Place the implemented UART into `/workspace/uart.v`
 
 ## Step 2: Create a Self-Checking Testbench
 - Develop a comprehensive testbench for the UART module that covers all possible cases.
@@ -57,8 +63,8 @@ Ensure the following points are addressed within the testbench:
 ### Stress Testing: (1 pts)
    - Test continuous operation with random data.
 
-Place the implemented testbench into `/openhands/workspace/uart_tb.v`
-Place the test report into `/openhands/workspace/report.md`
+Place the implemented testbench into `/workspace/uart_tb.v`
+Place the test report into `/workspace/report.md`
 
 ## Step 3: Debug and Fix Issues
 - If the module does not pass all test cases, revisit and refine the Verilog code.
