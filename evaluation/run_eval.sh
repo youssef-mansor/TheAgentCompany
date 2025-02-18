@@ -80,9 +80,10 @@ echo "Outputs path: $OUTPUTS_PATH"
 echo "Server hostname: $SERVER_HOSTNAME"
 
 # Iterate through each directory in tasks
-for task_dir in "$TASKS_DIR"/*/; do
+# for task_dir in "$TASKS_DIR"/*/; do
+for task_name in "k-map-4variable-general" "shifter-8bit-general" "gpio-integration-caravel" "multiplier-4bit-unsigned-pipelined-general" "uart-general" "uart-integration-caravel" "ieee-754-fpu-general" "vending-machine-fsm-general"; do
     # task_name=$(basename "$task_dir")
-    task_name="counter-4bit-general"
+    # task_name="vending-machine-fsm-general"
 
     # Check if evaluation file exists
     if [ -f "$OUTPUTS_PATH/eval_${task_name}-image.json" ]; then
@@ -115,8 +116,6 @@ for task_dir in "$TASKS_DIR"/*/; do
         docker images counter-4bit-general -q | xargs -r docker rmi -f
         docker volume prune -f
         docker system prune -f
-
-        break
         
 done
 
