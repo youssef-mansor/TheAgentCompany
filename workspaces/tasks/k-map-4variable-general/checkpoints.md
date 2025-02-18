@@ -1,104 +1,62 @@
 ## Action Checkpoints - Total 3 pts (grade_checkpoint1)
 
-### File creation logic_module.v: (1 pts)
-   - A file is created for the minimized logic module `logic_module.v` (1 pts)
+### File creation logic_module.v: (1 pt)
+    Create a Verilog file (`logic_module.v` or `logic_module.sv`) for the minimized logic.
 
-### File creation logic_tb.v: (1 pts)
-   - A testbench file is created for the logic module `logic_tb.v` (1 pts)
+### File creation logic_tb.v: (1 pt)
+    Develop a testbench file (`logic_tb.v` or `logic_tb.sv`) for the logic module.
     
-### File creation report.md: (1 pts)
-   - A test file is created for the output of the testbench `report.md` (1 pts)
+### File creation report.md (1 pts)
+    a test file is created for the output of the testbench report.md 
 
 ---
 
-## Main Module Checkpoints - Total 20 pts (grade_checkpoint2)
+## Main Module Checkpoints - Total 3 pts (grade_checkpoint2)
 
-### 1. K-map Analysis (5 pts)
-   - The code implements K-map minimization:
-     - The code identifies all prime implicants correctly (1 pts)
-     - The code determines essential prime implicants (1 pts)
-     - The code groups adjacent cells properly (1 pts)
-     - The code minimizes the number of terms (1 pts)
-     - The code verifies no redundant terms (1 pts)
+### 1. Minimized Logic (1 pt)
+    The derived equation from the K-map is correctly minimized (e.g., grouping and terms are correct).
 
-### 2. Logic Implementation (5 pts)
-   - The code implements minimized equation:
-     - The code uses correct boolean operators (1 pts)
-     - The code maintains proper signal precedence (1 pts)
-     - The code implements all required terms (1 pts)
-     - The code avoids redundant logic (1 pts)
-     - The code ensures timing requirements (1 pts)
+### 2. Equation Implementation (1 pt)
+    The Verilog module implements the exact minimized equation.
 
-### 3. Optimization (5 pts)
-   - The code implements optimizations:
-     - The code minimizes gate count (1 pts)
-     - The code reduces logic levels (1 pts)
-     - The code shares common terms (1 pts)
-     - The code balances paths (1 pts)
-     - The code maintains signal integrity (1 pts)
+### 3. Interface (1 pt)
+    The module correctly defines the following ports:  
+    ```verilog
+    input wire a,  // Input signal a  
+    input wire b,  // Input signal b  
+    input wire c,  // Input signal c  
+    input wire d,  // Input signal d  
+    output wire f  // Output signal f  
+    ```
 
-### 4. Interface (5 pts)
-   - The code implements module ports:
-     - The code defines input a properly (1 pts)
-     - The code defines input b properly (1 pts)
-     - The code defines input c properly (1 pts)
-     - The code defines input d properly (1 pts)
-     - The code defines output f properly (1 pts)
+# File Content
+
+## logic_module.v
 
 ---
 
-## Testbench Comprehensiveness checkpoints - Total 28 pts (grade_checkpoint3)
+## Testbench Checkpoints - Total 2 pts (grade_checkpoint3)
 
-### Input Combinations: (4 pts)
-   - The testbench code tests:
-     - The code tests all 16 input combinations (1 pts)
-     - The code verifies each combination result (1 pts)
-     - The code tests transitions between states (1 pts)
-     - The code checks timing requirements (1 pts)
+Ensure the following points are addressed within the testbench:
 
-### Truth Table Verification: (4 pts)
-   - The testbench code tests:
-     - The code tests against K-map entries (1 pts)
-     - The code verifies minterms (1 pts)
-     - The code checks don't care conditions (1 pts)
-     - The code validates output matches truth table (1 pts)
+### Exhaustive Testing: (1 pt)
+    Verify all 16 possible input combinations (2^4) to ensure correctness.
 
-### Timing Analysis: (4 pts)
-   - The testbench code tests:
-     - The code tests propagation delays (1 pts)
-     - The code verifies setup times (1 pts)
-     - The code checks hold times (1 pts)
-     - The code tests glitch immunity (1 pts)
+### Correct Behavior: (1 pt)
+    Check that the logic matches the original K-map truth table.
 
-### Edge Cases: (4 pts)
-   - The testbench code tests:
-     - The code tests adjacent input transitions (1 pts)
-     - The code verifies multiple input changes (1 pts)
-     - The code tests critical paths (1 pts)
-     - The code checks boundary conditions (1 pts)
 
-### Functional Coverage: (4 pts)
-   - The testbench code tests:
-     - The code tests all input transitions (1 pts)
-     - The code verifies output stability (1 pts)
-     - The code checks logic paths (1 pts)
-     - The code tests corner cases (1 pts)
+# File Content
 
-### Performance Metrics: (4 pts)
-   - The testbench code tests:
-     - The code tests logic delays (1 pts)
-     - The code verifies power consumption (1 pts)
-     - The code checks resource utilization (1 pts)
-     - The code tests optimization effectiveness (1 pts)
-
-### Documentation: (4 pts)
-   - The testbench code tests:
-     - The code documents test strategy (1 pts)
-     - The code reports coverage metrics (1 pts)
-     - The code explains test cases (1 pts)
-     - The code provides results analysis (1 pts)
+## logic_tb.v
 
 ---
 
 ## Functionality - Total (# of tests in report.md) pts (grade_checkpoint4)
-    Returns the count of passed test cases in the report.md file and the total number of cases in the file in the specific format of course **Final Score: <score - number of cases passed>/<total number of cases>**
+
+Returns the count of passed test cases in the `report.md` file and the total number of cases in the file in the specific format:  
+**Final Score: <score - number of cases passed>/<total number of cases>**
+
+# File Content
+
+## report.md
