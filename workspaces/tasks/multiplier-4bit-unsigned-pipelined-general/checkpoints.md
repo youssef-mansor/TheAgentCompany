@@ -1,104 +1,102 @@
-## Action Checkpoints - Total 3 pt (grade_checkpoint1)
+## Action Checkpoints - Total 3 pts (grade_checkpoint1)
 
 ### File creation multiplier.v: (1 pts)
-   - A file is created for the multiplier module `multiplier.v`
+   - A file is created for the multiplier module `multiplier.v` (1 pts)
 
 ### File creation multiplier_tb.v: (1 pts)
-   - A testbench file is created for the multiplier module `multiplier_tb.v`
+   - A testbench file is created for the multiplier module `multiplier_tb.v` (1 pts)
 
 ### File creation report.md: (1 pts)
-   - A test file is created for the output of the testbench `report.md`
+   - A test file is created for the output of the testbench `report.md` (1 pts)
 
 ---
 
-## Main Module Checkpoints - Total 4 pts (grade_checkpoint2)
+## Main Module Checkpoints - Total 20 pts (grade_checkpoint2)
 
-### 1. Interface & Modularity (1 pts)
+### 1. Interface & Modularity (5 pts)
    - The code implements the following ports:
-     - The code has clock and reset inputs
-     - The code has two 4-bit input buses (multiplicand[3:0], multiplier[3:0])
-     - The code has an 8-bit output product bus (product[7:0])
-     - The code has a valid_out signal indicating result ready
-     - The code has a valid_in signal for input validation
+     - The code has clock and reset inputs properly defined (1 pts)
+     - The code has two 4-bit input buses (multiplicand[3:0], multiplier[3:0]) (1 pts)
+     - The code has an 8-bit output product bus (product[7:0]) (1 pts)
+     - The code has a valid_out signal indicating result ready (1 pts)
+     - The code has a valid_in signal for input validation (1 pts)
 
-### 2. Pipeline Stages (1 pts)
+### 2. Pipeline Stages (5 pts)
    - The code implements the pipeline structure:
-     - The code has input registration stage
-     - The code has partial product generation stage
-     - The code has partial product accumulation stages
-     - The code has final result stage
-     - The code maintains pipeline control signals
+     - The code has input registration stage properly implemented (1 pts)
+     - The code has partial product generation stage properly implemented (1 pts)
+     - The code has partial product accumulation stages properly implemented (1 pts)
+     - The code has final result stage properly implemented (1 pts)
+     - The code maintains pipeline control signals properly (1 pts)
 
-### 3. Multiplication Logic (1 pts)
+### 3. Multiplication Logic (5 pts)
    - The code implements multiplication components:
-     - The code generates partial products:
-       - PP0 = multiplicand AND multiplier[0]
-       - PP1 = (multiplicand AND multiplier[1]) << 1
-       - PP2 = (multiplicand AND multiplier[2]) << 2
-       - PP3 = (multiplicand AND multiplier[3]) << 3
-     - The code implements proper shifting
-     - The code accumulates partial products
-     - The code handles timing between stages
+     - The code generates PP0 = multiplicand AND multiplier[0] correctly (1 pts)
+     - The code generates PP1 = (multiplicand AND multiplier[1]) << 1 correctly (1 pts)
+     - The code generates PP2 and PP3 with proper shifts (1 pts)
+     - The code implements proper shifting for all partial products (1 pts)
+     - The code accumulates partial products correctly (1 pts)
 
-### 4. Control Logic (1 pts)
+### 4. Control Logic (5 pts)
    - The code implements control mechanisms:
-     - The code tracks pipeline validity
-     - The code handles stall conditions
-     - The code manages data flow between stages
-     - The code ensures proper output timing
+     - The code tracks pipeline validity properly (1 pts)
+     - The code handles stall conditions correctly (1 pts)
+     - The code manages data flow between stages (1 pts)
+     - The code ensures proper output timing (1 pts)
+     - The code maintains proper pipeline synchronization (1 pts)
 
 ---
 
-## Testbench Comprehensiveness checkpoints - Total 7 pts (grade_checkpoint3)
+## Testbench Comprehensiveness checkpoints - Total 28 pts (grade_checkpoint3)
 
-### Basic Multiplication: (1 pts)
+### Basic Multiplication: (4 pts)
    - The testbench code tests:
-     - The code tests simple products (1x1, 2x2)
-     - The code tests zero multiplication
-     - The code tests power of 2 multiplications
-     - The code verifies all product bits
+     - The code tests simple products (1x1, 2x2) (1 pts)
+     - The code tests zero multiplication (1 pts)
+     - The code tests power of 2 multiplications (1 pts)
+     - The code verifies all product bits (1 pts)
 
-### Pipeline Operation: (1 pts)
+### Pipeline Operation: (4 pts)
    - The testbench code tests:
-     - The code tests continuous data flow
-     - The code tests pipeline bubbles
-     - The code tests stall handling
-     - The code verifies latency
+     - The code tests continuous data flow (1 pts)
+     - The code tests pipeline bubbles (1 pts)
+     - The code tests stall handling (1 pts)
+     - The code verifies latency (1 pts)
 
-### Boundary Values: (1 pts)
+### Boundary Values: (4 pts)
    - The testbench code tests:
-     - The code tests maximum values (15 x 15)
-     - The code tests minimum values (0 x N)
-     - The code tests single bit multiplications
-     - The code tests adjacent values
+     - The code tests maximum values (15 x 15) (1 pts)
+     - The code tests minimum values (0 x N) (1 pts)
+     - The code tests single bit multiplications (1 pts)
+     - The code tests adjacent values (1 pts)
 
-### Timing Verification: (1 pts)
+### Timing Verification: (4 pts)
    - The testbench code tests:
-     - The code tests clock to output delay
-     - The code tests setup/hold times
-     - The code tests pipeline throughput
-     - The code verifies valid_out timing
+     - The code tests clock to output delay (1 pts)
+     - The code tests setup/hold times (1 pts)
+     - The code tests pipeline throughput (1 pts)
+     - The code verifies valid_out timing (1 pts)
 
-### Data Patterns: (1 pts)
+### Data Patterns: (4 pts)
    - The testbench code tests:
-     - The code tests alternating patterns
-     - The code tests walking ones
-     - The code tests walking zeros
-     - The code tests random patterns
+     - The code tests alternating patterns (1 pts)
+     - The code tests walking ones (1 pts)
+     - The code tests walking zeros (1 pts)
+     - The code tests random patterns (1 pts)
 
-### Pipeline Hazards: (1 pts)
+### Pipeline Hazards: (4 pts)
    - The testbench code tests:
-     - The code tests back-to-back operations
-     - The code tests pipeline stalls
-     - The code tests valid signal propagation
-     - The code tests reset during operation
+     - The code tests back-to-back operations (1 pts)
+     - The code tests pipeline stalls (1 pts)
+     - The code tests valid signal propagation (1 pts)
+     - The code tests reset during operation (1 pts)
 
-### Exhaustive Testing: (1 pts)
+### Exhaustive Testing: (4 pts)
    - The testbench code tests:
-     - The code tests all input combinations
-     - The code verifies against reference model
-     - The code tests pipeline full/empty conditions
-     - The code ensures no timing violations
+     - The code tests all input combinations (1 pts)
+     - The code verifies against reference model (1 pts)
+     - The code tests pipeline full/empty conditions (1 pts)
+     - The code ensures no timing violations (1 pts)
 
 ---
 

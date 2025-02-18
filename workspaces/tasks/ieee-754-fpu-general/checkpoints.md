@@ -1,127 +1,102 @@
-## Action Checkpoints - Total 3 pt (grade_checkpoint1)
+## Action Checkpoints - Total 3 pts (grade_checkpoint1)
 
 ### File creation fpu.v: (1 pts)
-   - A file is created for the FPU module `fpu.v`
+   - A file is created for the FPU module `fpu.v` (1 pts)
 
 ### File creation fpu_tb.v: (1 pts)
-   - A testbench file is created for the FPU module `fpu_tb.v`
+   - A testbench file is created for the FPU module `fpu_tb.v` (1 pts)
 
 ### File creation report.md: (1 pts)
-   - A test report file is created `report.md`
+   - A test report file is created `report.md` (1 pts)
 
 ---
 
-## Main Module Checkpoints - Total 4 pts (grade_checkpoint2)
+## Main Module Checkpoints - Total 20 pts (grade_checkpoint2)
 
-### 1. Interface & Modularity (1 pts)
-   - The module correctly implements all required ports:
-     ```verilog
-      module fpu(
-         input wire clk,                  // Clock signal for pipelining
-         input wire [1:0] rounding_mode,  // Selects the rounding mode
-         input wire [2:0] operation,      // Selects the FPU operation
-         input wire [31:0] operand_A,     // First operand (single-precision)
-         input wire [31:0] operand_B,     // Second operand (single-precision)
-         output wire [31:0] out,          // Result of the operation
-         output wire overflow,            // Overflow exception
-         output wire underflow,           // Underflow exception
-         output wire div_by_zero,         // Division by zero exception
-         output wire inexact,             // Inexact result exception
-         output wire invalid_operation    // Invalid operation exception
-      );
-      ```
+### 1. Interface & Modularity (5 pts)
+   - The code implements module ports:
+     - The code defines clock and control inputs properly (1 pts)
+     - The code defines operand inputs correctly (1 pts)
+     - The code defines result output properly (1 pts)
+     - The code defines exception outputs properly (1 pts)
+     - The code uses correct port directions and types (1 pts)
 
-### 2. Operations Support (1 pts)
-   - The code includes operation decoding logic using the 3-bit operation input
-   - The code implements the following operations:
-     - Addition: The code extracts sign, exponent, and mantissa
-     - Subtraction: The code performs two's complement or similar negation
-     - Multiplication: The code multiplies mantissas and adds exponents
-     - Division: The code divides mantissas and subtracts exponents
-     - Int-to-Float: The code scans integer bits and normalizes the result
-     - Float-to-Int: The code performs rounding and range checking
+### 2. Operations Support (5 pts)
+   - The code implements IEEE-754 operations:
+     - The code implements addition/subtraction correctly (1 pts)
+     - The code implements multiplication correctly (1 pts)
+     - The code implements division correctly (1 pts)
+     - The code implements int-to-float conversion (1 pts)
+     - The code implements float-to-int conversion (1 pts)
 
-### 3. IEEE 754 Compliance (1 pts)
-   - The code checks special values:
-     - NaN: The code detects when exponent is all 1's and mantissa is non-zero
-     - Infinity: The code detects when exponent is all 1's and mantissa is zero
-     - Zero: The code detects when exponent and mantissa are zero
-   - The code implements rounding based on rounding_mode input:
-     - [1:0] == 2'b00: The code examines LSB for nearest even rounding
-     - [1:0] == 2'b01: The code truncates for round toward zero
-     - [1:0] == 2'b10: The code rounds up for +∞
-     - [1:0] == 2'b11: The code rounds down for -∞
-   - The code sets exception flags:
-     - overflow: The code detects when result's exponent > 8'hFF
-     - underflow: The code detects when result's exponent < 8'h00
-     - div_by_zero: The code detects when divisor is zero
-     - inexact: The code detects when bits are truncated/rounded
-     - invalid_operation: The code detects NaN operations or invalid combinations
+### 3. IEEE 754 Compliance (5 pts)
+   - The code implements standard features:
+     - The code handles special values (NaN, Infinity, Zero) (1 pts)
+     - The code implements all rounding modes (1 pts)
+     - The code detects overflow and underflow (1 pts)
+     - The code handles division by zero (1 pts)
+     - The code detects invalid operations (1 pts)
 
-### 4. Pipeline Implementation (1 pts)
-   - The code uses pipeline registers between stages
-   - The code implements these pipeline stages:
-     - Decode stage: The code uses registers for operation and operand unpacking
-     - Execute stage: The code uses registers for computation
-     - Result stage: The code uses registers for result packaging
-   - The code implements pipeline control:
-     - The code uses valid bits or similar control signals between stages
-     - The code implements stall logic
-   - The code maintains consistent latency:
-     - The code uses same number of clock cycles for similar operations
+### 4. Pipeline Implementation (5 pts)
+   - The code implements pipelining:
+     - The code implements decode stage properly (1 pts)
+     - The code implements execute stage properly (1 pts)
+     - The code implements result stage properly (1 pts)
+     - The code handles pipeline stalls correctly (1 pts)
+     - The code maintains consistent latency (1 pts)
 
 ---
 
-## Testbench Comprehensiveness - Total 7 pts (grade_checkpoint3)
+## Testbench Comprehensiveness checkpoints - Total 28 pts (grade_checkpoint3)
 
-### Basic Operations: (1 pts)
+### Basic Operations: (4 pts)
    - The testbench code tests:
-     - Addition: The code tests positive and negative number combinations
-     - Subtraction: The code tests positive and negative number combinations
-     - Multiplication: The code tests positive and negative number combinations
-     - Division: The code tests positive and negative number combinations
+     - The code tests addition operations (1 pts)
+     - The code tests subtraction operations (1 pts)
+     - The code tests multiplication operations (1 pts)
+     - The code tests division operations (1 pts)
 
-### Special Values: (1 pts)
+### Special Values: (4 pts)
    - The testbench code tests:
-     - NaN: The code tests operations with NaN inputs
-     - Infinity: The code tests operations with infinity inputs
-     - Zero: The code tests operations with zero inputs
-     - Denormalized numbers: The code tests with subnormal values
+     - The code tests NaN handling (1 pts)
+     - The code tests infinity handling (1 pts)
+     - The code tests zero handling (1 pts)
+     - The code tests denormalized numbers (1 pts)
 
-### Rounding Modes: (1 pts)
-   - The testbench code tests each rounding mode:
-     - Round to nearest even: The code tests values requiring tie-breaking
-     - Round toward zero: The code tests positive and negative values
-     - Round toward +∞: The code tests positive and negative values
-     - Round toward -∞: The code tests positive and negative values
-
-### Exceptions: (1 pts)
-   - The testbench code tests exception triggers:
-     - Overflow: The code tests operations exceeding maximum float value
-     - Underflow: The code tests operations below minimum normalized value
-     - Division by zero: The code tests division with zero divisor
-     - Invalid operations: The code tests undefined arithmetic operations
-
-### Conversions: (1 pts)
+### Rounding Modes: (4 pts)
    - The testbench code tests:
-     - Int-to-float: The code tests positive, negative, and boundary values
-     - Float-to-int: The code tests values requiring rounding
-     - The code tests values requiring rounding in different modes
-     - The code tests values outside integer range
+     - The code tests round to nearest even (1 pts)
+     - The code tests round toward zero (1 pts)
+     - The code tests round toward +∞ (1 pts)
+     - The code tests round toward -∞ (1 pts)
 
-### Edge Cases: (1 pts)
+### Exceptions: (4 pts)
    - The testbench code tests:
-     - Maximum float: The code tests operations near maximum value
-     - Minimum float: The code tests operations near minimum value
-     - The code tests values around powers of 2
-     - The code tests values requiring normalization
+     - The code tests overflow conditions (1 pts)
+     - The code tests underflow conditions (1 pts)
+     - The code tests division by zero (1 pts)
+     - The code tests invalid operations (1 pts)
 
-### Pipeline: (1 pts)
+### Conversions: (4 pts)
    - The testbench code tests:
-     - The code tests operation sequences
-     - The code tests mixed operation types
-     - The code tests data dependencies
-     - The code tests pipeline throughput
+     - The code tests positive int-to-float conversion (1 pts)
+     - The code tests negative int-to-float conversion (1 pts)
+     - The code tests positive float-to-int conversion (1 pts)
+     - The code tests negative float-to-int conversion (1 pts)
+
+### Edge Cases: (4 pts)
+   - The testbench code tests:
+     - The code tests maximum float values (1 pts)
+     - The code tests minimum float values (1 pts)
+     - The code tests power of 2 boundaries (1 pts)
+     - The code tests normalization cases (1 pts)
+
+### Pipeline: (4 pts)
+   - The testbench code tests:
+     - The code tests operation sequences (1 pts)
+     - The code tests mixed operations (1 pts)
+     - The code tests data dependencies (1 pts)
+     - The code tests pipeline throughput (1 pts)
 
 ---
 
