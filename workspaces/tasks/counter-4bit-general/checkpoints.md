@@ -1,102 +1,52 @@
 ## Action Checkpoints - Total 3 pts (grade_checkpoint1)
 
 ### File creation counter.v: (1 pts)
-   - A file is created for the counter module `counter.v` (1 pts)
+    a file is created for counter module counter.v 
+### File creation counter_tb.v: (1pts)
+    a testbench file was created for the counter module counter_tb.v 
 
-### File creation counter_tb.v: (1 pts)
-   - A testbench file is created for the counter module `counter_tb.v` (1 pts)
-
-### File creation report.md: (1 pts)
-   - A test file is created for the output of the testbench `report.md` (1 pts)
-
----
-
-## Main Module Checkpoints - Total 20 pts (grade_checkpoint2)
-
-### 1. Increment Logic (5 pts)
-   - The code implements counter functionality:
-     - The code adds 1 to count on rising clock edge (1 pts)
-     - The code maintains proper timing for increment (1 pts)
-     - The code handles clock edge detection correctly (1 pts)
-     - The code implements synchronous operation (1 pts)
-     - The code maintains count stability between edges (1 pts)
-
-### 2. Reset Logic (5 pts)
-   - The code implements reset functionality:
-     - The code resets counter to 0 when reset is active (1 pts)
-     - The code gives reset priority over clock (1 pts)
-     - The code handles asynchronous reset properly (1 pts)
-     - The code maintains reset until signal is deasserted (1 pts)
-     - The code resumes counting after reset is removed (1 pts)
-
-### 3. Width Control (5 pts)
-   - The code implements 4-bit constraints:
-     - The code limits counter range from 0 to 15 (1 pts)
-     - The code handles overflow correctly (1 pts)
-     - The code maintains proper bit width (1 pts)
-     - The code prevents count beyond 15 (1 pts)
-     - The code wraps around to 0 after 15 (1 pts)
-
-### 4. Interface (5 pts)
-   - The code implements the module ports:
-     - The code defines clock input properly (1 pts)
-     - The code defines reset input properly (1 pts)
-     - The code defines 4-bit count output properly (1 pts)
-     - The code uses correct port directions (1 pts)
-     - The code maintains proper signal types (1 pts)
+### File creation report.md (1 pts)
+    a test file is created for the output of the testbench report.md 
 
 ---
 
-## Testbench Comprehensiveness checkpoints - Total 28 pts (grade_checkpoint3)
+## Main Module Checkpoints - Total 4 pts (grade_checkpoint2)
 
-### Basic Operation: (4 pts)
-   - The testbench code tests:
-     - The code verifies initial state after power-up (1 pts)
-     - The code tests basic increment operation (1 pts)
-     - The code verifies clock edge sensitivity (1 pts)
-     - The code checks count sequence correctness (1 pts)
+### 1. Increment Logic  (1 pts)
+    Adds 1 to the count on each rising edge of `clk`. 
 
-### Reset Behavior: (4 pts)
-   - The testbench code tests:
-     - The code tests reset during counting (1 pts)
-     - The code verifies reset priority (1 pts)
-     - The code tests reset release behavior (1 pts)
-     - The code checks multiple reset scenarios (1 pts)
+### 2. Reset Priority  (1 pts)
+    If `reset` is active, the counter resets regardless of the clock.
 
-### Timing Verification: (4 pts)
-   - The testbench code tests:
-     - The code tests clock to output delay (1 pts)
-     - The code verifies setup and hold times (1 pts)
-     - The code checks reset timing requirements (1 pts)
-     - The code tests clock period constraints (1 pts)
+### 3. Width Constraint  (1 pts)
+    Limits the counter to a range of 0 to 15 (4 bits).
 
-### Counter Range: (4 pts)
-   - The testbench code tests:
-     - The code tests counting from 0 to 15 (1 pts)
-     - The code verifies overflow behavior (1 pts)
-     - The code tests wrap-around at 15 (1 pts)
-     - The code checks boundary conditions (1 pts)
+### 4. Interface  (1 pts)
+    The module header correctly defines the required ports:  
+    ```verilog
+    input wire clk;          // Clock signal  
+    input wire reset;        // Reset signal  
+    output reg [3:0] count;  // 4-bit count output  
 
-### Clock Behavior: (4 pts)
-   - The testbench code tests:
-     - The code tests various clock frequencies (1 pts)
-     - The code verifies glitch immunity (1 pts)
-     - The code tests clock stability requirements (1 pts)
-     - The code checks clock edge detection (1 pts)
+# File Content
 
-### Edge Cases: (4 pts)
-   - The testbench code tests:
-     - The code tests rapid reset toggles (1 pts)
-     - The code verifies behavior at power-up (1 pts)
-     - The code tests metastability conditions (1 pts)
-     - The code checks corner cases (1 pts)
+## counter.v
 
-### Comprehensive Testing: (4 pts)
-   - The testbench code tests:
-     - The code performs long-running tests (1 pts)
-     - The code verifies all state transitions (1 pts)
-     - The code tests different initial conditions (1 pts)
-     - The code checks overall reliability (1 pts)
+---
+
+## Testbench Comprehensiveness checkpoints - Total 2 pts (grade_checkpoint3)
+
+Ensure the following points are addressed within the test bench 
+
+### Normal Increment: (1 pts)
+     Allow the counter to increment and observe proper functionality at trigerring edge.
+### Wrap-Around: (1 pts)
+     Ensure the counter wraps back to 0 after reaching 15 (4-bit overflow).
+
+
+# File Content
+
+## counter_tb.v
 
 ---
 
