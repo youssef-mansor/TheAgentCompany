@@ -55,36 +55,6 @@ def config_env(dir_path):
     else:
         logging.info(f"Dependencies installed successfully.")
 
-
-def check_with_llm(checkpoints, file_content):
-
-    if len(checkpoints) == 0:
-        return 0
-
-    messages = [
-        {
-            "content": f"{checkpoints}",
-            "role": "user"}
-    ]
-
-    llm_response = llm_complete(messages, file_content)
-
-
-    print("\n************************************LLM Response*************************************************")
-    print(llm_response)
-    print("*************************************************************************************************\n")
-
-    print("\n************************************Evaluation Report*******************************************")
-    llm_response_txt = llm_response['choices'][0]['message']['content'].lower()
-    print(llm_response_txt)
-    print("*************************************************************************************************\n")
-
-
-    score = re.search(r'(?i)Final Score: (\d+)/2', llm_response_txt)
-    if score:
-        return int(score.group(1))
-    else:
-        return 0
     
 def check_with_llm_F(checkpoints, file_content): # to handle the case of functinality score
 
@@ -98,11 +68,6 @@ def check_with_llm_F(checkpoints, file_content): # to handle the case of functin
     ]
 
     llm_response = llm_complete(messages, file_content)
-
-
-    print("\n************************************LLM Response*************************************************")
-    print(llm_response)
-    print("*************************************************************************************************\n")
 
     print("\n************************************Evaluation Report*******************************************")
     llm_response_txt = llm_response['choices'][0]['message']['content'].lower()
@@ -141,18 +106,10 @@ def grade_checkpoint1():
         score += 1
     else:
         print("file vending_machine.v doesn't exist")
-    return score
-
-def grade_checkpoint2():
-    score = 0.0
     if is_file_exist(find_file_path("vending_machine_tb.v")):
         score += 1
     else:
         print("file vending_machine_tb.v does not exist")
-    return score
-
-def grade_checkpoint3():
-    score = 0.0
     if is_file_exist(find_file_path("report.md")):
         score += 1
     else:
@@ -183,8 +140,6 @@ def grade_checkpoints(trajectory="") -> Result:
     # Define the total scores corresponding to each checkpoint function with unique keys
     scores = {
         'checkpoint1': (grade_checkpoint1(), 3),
-        'checkpoint2': (grade_checkpoint2(), 7),
-        'checkpoint3': (grade_checkpoint3(), 5),
         'checkpoint_llm_module': grade_checkpoint_llm(CHECK_POINTS_MODULE, find_file_path("vending_machine.v"), 'verilog'),
         'checkpoint_llm_tb': grade_checkpoint_llm(CHECK_POINTS_TB, find_file_path("vending_machine_tb.v"), 'verilog'),
         'checkpoint_llm_report': grade_checkpoint_llm(CHECK_POINTS_REPORT, find_file_path("report.md"), 'markdown')
