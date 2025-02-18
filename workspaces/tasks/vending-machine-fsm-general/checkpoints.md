@@ -1,60 +1,61 @@
-## Action Checkpoints - Total 3 pt (grade_checkpoint1)
+## Action Checkpoints - Total 3 pts (grade_checkpoint1)
 
 ### File creation vending_machine.v: (1 pts)
-   - A file is created for the vending machine FSM module `vending_machine.v`
+   - A file is created for the vending machine FSM module `vending_machine.v` (1 pts)
 
 ### File creation vending_machine_tb.v: (1 pts)
-   - A testbench file is created for the vending machine FSM module `vending_machine_tb.v`
+   - A testbench file is created for the vending machine FSM module `vending_machine_tb.v` (1 pts)
 
 ### File creation report.md: (1 pts)
-   - A test file is created for the output of the testbench `report.md`
+   - A test file is created for the output of the testbench `report.md` (1 pts)
 
 ---
 
-## Main Module Checkpoints - Total 4 pts (grade_checkpoint2)
+## Main Module Checkpoints - Total 20 pts (grade_checkpoint2)
 
-### 1. Interface & Inputs (1 pts)
+### 1. Interface & Inputs (5 pts)
    - The code implements the following components:
-     - The code has clock and reset inputs
-     - The code has coin inputs (nickel, dime, quarter)
-     - The code has product selection input
-     - The code has cancel transaction input
-     - The code has output signals for:
+     - The code has clock and reset inputs (1 pts)
+     - The code has coin inputs (nickel, dime, quarter) (1 pts)
+     - The code has product selection input (1 pts)
+     - The code has cancel transaction input (1 pts)
+     - The code has output signals for: (1 pts)
        - Product dispensed
        - Change returned
        - Current amount display
        - Error conditions
 
-### 2. State Machine Design (1 pts)
+### 2. State Machine Design (5 pts)
    - The code implements FSM architecture:
-     - The code defines states:
+     - The code defines states: (1 pts)
        - IDLE: waiting for coins
        - COLLECTING: accepting coins
        - DISPENSING: giving product
        - RETURNING: giving change
        - ERROR: handling invalid conditions
-     - The code implements state transitions
-     - The code handles state encoding
-     - The code manages state registers
+     - The code implements state transitions (1 pts)
+     - The code handles state encoding (1 pts)
+     - The code manages state registers (1 pts)
+     - The code implements proper state logic (1 pts)
 
-### 3. Money Handling (1 pts)
+### 3. Money Handling (5 pts)
    - The code implements transaction logic:
-     - The code tracks accumulated amount
-     - The code calculates required change
-     - The code handles coin combinations:
+     - The code tracks accumulated amount (1 pts)
+     - The code calculates required change (1 pts)
+     - The code handles coin combinations: (1 pts)
        - Nickel (5¢)
        - Dime (10¢)
        - Quarter (25¢)
-     - The code manages maximum amount
-     - The code handles invalid amounts
+     - The code manages maximum amount (1 pts)
+     - The code handles invalid amounts (1 pts)
 
-### 4. Product & Change Control (1 pts)
+### 4. Product & Change Control (5 pts)
    - The code implements dispensing logic:
-     - The code verifies sufficient funds
-     - The code manages product inventory
-     - The code calculates optimal change combination
-     - The code handles transaction completion
-     - The code manages error conditions:
+     - The code verifies sufficient funds (1 pts)
+     - The code manages product inventory (1 pts)
+     - The code calculates optimal change combination (1 pts)
+     - The code handles transaction completion (1 pts)
+     - The code manages error conditions: (1 pts)
        - Insufficient funds
        - Invalid selection
        - No change available
@@ -62,56 +63,56 @@
 
 ---
 
-## Testbench Comprehensiveness checkpoints - Total 7 pts (grade_checkpoint3)
+## Testbench Comprehensiveness checkpoints - Total 28 pts (grade_checkpoint3)
 
-### Basic Operation: (1 pts)
+### Basic Operation: (4 pts)
    - The testbench code tests:
-     - The code tests coin insertion sequence
-     - The code verifies product selection
-     - The code checks change return
-     - The code validates state transitions
+     - The code tests coin insertion sequence (1 pts)
+     - The code verifies product selection (1 pts)
+     - The code checks change return (1 pts)
+     - The code validates state transitions (1 pts)
 
-### Money Handling: (1 pts)
+### Money Handling: (4 pts)
    - The testbench code tests:
-     - The code tests different coin combinations
-     - The code verifies amount accumulation
-     - The code tests change calculation
-     - The code checks maximum amount handling
+     - The code tests different coin combinations (1 pts)
+     - The code verifies amount accumulation (1 pts)
+     - The code tests change calculation (1 pts)
+     - The code checks maximum amount handling (1 pts)
 
-### Product Selection: (1 pts)
+### Product Selection: (4 pts)
    - The testbench code tests:
-     - The code tests valid product selection
-     - The code verifies price checking
-     - The code tests inventory management
-     - The code checks dispensing signals
+     - The code tests valid product selection (1 pts)
+     - The code verifies price checking (1 pts)
+     - The code tests inventory management (1 pts)
+     - The code checks dispensing signals (1 pts)
 
-### Change Return: (1 pts)
+### Change Return: (4 pts)
    - The testbench code tests:
-     - The code tests exact change scenarios
-     - The code verifies change combinations
-     - The code tests cancel operation
-     - The code checks change timing
+     - The code tests exact change scenarios (1 pts)
+     - The code verifies change combinations (1 pts)
+     - The code tests cancel operation (1 pts)
+     - The code checks change timing (1 pts)
 
-### Error Handling: (1 pts)
+### Error Handling: (4 pts)
    - The testbench code tests:
-     - The code tests insufficient funds
-     - The code verifies invalid selections
-     - The code tests timeout conditions
-     - The code checks error recovery
+     - The code tests insufficient funds (1 pts)
+     - The code verifies invalid selections (1 pts)
+     - The code tests timeout conditions (1 pts)
+     - The code checks error recovery (1 pts)
 
-### State Transitions: (1 pts)
+### State Transitions: (4 pts)
    - The testbench code tests:
-     - The code tests all state transitions
-     - The code verifies illegal transitions
-     - The code tests reset behavior
-     - The code checks state persistence
+     - The code tests all state transitions (1 pts)
+     - The code verifies illegal transitions (1 pts)
+     - The code tests reset behavior (1 pts)
+     - The code checks state persistence (1 pts)
 
-### Complete Transactions: (1 pts)
+### Complete Transactions: (4 pts)
    - The testbench code tests:
-     - The code tests full transaction cycles
-     - The code verifies concurrent operations
-     - The code tests back-to-back transactions
-     - The code checks system stability
+     - The code tests full transaction cycles (1 pts)
+     - The code verifies concurrent operations (1 pts)
+     - The code tests back-to-back transactions (1 pts)
+     - The code checks system stability (1 pts)
 
 ---
 

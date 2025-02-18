@@ -1,108 +1,102 @@
-## Action Checkpoints - Total 3 pt (grade_checkpoint1)
+## Action Checkpoints - Total 3 pts (grade_checkpoint1)
 
 ### File creation neural_network.v: (1 pts)
-   - A file is created for the neural network module `neural_network.v`
+   - A file is created for the neural network module `neural_network.v` (1 pts)
 
 ### File creation neural_network_tb.v: (1 pts)
-   - A testbench file is created for the neural network module `neural_network_tb.v`
+   - A testbench file is created for the neural network module `neural_network_tb.v` (1 pts)
 
 ### File creation report.md: (1 pts)
-   - A test report file is created `report.md`
+   - A test report file is created `report.md` (1 pts)
 
 ---
 
-## Main Module Checkpoints - Total 4 pts (grade_checkpoint2)
+## Main Module Checkpoints - Total 20 pts (grade_checkpoint2)
 
-### 1. Interface & Memory (1 pts)
+### 1. Interface & Memory (5 pts)
    - The code implements the following components:
-     - The code has clock and reset inputs
-     - The code has input data interface (8-bit fixed point)
-     - The code has weight memory interface
-     - The code has output interface (8-bit fixed point)
-     - The code has control signals (start, done)
+     - The code has clock and reset inputs properly defined (1 pts)
+     - The code has input data interface with 8-bit fixed point (1 pts)
+     - The code has weight memory interface properly defined (1 pts)
+     - The code has output interface with 8-bit fixed point (1 pts)
+     - The code has control signals (start, done) properly defined (1 pts)
 
-### 2. Neural Network Structure (1 pts)
+### 2. Neural Network Structure (5 pts)
    - The code implements network architecture:
-     - The code has input layer (4 neurons)
-     - The code has hidden layer (4 neurons)
-     - The code has output layer (2 neurons)
-     - The code implements weight connections
-     - The code implements bias values
+     - The code implements input layer with 4 neurons (1 pts)
+     - The code implements hidden layer with 4 neurons (1 pts)
+     - The code implements output layer with 2 neurons (1 pts)
+     - The code implements weight connections properly (1 pts)
+     - The code implements bias values properly (1 pts)
 
-### 3. Processing Elements (1 pts)
+### 3. Processing Elements (5 pts)
    - The code implements neuron operations:
-     - The code performs fixed-point multiplication
-     - The code accumulates weighted sums
-     - The code implements activation function:
-       - ReLU: output = (input > 0) ? input : 0
-       - Fixed-point saturation handling
-     - The code handles timing between operations
-     - The code manages data flow between layers
+     - The code performs fixed-point multiplication correctly (1 pts)
+     - The code accumulates weighted sums properly (1 pts)
+     - The code implements ReLU activation function (1 pts)
+     - The code handles fixed-point saturation (1 pts)
+     - The code manages data flow between layers (1 pts)
 
-### 4. Control Unit (1 pts)
+### 4. Control Unit (5 pts)
    - The code implements control logic:
-     - The code sequences layer operations
-     - The code manages memory access
-     - The code tracks computation progress
-     - The code handles pipeline stages:
-       - Input loading
-       - Weight fetching
-       - Computation
-       - Activation
-       - Output generation
+     - The code sequences layer operations properly (1 pts)
+     - The code manages memory access timing (1 pts)
+     - The code tracks computation progress (1 pts)
+     - The code handles input loading and weight fetching (1 pts)
+     - The code manages computation and output stages (1 pts)
 
 ---
 
-## Testbench Comprehensiveness checkpoints - Total 7 pts (grade_checkpoint3)
+## Testbench Comprehensiveness checkpoints - Total 28 pts (grade_checkpoint3)
 
-### Basic Operation: (1 pts)
+### Basic Operation: (4 pts)
    - The testbench code tests:
-     - The code tests single input propagation
-     - The code verifies weight loading
-     - The code checks activation function
-     - The code validates output format
+     - The code tests single input propagation (1 pts)
+     - The code verifies weight loading (1 pts)
+     - The code checks activation function (1 pts)
+     - The code validates output format (1 pts)
 
-### Data Processing: (1 pts)
+### Data Processing: (4 pts)
    - The testbench code tests:
-     - The code tests multiple input patterns
-     - The code verifies layer transitions
-     - The code tests computation accuracy
-     - The code checks fixed-point handling
+     - The code tests multiple input patterns (1 pts)
+     - The code verifies layer transitions (1 pts)
+     - The code tests computation accuracy (1 pts)
+     - The code checks fixed-point handling (1 pts)
 
-### Memory Interface: (1 pts)
+### Memory Interface: (4 pts)
    - The testbench code tests:
-     - The code tests weight loading
-     - The code verifies memory access timing
-     - The code tests bias loading
-     - The code checks memory read patterns
+     - The code tests weight loading sequence (1 pts)
+     - The code verifies memory access timing (1 pts)
+     - The code tests bias loading sequence (1 pts)
+     - The code checks memory read patterns (1 pts)
 
-### Control Flow: (1 pts)
+### Control Flow: (4 pts)
    - The testbench code tests:
-     - The code tests start/done signaling
-     - The code verifies computation stages
-     - The code tests reset behavior
-     - The code checks pipeline operation
+     - The code tests start/done signaling (1 pts)
+     - The code verifies computation stages (1 pts)
+     - The code tests reset behavior (1 pts)
+     - The code checks pipeline operation (1 pts)
 
-### Numerical Accuracy: (1 pts)
+### Numerical Accuracy: (4 pts)
    - The testbench code tests:
-     - The code tests fixed-point precision
-     - The code verifies rounding behavior
-     - The code tests overflow handling
-     - The code validates against software model
+     - The code tests fixed-point precision (1 pts)
+     - The code verifies rounding behavior (1 pts)
+     - The code tests overflow handling (1 pts)
+     - The code validates against software model (1 pts)
 
-### Edge Cases: (1 pts)
+### Edge Cases: (4 pts)
    - The testbench code tests:
-     - The code tests maximum input values
-     - The code tests minimum input values
-     - The code tests zero inputs
-     - The code verifies boundary conditions
+     - The code tests maximum input values (1 pts)
+     - The code tests minimum input values (1 pts)
+     - The code tests zero inputs (1 pts)
+     - The code verifies boundary conditions (1 pts)
 
-### Performance: (1 pts)
+### Performance: (4 pts)
    - The testbench code tests:
-     - The code tests computation latency
-     - The code verifies throughput
-     - The code tests back-to-back operations
-     - The code checks resource utilization
+     - The code tests computation latency (1 pts)
+     - The code verifies throughput (1 pts)
+     - The code tests back-to-back operations (1 pts)
+     - The code checks resource utilization (1 pts)
 
 ---
 

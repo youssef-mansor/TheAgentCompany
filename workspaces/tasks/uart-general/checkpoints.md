@@ -1,46 +1,41 @@
-## Action Checkpoints - Total 3 pt (grade_checkpoint1)
+## Action Checkpoints - Total 3 pts (grade_checkpoint1)
 
 ### File creation uart.v: (1 pts)
-   - A file is created for the UART module `uart.v`
+   - A file is created for the UART module `uart.v` (1 pts)
 
 ### File creation uart_tb.v: (1 pts)
-   - A testbench file is created for the UART module `uart_tb.v`
+   - A testbench file is created for the UART module `uart_tb.v` (1 pts)
 
 ### File creation report.md: (1 pts)
-   - A test file is created for the output of the testbench `report.md`
+   - A test file is created for the output of the testbench `report.md` (1 pts)
 
 ---
 
-## Main Module Checkpoints - Total 4 pts (grade_checkpoint2)
+## Main Module Checkpoints - Total 20 pts (grade_checkpoint2)
 
-### 1. Input/Output Interface (1 pts)
+### 1. Input/Output Interface (5 pts)
    - The code contains the following ports:
-     - The code implements clock and reset inputs
-     - The code implements RX and TX data lines as single-bit ports
-     - The code implements transmission control signal (transmit) with proper edge detection
-     - The code implements status signals (received, is_receiving, is_transmitting, recv_error) with correct timing
-     - The code implements 8-bit data buses (tx_byte for transmission, rx_byte for reception)
+     - The code implements clock and reset inputs (1 pts)
+     - The code implements RX and TX data lines as single-bit ports (1 pts)
+     - The code implements transmission control signal (transmit) with proper edge detection (1 pts)
+     - The code implements status signals (received, is_receiving, is_transmitting, recv_error) with correct timing (1 pts)
+     - The code implements 8-bit data buses (tx_byte for transmission, rx_byte for reception) (1 pts)
 
-### 2. Transmission Logic (1 pts)
+### 2. Transmission Logic (5 pts)
    - The code implements the transmission protocol:
-     - The code generates start bit (logic 0) for one bit period at transmission begin
-     - The code transmits 8-bit data serially (LSB first) with correct bit timing
-     - The code generates stop bit (logic 1) for one bit period at transmission end
-     - The code controls timing using a bit counter and clock divider based on baud rate
-     - The code maintains is_transmitting flag throughout the transmission sequence
-     - The code handles back-to-back transmission requests properly
+     - The code generates start bit (logic 0) for one bit period at transmission begin (1 pts)
+     - The code transmits 8-bit data serially (LSB first) with correct bit timing (1 pts)
+     - The code generates stop bit (logic 1) for one bit period at transmission end (1 pts)
+     - The code controls timing using a bit counter and clock divider based on baud rate (1 pts)
+     - The code handles back-to-back transmission requests properly (1 pts)
 
-### 3. Reception Logic (1 pts)
+### 3. Reception Logic (5 pts)
    - The code implements the reception protocol:
-     - The code detects start bit by sampling RX line at 16x baud rate
-     - The code validates start bit by checking middle sample points
-     - The code samples 8-bit data at the middle of each bit period (8 samples at 16x baud rate)
-     - The code verifies stop bit is logic 1 at the expected time
-     - The code sets error flags for:
-       - Framing error (invalid stop bit)
-       - Break condition (all bits including stop bit are 0)
-       - Overrun error (new data received before previous read)
-     - The code handles metastability on the RX input
+     - The code detects start bit by sampling RX line at 16x baud rate (1 pts)
+     - The code validates start bit by checking middle sample points (1 pts)
+     - The code samples 8-bit data at the middle of each bit period (1 pts)
+     - The code verifies stop bit is logic 1 at the expected time (1 pts)
+     - The code handles metastability on the RX input (1 pts)
 
 ### 4. Interface (1 pts)
    - The module header correctly defines the required ports:
@@ -64,59 +59,56 @@
 
 ---
 
-## Testbench Comprehensiveness checkpoints - Total 7 pts (grade_checkpoint3)
+## Testbench Comprehensiveness checkpoints - Total 28 pts (grade_checkpoint3)
 
-### Basic Operation: (1 pts)
+### Basic Operation: (4 pts)
    - The testbench code tests:
-     - The code verifies all outputs are in correct state after reset
-     - The code verifies idle state has TX high and flags inactive
-     - The code tests state transitions with timing verification
+     - The code verifies all outputs are in correct state after reset (1 pts)
+     - The code verifies idle state has TX high and flags inactive (1 pts)
+     - The code tests state transitions with timing verification (1 pts)
+     - The code verifies initial conditions (1 pts)
 
-### Transmission Tests: (1 pts)
+### Transmission Tests: (4 pts)
    - The testbench code tests:
-     - The code transmits bytes with alternating bit patterns (0x55, 0xAA)
-     - The code performs back-to-back transmissions with minimum gap
-     - The code verifies each bit period matches baud rate with <2% error
-     - The code checks is_transmitting flag timing matches exact transmission period
+     - The code transmits bytes with alternating bit patterns (0x55, 0xAA) (1 pts)
+     - The code performs back-to-back transmissions with minimum gap (1 pts)
+     - The code verifies each bit period matches baud rate (1 pts)
+     - The code checks is_transmitting flag timing (1 pts)
 
-### Reception Tests: (1 pts)
+### Reception Tests: (4 pts)
    - The testbench code tests:
-     - The code receives bytes with various bit patterns
-     - The code handles minimum and maximum speed variations (±5% baud rate)
-     - The code samples data with proper 16x oversampling
-     - The code verifies received flag timing and duration
+     - The code receives bytes with various bit patterns (1 pts)
+     - The code handles minimum and maximum speed variations (1 pts)
+     - The code samples data with proper 16x oversampling (1 pts)
+     - The code verifies received flag timing and duration (1 pts)
 
-### Error Handling: (1 pts)
+### Error Handling: (4 pts)
    - The testbench code tests:
-     - The code detects frame errors with early and late stop bits
-     - The code recovers within one bit time after error conditions
-     - The code signals specific error types through status flags
-     - The code handles noise on RX line (glitches shorter than 1/16 bit time)
+     - The code detects frame errors with early and late stop bits (1 pts)
+     - The code recovers within one bit time after error conditions (1 pts)
+     - The code signals specific error types through status flags (1 pts)
+     - The code handles noise on RX line (1 pts)
 
-### Full Duplex: (1 pts)
+### Full Duplex: (4 pts)
    - The testbench code tests:
-     - The code performs transmission during active reception
-     - The code maintains independent bit timing for TX and RX
-     - The code preserves data integrity under maximum load
-     - The code handles collisions on external loopback
+     - The code performs transmission during active reception (1 pts)
+     - The code maintains independent bit timing for TX and RX (1 pts)
+     - The code preserves data integrity under maximum load (1 pts)
+     - The code handles collisions on external loopback (1 pts)
 
-### Baud Rate: (1 pts)
+### Baud Rate: (4 pts)
    - The testbench code tests:
-     - The code operates with standard baud rates (9600, 19200, etc.)
-     - The code maintains bit timing accuracy over full byte
-     - The code synchronizes RX sampling with center of bits
-     - The code handles clock ratios that aren't perfect multiples
+     - The code operates with standard baud rates (9600, 19200, etc.) (1 pts)
+     - The code maintains bit timing accuracy over full byte (1 pts)
+     - The code synchronizes RX sampling with center of bits (1 pts)
+     - The code handles clock ratios that aren't perfect multiples (1 pts)
 
-### Stress Testing: (1 pts)
+### Stress Testing: (4 pts)
    - The testbench code tests:
-     - The code handles continuous operation for >1000 bytes
-     - The code processes pseudo-random data patterns
-     - The code maintains stability with noisy inputs
-     - The code operates correctly at temperature and voltage corners
-
-# File Content
-
-## uart_tb.v
+     - The code handles continuous operation for >1000 bytes (1 pts)
+     - The code processes pseudo-random data patterns (1 pts)
+     - The code maintains stability with noisy inputs (1 pts)
+     - The code operates correctly at temperature and voltage corners (1 pts)
 
 ---
 

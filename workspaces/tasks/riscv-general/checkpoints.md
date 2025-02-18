@@ -1,124 +1,102 @@
-## Action Checkpoints - Total 3 pt (grade_checkpoint1)
+## Action Checkpoints - Total 3 pts (grade_checkpoint1)
 
 ### File creation riscv32i.v: (1 pts)
-   - A file is created for the RISC-V processor module `riscv32i.v`
+   - A file is created for the RISC-V processor module `riscv32i.v` (1 pts)
 
 ### File creation riscv32i_tb.v: (1 pts)
-   - A testbench file is created for the RISC-V processor module `riscv32i_tb.v`
+   - A testbench file is created for the RISC-V processor module `riscv32i_tb.v` (1 pts)
 
 ### File creation report.md: (1 pts)
-   - A test file is created for the output of the testbench `report.md`
+   - A test file is created for the output of the testbench `report.md` (1 pts)
 
 ---
 
-## Main Module Checkpoints - Total 4 pts (grade_checkpoint2)
+## Main Module Checkpoints - Total 20 pts (grade_checkpoint2)
 
-### 1. Interface & Modularity (1 pts)
+### 1. Interface & Modularity (5 pts)
    - The code implements the following components:
-     - The code has synchronous clock and active-high reset inputs
-     - The code implements separate instruction and data memory interfaces with 32-bit addresses
-     - The code includes a debug interface to read register file contents
-     - The code organizes pipeline stages:
-       - Instruction Fetch (PC, instruction memory interface)
-       - Instruction Decode (register file, immediate generation)
-       - Execute (ALU, branch computation)
-       - Memory (data memory interface)
-       - Writeback (register write control)
+     - The code has synchronous clock and active-high reset inputs (1 pts)
+     - The code implements separate instruction and data memory interfaces (1 pts)
+     - The code includes a debug interface to read register file contents (1 pts)
+     - The code implements instruction fetch and decode stages (1 pts)
+     - The code implements execute, memory and writeback stages (1 pts)
 
-### 2. Control & Datapath (1 pts)
+### 2. Control & Datapath (5 pts)
    - The code implements control and data flow:
-     - The code decodes instructions to generate control signals:
-       - ALU operation selection (ADD, SUB, AND, OR, etc.)
-       - Memory operation control (read/write, byte/half/word)
-       - Register file write enable and source selection
-       - Branch and jump control
-     - The code implements data hazard handling:
-       - Data forwarding paths between pipeline stages
-       - Pipeline stall logic when needed
-       - Branch prediction or flush mechanism
+     - The code decodes instructions to generate ALU control signals (1 pts)
+     - The code generates memory operation control signals (1 pts)
+     - The code manages register file write control (1 pts)
+     - The code implements data forwarding paths (1 pts)
+     - The code handles pipeline stalls and flushes (1 pts)
 
-### 3. Instruction Support (1 pts)
+### 3. Instruction Support (5 pts)
    - The code implements RV32I instructions:
-     - Load/Store:
-       - The code handles LW, LH, LB (with sign extension)
-       - The code handles SW, SH, SB
-       - The code handles memory alignment
-     - Arithmetic/Logic:
-       - The code implements ADD, SUB, AND, OR, XOR
-       - The code implements SLL, SRL, SRA
-       - The code handles immediate variants (ADDI, etc.)
-     - Control Flow:
-       - The code implements BEQ, BNE, BLT, BGE
-       - The code implements JAL with return address
-       - The code implements JALR for indirect jumps
+     - The code handles load instructions (LW, LH, LB) with sign extension (1 pts)
+     - The code handles store instructions (SW, SH, SB) (1 pts)
+     - The code implements arithmetic/logic instructions (ADD, SUB, AND, OR, XOR) (1 pts)
+     - The code implements shift instructions (SLL, SRL, SRA) (1 pts)
+     - The code implements branch and jump instructions (BEQ, BNE, JAL, JALR) (1 pts)
 
-### 4. Interface (1 pts)
+### 4. Interface (5 pts)
    - The code implements the module with these ports:
-   ```verilog
-   input wire clk,                      // Clock signal
-   input wire reset,                    // Reset signal
-   output wire [31:0] instr_mem_addr,   // Instruction memory address
-   input wire [31:0] instr_mem_data,    // Instruction memory data
-   output wire [31:0] data_mem_addr,    // Data memory address
-   output wire [31:0] data_mem_data_in, // Data memory write data
-   input wire [31:0] data_mem_data_out, // Data memory read data
-   output wire data_mem_we,             // Data memory write enable
-   input wire [4:0] regfile_debug_read_addr,  // Debug register address
-   output wire [31:0] regfile_debug_read_data // Debug register data
-   ```
+     - The code defines clock, reset, and instruction memory interface signals properly (1 pts)
+     - The code defines data memory interface signals properly (1 pts)
+     - The code defines debug interface signals properly (1 pts)
+     - The code uses correct port directions for all signals (1 pts)
+     - The code maintains proper signal widths (32-bit for addresses and data) (1 pts)
 
 ---
 
-## Testbench Comprehensiveness checkpoints - Total 7 pts (grade_checkpoint3)
+## Testbench Comprehensiveness checkpoints - Total 28 pts (grade_checkpoint3)
 
-### ALU Operations: (1 pts)
+### ALU Operations: (4 pts)
    - The testbench code tests arithmetic:
-     - The code tests ADD/SUB with positive/negative numbers
-     - The code tests logical operations (AND, OR, XOR)
-     - The code tests shifts with different amounts
-     - The code verifies results against expected values
+     - The code tests ADD/SUB with positive/negative numbers (1 pts)
+     - The code tests logical operations (AND, OR, XOR) (1 pts)
+     - The code tests shifts with different amounts (1 pts)
+     - The code verifies results against expected values (1 pts)
 
-### Memory Operations: (1 pts)
+### Memory Operations: (4 pts)
    - The testbench code tests memory access:
-     - The code tests word/half/byte loads with sign extension
-     - The code tests word/half/byte stores
-     - The code tests unaligned access handling
-     - The code verifies data persistence in memory
+     - The code tests word/half/byte loads with sign extension (1 pts)
+     - The code tests word/half/byte stores (1 pts)
+     - The code tests unaligned access handling (1 pts)
+     - The code verifies data persistence in memory (1 pts)
 
-### Branch & Jump: (1 pts)
+### Branch & Jump: (4 pts)
    - The testbench code tests control flow:
-     - The code tests branch taken/not-taken paths
-     - The code tests forward and backward jumps
-     - The code tests JAL/JALR return address saving
-     - The code verifies branch prediction accuracy
+     - The code tests branch taken/not-taken paths (1 pts)
+     - The code tests forward and backward jumps (1 pts)
+     - The code tests JAL/JALR return address saving (1 pts)
+     - The code verifies branch prediction accuracy (1 pts)
 
-### Control Flow: (1 pts)
+### Control Flow: (4 pts)
    - The testbench code tests execution:
-     - The code tests instruction pipeline flow
-     - The code tests hazard detection and handling
-     - The code tests pipeline stalls and flushes
-     - The code verifies control signal timing
+     - The code tests instruction pipeline flow (1 pts)
+     - The code tests hazard detection and handling (1 pts)
+     - The code tests pipeline stalls and flushes (1 pts)
+     - The code verifies control signal timing (1 pts)
 
-### Register File: (1 pts)
+### Register File: (4 pts)
    - The testbench code tests registers:
-     - The code tests x0 remains zero
-     - The code tests read-after-write hazards
-     - The code tests forwarding paths
-     - The code verifies register file integrity
+     - The code tests x0 remains zero (1 pts)
+     - The code tests read-after-write hazards (1 pts)
+     - The code tests forwarding paths (1 pts)
+     - The code verifies register file integrity (1 pts)
 
-### Edge Cases: (1 pts)
+### Edge Cases: (4 pts)
    - The testbench code tests boundaries:
-     - The code tests arithmetic overflow scenarios
-     - The code tests memory access at boundaries
-     - The code tests maximum branch ranges
-     - The code tests instruction combinations causing hazards
+     - The code tests arithmetic overflow scenarios (1 pts)
+     - The code tests memory access at boundaries (1 pts)
+     - The code tests maximum branch ranges (1 pts)
+     - The code tests instruction combinations causing hazards (1 pts)
 
-### Stress Testing: (1 pts)
+### Stress Testing: (4 pts)
    - The testbench code tests reliability:
-     - The code runs sequences of dependent instructions
-     - The code tests all instruction types mixed
-     - The code verifies long-running stability
-     - The code tests recovery from pipeline hazards
+     - The code runs sequences of dependent instructions (1 pts)
+     - The code tests all instruction types mixed (1 pts)
+     - The code verifies long-running stability (1 pts)
+     - The code tests recovery from pipeline hazards (1 pts)
 
 ---
 
