@@ -99,11 +99,6 @@ def check_with_llm_F(checkpoints, file_content): # to handle the case of functin
 
     llm_response = llm_complete(messages, file_content)
 
-
-    print("\n************************************LLM Response*************************************************")
-    print(llm_response)
-    print("*************************************************************************************************\n")
-
     print("\n************************************Evaluation Report*******************************************")
     llm_response_txt = llm_response['choices'][0]['message']['content'].lower()
     print(llm_response_txt)
