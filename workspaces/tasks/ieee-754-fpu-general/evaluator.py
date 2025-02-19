@@ -65,7 +65,7 @@ def config_env(dir_path):
 def check_with_llm_F(checkpoints, file_content): # to handle the case of functinality score
 
     if len(checkpoints) == 0:
-        return 0
+        return (0, 0)
 
     messages = [
         {

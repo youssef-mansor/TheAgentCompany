@@ -96,7 +96,7 @@ def config_env(dir_path):
 def check_with_llm_F(checkpoints, file_content): # to handle the case of functinality score
 
     if len(checkpoints) == 0:
-        return 0
+        return (0, 0)
 
     messages = [
         {
@@ -117,7 +117,7 @@ def check_with_llm_F(checkpoints, file_content): # to handle the case of functin
     if score:
         return (int(score.group(1)), int(total_score.group(1)))
     else:
-        return 0
+        return (0, 0)
 
 
 def is_file_exist(file_path):
@@ -142,7 +142,11 @@ def grade_checkpoint1():
     if is_file_exist(find_file_path("caravel_user_project_ol2/verilog/rtl/user_proj_wrapper.v")):
         score += 1
     else:
-        print("file user_proj_wrapper.v doesn't exist")
+        print("file user_proj_wrapper.v doesn't exist as part of caravel template")
+        if is_file_exist(find_file_path("user_proj_wrapper.v")):
+            score += 1
+        else:
+            print("file user_proj_wrapper.v doesn't exist at all")
     if is_file_exist(find_file_path("report.md")):
         score += 1
     else:

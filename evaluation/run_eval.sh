@@ -81,7 +81,9 @@ echo "Server hostname: $SERVER_HOSTNAME"
 
 # Iterate through each directory in tasks
 # for task_dir in "$TASKS_DIR"/*/; do
-for task_name in "k-map-4variable-general" "shifter-8bit-general" "gpio-integration-caravel" "multiplier-4bit-unsigned-pipelined-general" "uart-general" "uart-integration-caravel" "ieee-754-fpu-general" "vending-machine-fsm-general"; do
+# for task_name in "k-map-4variable-general" "shifter-8bit-general" "gpio-integration-caravel" "multiplier-4bit-unsigned-pipelined-general" "uart-general" "uart-integration-caravel" "ieee-754-fpu-general" "vending-machine-fsm-general"; do
+for task_name in "ipm-caravel" "k-map-4variable-general" "multiplier-4bit-unsigned-pipelined-general"; do
+
     # task_name=$(basename "$task_dir")
     # task_name="vending-machine-fsm-general"
 

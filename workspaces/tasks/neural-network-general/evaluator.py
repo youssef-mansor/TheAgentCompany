@@ -65,7 +65,7 @@ def config_env(dir_path):
 def check_with_llm(checkpoints, file_content):
 
     if len(checkpoints) == 0:
-        return 0
+        return (0, 0)
 
     messages = [
         {
@@ -86,11 +86,12 @@ def check_with_llm(checkpoints, file_content):
     print("*************************************************************************************************\n")
 
 
-    score = re.search(r'(?i)Final Score: (\d+)/2', llm_response_txt)
+    score = re.search(r'(?i)final\s+score:\s*(\d{1,2})/\d{1,2}', llm_response_txt)
+    total_score = re.search(r'(?i)final\s+score:\s*\d{1,2}/(\d{1,3})', llm_response_txt)
     if score:
-        return int(score.group(1))
+        return (int(score.group(1)), int(total_score.group(1)))
     else:
-        return 0
+        return (0, 0)
     
 def check_with_llm_F(checkpoints, file_content): # to handle the case of functinality score
 
