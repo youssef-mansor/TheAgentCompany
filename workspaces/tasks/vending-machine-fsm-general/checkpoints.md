@@ -1,118 +1,54 @@
-## Action Checkpoints - Total 3 pts (grade_checkpoint1)
-
-### File creation vending_machine.v: (1 pts)
-   - A file is created for the vending machine FSM module `vending_machine.v` (1 pts)
-
-### File creation vending_machine_tb.v: (1 pts)
-   - A testbench file is created for the vending machine FSM module `vending_machine_tb.v` (1 pts)
-
-### File creation report.md: (1 pts)
-   - A test file is created for the output of the testbench `report.md` (1 pts)
 
 ---
 
-## Main Module Checkpoints - Total 20 pts (grade_checkpoint2)
+## Vending Machine FSM Checkpoints - Total 5 pts (grade_checkpoint2)  
 
-### 1. Interface & Inputs (5 pts)
-   - The code implements the following components:
-     - The code has clock and reset inputs (1 pts)
-     - The code has coin inputs (nickel, dime, quarter) (1 pts)
-     - The code has product selection input (1 pts)
-     - The code has cancel transaction input (1 pts)
-     - The code has output signals for: (1 pts)
-       - Product dispensed
-       - Change returned
-       - Current amount display
-       - Error conditions
+### 1. Module Interface (1 pt)  
+   Defines the required ports correctly:  
+   ```verilog  
+   input wire clk, reset;       // Clock and reset signals  
+   input wire [x:x] money;      // Inserted money  
+   input wire [x:x] select_product; // Product selection  
+   input wire [x:x] extra_cash; // Additional inserted money  
+   output reg prodA, prodB, prodC; // Product dispense signals  
+   output reg [x:x] balance;    // Remaining balance  
+   ```  
 
-### 2. State Machine Design (5 pts)
-   - The code implements FSM architecture:
-     - The code defines states: (1 pts)
-       - IDLE: waiting for coins
-       - COLLECTING: accepting coins
-       - DISPENSING: giving product
-       - RETURNING: giving change
-       - ERROR: handling invalid conditions
-     - The code implements state transitions (1 pts)
-     - The code handles state encoding (1 pts)
-     - The code manages state registers (1 pts)
-     - The code implements proper state logic (1 pts)
+### 2. State Definition (1 pt)  
+   Defines parameters for the different states of the vending machine.  
 
-### 3. Money Handling (5 pts)
-   - The code implements transaction logic:
-     - The code tracks accumulated amount (1 pts)
-     - The code calculates required change (1 pts)
-     - The code handles coin combinations: (1 pts)
-       - Nickel (5¢)
-       - Dime (10¢)
-       - Quarter (25¢)
-     - The code manages maximum amount (1 pts)
-     - The code handles invalid amounts (1 pts)
+### 3. State Transitions (1 pt)  
+   Implements a procedural block to handle transitions between states.  
 
-### 4. Product & Change Control (5 pts)
-   - The code implements dispensing logic:
-     - The code verifies sufficient funds (1 pts)
-     - The code manages product inventory (1 pts)
-     - The code calculates optimal change combination (1 pts)
-     - The code handles transaction completion (1 pts)
-     - The code manages error conditions: (1 pts)
-       - Insufficient funds
-       - Invalid selection
-       - No change available
-       - Out of stock
+### 4. Reset Behavior (1 pt)  
+   Ensures that on reset, the machine returns to a void/default/initial state.  
+
+### 5. State Transition Logic (1 pt)  
+   Uses a `case` statement to transition between states based on inserted money and product selection.  
+
+### 6. Output Handling (1 pt)  
+   Defines machine output logic in a procedural block based on the current state and uses `$display` for output visualization.  
+
+# File Content  
+
+## vending_machine.v  
 
 ---
 
-## Testbench Comprehensiveness checkpoints - Total 28 pts (grade_checkpoint3)
+## Vending Machine Testbench Checkpoints - Total 3 pts (grade_checkpoint2)  
 
-### Basic Operation: (4 pts)
-   - The testbench code tests:
-     - The code tests coin insertion sequence (1 pts)
-     - The code verifies product selection (1 pts)
-     - The code checks change return (1 pts)
-     - The code validates state transitions (1 pts)
+### 1. Money Denominations (1 pt)  
+   - Tests all possible money denominations (5,  10,  20).  
 
-### Money Handling: (4 pts)
-   - The testbench code tests:
-     - The code tests different coin combinations (1 pts)
-     - The code verifies amount accumulation (1 pts)
-     - The code tests change calculation (1 pts)
-     - The code checks maximum amount handling (1 pts)
+### 2. Product Selection (1 pt)  
+   - Tests vending for all products (prodA, prodB, prodC).  
 
-### Product Selection: (4 pts)
-   - The testbench code tests:
-     - The code tests valid product selection (1 pts)
-     - The code verifies price checking (1 pts)
-     - The code tests inventory management (1 pts)
-     - The code checks dispensing signals (1 pts)
+### 3. Output Validation (1 pt)  
+   - Displays expected vs. actual results concisely and determines pass/fail status.  
 
-### Change Return: (4 pts)
-   - The testbench code tests:
-     - The code tests exact change scenarios (1 pts)
-     - The code verifies change combinations (1 pts)
-     - The code tests cancel operation (1 pts)
-     - The code checks change timing (1 pts)
+# File Content  
 
-### Error Handling: (4 pts)
-   - The testbench code tests:
-     - The code tests insufficient funds (1 pts)
-     - The code verifies invalid selections (1 pts)
-     - The code tests timeout conditions (1 pts)
-     - The code checks error recovery (1 pts)
-
-### State Transitions: (4 pts)
-   - The testbench code tests:
-     - The code tests all state transitions (1 pts)
-     - The code verifies illegal transitions (1 pts)
-     - The code tests reset behavior (1 pts)
-     - The code checks state persistence (1 pts)
-
-### Complete Transactions: (4 pts)
-   - The testbench code tests:
-     - The code tests full transaction cycles (1 pts)
-     - The code verifies concurrent operations (1 pts)
-     - The code tests back-to-back transactions (1 pts)
-     - The code checks system stability (1 pts)
+## vending_machine_tb.v  
 
 ---
 

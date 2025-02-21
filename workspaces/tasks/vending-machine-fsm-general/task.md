@@ -1,64 +1,54 @@
-# Verilog Vending Machine FSM Implementation and Testing
+# Verilog Vending Machine FSM Implementation and Testing  
 
-## Step 0: Files creation
-Create the following files
-- `/workspace/report.md`
-- `/workspace/vending_machine.v`
-- `/workspace/vending_machine_tb.v`
+## Step 0: Files Creation  
+Create the following files:  
+- `/workspace/report.md`  
+- `/workspace/vending_machine.v`  
+- `/workspace/vending_machine_tb.v`  
 
-## Step 1: Implement a Vending Machine FSM
-Design a vending machine FSM in Verilog with the following interface:
-- `clk`
-- `reset`
-- `coin_in` (for $0.05, $0.10, $0.25)
-- `keypad_in` (for product selection)
-- `change_out` (change to return)
-- `product_dispensed` (output)
-- `error` (error condition)
-- `balance` (current balance)
+## Step 1: Implement a Vending Machine FSM  
+Design a vending machine FSM in Verilog with the following interface:  
+- **Inputs:**  
+  - `clk` (clock signal)  
+  - `reset` (reset signal)  
+  - `money` (inserted amount:  5,  10,  20)  
+  - `select_product` (product selection: 2-bit input)  
+  - `extra_cash` (additional money inserted)  
 
-The FSM should handle:
-- Multiple coin denominations ($0.05, $0.10, $0.25)
-- Partial payments with balance tracking
-- Product selection via keypad
-- Change calculation and return
-- Error conditions (invalid coins, insufficient payment, invalid selection)
+- **Outputs:**  
+  - `prodA` (dispense product A)  
+  - `prodB` (dispense product B)  
+  - `prodC` (dispense product C)  
+  - `balance` (remaining balance to return)  
 
-Place the implemented FSM into `/workspace/vending_machine.v`
+The FSM should handle:  
+- Selection of one of three products:  
+  - **Product A:**  5  
+  - **Product B:**  10  
+  - **Product C:**  15  
+- Money insertion in denominations of  5,  10, and  20.  
+- Returning change when the inserted amount exceeds the product price.  
+- Returning the full amount if the purchase is canceled before completion.  
+- Waiting for additional money if the inserted amount is insufficient.  
 
-## Step 2: Create a Self-Checking Testbench
-- Develop a comprehensive testbench for the vending machine FSM that covers all possible cases.
-- Ensure it automatically verifies correctness and prints the results.
-- Save the output in a Markdown file with:
-  - **Test title**
-  - **Pass/Fail status**
+Place the implemented FSM into `/workspace/vending_machine.v`.  
 
-Ensure the following points are addressed within the testbench:
+## Step 2: Create a Self-Checking Testbench  
+- Develop a comprehensive testbench for the vending machine FSM that covers all possible cases.  
+- Ensure it automatically verifies correctness and prints the results.  
+- Save the output in a Markdown (test report) file with:  
+  - **Test title**  
+  - **Pass/Fail status**  
 
-### Reset Behavior: (1 pts)
-   - Verify FSM resets all outputs (balance, change) to zero upon reset.
+Ensure the testbench addresses the following points:  
+- Tests with all possible money denominations.  
+- Testing with all products.  
+- Concise display of expected vs. actual result with pass/fail status by use of `$display` for output visualization. 
+- The output for each run should be **directly written to `/workspace/report.md` as part of the testbench execution**.
 
-### Valid Operations: (1 pts)
-   - Test valid coin inputs and product selections with correct balance updates.
+Place the implemented testbench into `/workspace/vending_machine_tb.v`.  
+Place the test report into `/workspace/report.md`.  
 
-### Error Handling: (1 pts)
-   - Verify proper handling of invalid coins, insufficient payment, invalid selections.
-
-### Change Calculation: (1 pts)
-   - Test correct change return for payments exceeding product price.
-
-### Partial Payments: (1 pts)
-   - Verify accumulation of multiple payments until product price is met.
-
-### Edge Cases: (1 pts)
-   - Test exact payment, excess payment, insufficient payment scenarios.
-
-### State Transitions: (1 pts)
-   - Verify correct FSM state transitions through all operational modes.
-
-Place the implemented testbench into `/workspace/vending_machine_tb.v`
-Place the test report into `/workspace/report.md`
-
-## Step 3: Debug and Fix Issues
-- If the module does not pass all test cases, revisit and refine the Verilog code.
-- Modify the design until all test cases pass successfully.
+## Step 3: Debug and Fix Issues  
+- If the module does not pass all test cases, revisit and refine the Verilog code.  
+- Modify the design until all test cases pass successfully.  
