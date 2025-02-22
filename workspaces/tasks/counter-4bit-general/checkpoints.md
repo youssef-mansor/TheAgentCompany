@@ -15,13 +15,10 @@
 ### 1. Increment Logic  (1 pts)
     Adds 1 to the count on each rising edge of `clk`. 
 
-### 2. Reset Priority  (1 pts)
-    If `reset` is active, the counter resets regardless of the clock.
-
-### 3. Width Constraint  (1 pts)
+### 2. Width Constraint  (1 pts)
     Limits the counter to a range of 0 to 15 (4 bits).
 
-### 4. Interface  (1 pts)
+### 3. Interface  (1 pts)
     The module header correctly defines the required ports:  
     ```verilog
     input wire clk;          // Clock signal  

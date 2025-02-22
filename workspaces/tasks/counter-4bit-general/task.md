@@ -22,13 +22,14 @@ Place the implemented counter into `/workspace/counter.v`
 
 Ensure the following points are addressed within the test bench 
 
-**Normal Increment: (1 pts)**
+**Normal Increment:**
      Allow the counter to increment and observe proper functionality at trigerring edge.
-**Wrap-Around: (1 pts)**
+**Wrap-Around:**
      Ensure the counter wraps back to 0 after reaching 15 (4-bit overflow).
 
+Ensure the testbench prints each test's pass/fail status directly into `/workspace/report.md` using Verilog file operations, with one line per test indicating "pass" or "fail."
+
 Place the implemented testbench into `/workspace/counter_tb.v`
-Place the implemented report into `/workspace/report.md`
 
 ## Step 3: Debug and Fix Issues  
 - If the module does not pass all test cases, revisit and refine the Verilog code.  
