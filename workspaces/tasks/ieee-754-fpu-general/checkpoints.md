@@ -11,43 +11,47 @@
 
 ---
 
-## Main Module Checkpoints - Total 20 pts (grade_checkpoint2)
+## Main Module Checkpoints - Total 12 pts (grade_checkpoint2)
 
-### 1. Interface & Modularity (5 pts)
-   - The code implements module ports:
-     - The code defines clock and control inputs properly (1 pts)
-     - The code defines operand inputs correctly (1 pts)
-     - The code defines result output properly (1 pts)
-     - The code defines exception outputs properly (1 pts)
-     - The code uses correct port directions and types (1 pts)
+### 1. Interface (1 pts)
+   - The code implements the following interface:
+   ```verilog
+   module fpu(
+      input wire clk,                  // Clock signal for pipelining
+      input wire [1:0] rounding_mode,  // Selects the rounding mode
+      input wire [2:0] operation,      // Selects the FPU operation
+      input wire [31:0] operand_A,     // First operand (single-precision)
+      input wire [31:0] operand_B,     // Second operand (single-precision)
+      output wire [31:0] out,          // Result of the operation
+      output wire overflow,            // Overflow exception
+      output wire underflow,           // Underflow exception
+      output wire div_by_zero,         // Division by zero exception
+      output wire inexact,             // Inexact result exception
+      output wire invalid_operation    // Invalid operation exception
+   );
+   ```
 
 ### 2. Operations Support (5 pts)
    - The code implements IEEE-754 operations:
-     - The code implements addition/subtraction correctly (1 pts)
-     - The code implements multiplication correctly (1 pts)
-     - The code implements division correctly (1 pts)
+     - The code implements addition/subtraction (1 pts)
+     - The code implements multiplication (1 pts)
+     - The code implements division (1 pts)
      - The code implements int-to-float conversion (1 pts)
      - The code implements float-to-int conversion (1 pts)
 
 ### 3. IEEE 754 Compliance (5 pts)
    - The code implements standard features:
      - The code handles special values (NaN, Infinity, Zero) (1 pts)
-     - The code implements all rounding modes (1 pts)
+     - The code implements all four rounding modes (1 pts)
      - The code detects overflow and underflow (1 pts)
      - The code handles division by zero (1 pts)
      - The code detects invalid operations (1 pts)
 
-### 4. Pipeline Implementation (5 pts)
-   - The code implements pipelining:
-     - The code implements decode stage properly (1 pts)
-     - The code implements execute stage properly (1 pts)
-     - The code implements result stage properly (1 pts)
-     - The code handles pipeline stalls correctly (1 pts)
-     - The code maintains consistent latency (1 pts)
-
+### 4. Pipeline Implementation (1 pt)
+   - The code implements pipelining. ( 1pt)
 ---
 
-## Testbench Comprehensiveness checkpoints - Total 28 pts (grade_checkpoint3)
+## Testbench Comprehensiveness checkpoints - Total 24 pts (grade_checkpoint3)
 
 ### Basic Operations: (4 pts)
    - The testbench code tests:
@@ -90,13 +94,6 @@
      - The code tests minimum float values (1 pts)
      - The code tests power of 2 boundaries (1 pts)
      - The code tests normalization cases (1 pts)
-
-### Pipeline: (4 pts)
-   - The testbench code tests:
-     - The code tests operation sequences (1 pts)
-     - The code tests mixed operations (1 pts)
-     - The code tests data dependencies (1 pts)
-     - The code tests pipeline throughput (1 pts)
 
 ---
 

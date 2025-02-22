@@ -39,10 +39,10 @@ The FPU must implement:
   - Division (011)
   - Int-to-Float (100)
   - Float-to-Int (101)
-- Full exception handling
+- Exception handling
 - Pipelined architecture for high throughput
 
-Place the implemented FPU into `/workspace/fpu.v`
+Place the top module of the implemented FPU into `/workspace/fpu.v`
 
 ## Step 2: Create a Self-Checking Testbench
 - Develop a comprehensive testbench for the FPU that covers all operations and cases.
@@ -51,31 +51,26 @@ Place the implemented FPU into `/workspace/fpu.v`
   - **Test title**
   - **Pass/Fail status**
 
+Ensure the testbench prints each test's pass/fail status directly into `/workspace/report.md` using Verilog file operations, with one line per test indicating "pass" or "fail."
+
 Ensure the following points are addressed within the testbench:
 
-### Basic Operations: (1 pts)
+### Basic Operations:
    - Test all arithmetic operations with simple cases.
 
-### Special Values: (1 pts)
+### Special Values:
    - Test NaN, Infinity, and Zero handling.
 
-### Rounding Modes: (1 pts)
-   - Test all four rounding modes with boundary cases.
+### Rounding Modes:
+   - Test all four rounding modes.
 
-### Exceptions: (1 pts)
-   - Test all exception conditions and flag assertions.
+### Exceptions:
+   - Test all exception conditions.
 
-### Conversions: (1 pts)
+### Conversions:
    - Test int-to-float and float-to-int conversions.
 
-### Edge Cases: (1 pts)
-   - Test denormalized numbers and boundary conditions.
-
-### Pipeline: (1 pts)
-   - Test pipeline throughput and hazard handling.
-
 Place the implemented testbench into `/workspace/fpu_tb.v`
-Place the test report into `/workspace/report.md`
 
 ## Step 3: Debug and Fix Issues
 - If the module does not pass all test cases, revisit and refine the Verilog code.

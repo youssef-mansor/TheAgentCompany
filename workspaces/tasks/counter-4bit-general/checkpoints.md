@@ -36,7 +36,7 @@
 Ensure the following points are addressed within the test bench 
 
 ### Normal Increment: (1 pts)
-     Allow the counter to increment and observe proper functionality at trigerring edge.
+     After resetting, the simulation waits long enough to test counter increments at the triggering edge.
 ### Wrap-Around: (1 pts)
      Ensure the counter wraps back to 0 after reaching 15 (4-bit overflow).
 

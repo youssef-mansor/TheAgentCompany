@@ -42,7 +42,7 @@
 Ensure the following points are addressed within the test bench 
 
 ### Normal Operation: (1 pts)
-   - Verify that `q` follows `d` on each rising edge of the clock when reset is inactive.
+   - Different test cases with different values of `d` at different time intervals are applied.
 
 
 # File Content

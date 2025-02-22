@@ -20,7 +20,7 @@ The module implements the following interface: (1 pt)
 - `S` (4-bit sum output)
 - `cout` (carry-out)
 
-The code uses four full adders (one for each bit in the input) (1 pt)
+The code uses four full adders (one for each bit in the input) or does the addition normally but for each input bit (1 pt)
 
 The code calculates the four Generate (G) terms (1 pt)
 
