@@ -61,7 +61,7 @@
 
 ## **Integration Checkpoints - Total 5 pts** (grade_checkpoint2)  
 
-The **CLA module** is correctly instantiated within `user_project_wrapper`.  (1 pts)
+The **CLA module** is instantiated within `user_project_wrapper`.  (1 pts)
 **Input ports** of the CLA module are connected to `io_in`.  (1 pts)
 **Output ports** of the CLA module are connected to `io_out`.  (1 pts)
 The CLA module instance ports are assigned **non-overlapping** ranges of `io_in` and `io_out`.  (1 pts)

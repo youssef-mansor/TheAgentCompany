@@ -17,13 +17,13 @@ Place the implemented flip-flop into `/workspace/dff.v`
 
 ## Step 2: Create a Self-Checking Testbench  
 - Develop a comprehensive testbench for the D Flip Flop module that covers all possible cases.  
-- Ensure it automatically verifies correctness and prints the results.  
 - Save the output in a Markdown file with:  
   - **Test title**  
   - **Pass/Fail status**  
 
+Ensure the testbench prints each test's pass/fail status directly into `/workspace/report.md` using Verilog file operations, with one line per test indicating "pass" or "fail."
+
 Place the implemented testbench into `/workspace/dff_tb.v`  
-Place the test report into `/workspace/report.md` even if not all tests passed. make sure to print testbench results into report.md
 
 ## Step 3: Debug and Fix Issues  
 - If the module does not pass all test cases, revisit and refine the Verilog code.  
