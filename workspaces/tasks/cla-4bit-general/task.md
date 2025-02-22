@@ -14,11 +14,7 @@ Design a 4-bit CLA in Verilog with the following interface:
 - `S` (4-bit sum output)
 - `cout` (carry-out)
 
-The CLA should:
-- Calculate generate (G) and propagate (P) signals
-- Use lookahead logic for carry calculation
-- Implement efficient carry propagation
-- Calculate sum using P and carry signals
+The CLA should use generate (G) and propagate (P) signals for implementation of lookahead logic
 
 Place the implemented CLA into `/workspace/cla.v`
 
@@ -29,31 +25,10 @@ Place the implemented CLA into `/workspace/cla.v`
   - **Test title**
   - **Pass/Fail status**
 
-Ensure the following points are addressed within the testbench:
-
-### Full Combinatorial Test: (1 pts)
-   - Test all possible combinations of inputs (A, B, cin).
-
-### Edge Cases: (1 pts)
-   - Test boundary conditions (all zeros, all ones, etc.).
-
-### Carry Propagation: (1 pts)
-   - Verify correct carry propagation through all bits.
-
-### Lookahead Logic: (1 pts)
-   - Validate proper implementation of generate and propagate signals.
-
-### Random Tests: (1 pts)
-   - Perform randomized testing of inputs.
-
-### Performance: (1 pts)
-   - Verify carry lookahead behavior vs ripple carry.
-
-### Error Cases: (1 pts)
-   - Test overflow conditions and boundary scenarios.
+Ensure to Test all possible combinations of inputs (A, B, cin)
+Ensure the testbench prints each test's pass/fail status directly into `/workspace/report.md` using Verilog file operations, with one line per test indicating "pass" or "fail."
 
 Place the implemented testbench into `/workspace/cla_tb.v`
-Place the test report into `/workspace/report.md`
 
 ## Step 3: Debug and Fix Issues
 - If the module does not pass all test cases, revisit and refine the Verilog code.

@@ -145,9 +145,9 @@ def grade_checkpoints(trajectory="") -> Result:
         'checkpoint_llm_report': grade_checkpoint_llm(CHECK_POINTS_REPORT, find_file_path("report.md"), 'markdown')
     }
     W_A = 0
-    W_M = 20
+    W_M = 30
     W_T = 30
-    W_F = 50
+    W_F = 40
     Final = 0
 
     # Checkpoint 1
