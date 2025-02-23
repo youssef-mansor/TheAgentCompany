@@ -15,19 +15,19 @@
 
 ### 1. Interface (1 pts)
    - The code implements the following interface:
-   ```verilog
+   ```psuedo-verilog
    module fpu(
-      input wire clk,                  // Clock signal for pipelining
-      input wire [1:0] rounding_mode,  // Selects the rounding mode
-      input wire [2:0] operation,      // Selects the FPU operation
-      input wire [31:0] operand_A,     // First operand (single-precision)
-      input wire [31:0] operand_B,     // Second operand (single-precision)
-      output wire [31:0] out,          // Result of the operation
-      output wire overflow,            // Overflow exception
-      output wire underflow,           // Underflow exception
-      output wire div_by_zero,         // Division by zero exception
-      output wire inexact,             // Inexact result exception
-      output wire invalid_operation    // Invalid operation exception
+      clk,                  // Clock signal for pipelining
+      [1:0] rounding_mode,  // Selects the rounding mode
+      [2:0] operation,      // Selects the FPU operation
+      [31:0] operand_A,     // First operand (single-precision)
+      [31:0] operand_B,     // Second operand (single-precision)
+      [31:0] out,          // Result of the operation
+      overflow,            // Overflow exception
+      underflow,           // Underflow exception
+      div_by_zero,         // Division by zero exception
+      inexact,             // Inexact result exception
+      invalid_operation    // Invalid operation exception
    );
    ```
 

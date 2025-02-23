@@ -20,10 +20,9 @@
 
 ### 3. Interface  (1 pts)
     The module header correctly defines the required ports:  
-    ```verilog
-    input wire clk;          // Clock signal  
-    input wire reset;        // Reset signal  
-    output reg [3:0] count;  // 4-bit count output  
+- `clk`
+- `reset`
+- `count` (4 bits)
 
 # File Content
 

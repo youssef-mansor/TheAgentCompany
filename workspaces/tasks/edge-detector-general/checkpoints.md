@@ -24,13 +24,11 @@
 
 ### 4. Interface (1 pts)
    - The module should define the ports appropriately, as specified in the prompt:
-   ```verilog
-   input wire clk,          // Clock signal  
-   input wire reset,        // Reset signal  
-   input wire signal_in,    // Input signal  
-   output reg signal_out    // Output signal
-   ```
-
+   - `clk`     
+   - `reset`
+   - `signal_in`
+   - `signal_out`
+   
 # File Content
 
 ## edge_detector.v

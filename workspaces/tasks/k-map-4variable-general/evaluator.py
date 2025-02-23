@@ -151,10 +151,10 @@ def grade_checkpoints(trajectory="") -> Result:
         'checkpoint_llm_tb': grade_checkpoint_llm(CHECK_POINTS_TB, find_file_path("logic_tb.v"), 'verilog'),
         'checkpoint_llm_report': grade_checkpoint_llm(CHECK_POINTS_REPORT, find_file_path("report.md"), 'markdown')
     }
-    W_A = 10
-    W_M = 20
-    W_T = 20
-    W_F = 50
+    W_A = 0
+    W_M = 30
+    W_T = 30
+    W_F = 40
     Final = 0
 
     # Checkpoint 1

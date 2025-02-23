@@ -24,12 +24,10 @@
 
 ### 4. Interface (1 pts)
    - The module header should correctly define the following ports:
-   ```verilog
-   input wire clk,    // Clock signal
-   input wire reset,  // Reset signal
-   input wire d,      // Data input
-   output reg q       // Output q
-   ```
+   - `clk` 
+   - `reset`
+   - `d`
+   - `q`
 
 # File Content
 

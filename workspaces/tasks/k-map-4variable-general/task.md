@@ -34,16 +34,11 @@ Create the following files
   - **Test title**
   - **Pass/Fail status**
 
-Ensure the following points are addressed within the testbench:
+Ensure the testbench prints each test's pass/fail status directly into `/workspace/report.md` using Verilog file operations, with one line per test indicating "pass" or "fail."
 
-### Exhaustive Testing: (1 pt)
-    Verify all 16 possible input combinations (2^4) to ensure correctness.
-
-### Correct Behavior: (1 pt)
-    Check that the logic matches the original K-map truth table.
+Ensure to Verify all 16 possible input combinations (2^4).
 
   Place the implemented testbench into `/workspace/logic_tb.v`
-  Place the implemented report into `/workspace/report.md`
 
 ---
 

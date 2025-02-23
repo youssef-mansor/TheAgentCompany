@@ -15,7 +15,7 @@ Design a 4-bit unsigned pipelined multiplier in Verilog with the following inter
 - `product` (8-bit output)
 - `valid` (output)
 
-The multiplier should have a three-cycle pipeline latency.
+The multiplier should have a three-cycle pipeline.
 Place the implemented multiplier into `/workspace/multiplier.v`
 
 ## Step 2: Create a Self-Checking Testbench
@@ -25,23 +25,18 @@ Place the implemented multiplier into `/workspace/multiplier.v`
   - **Test title**
   - **Pass/Fail status**
 
+Ensure the testbench prints each test's pass/fail status directly into `/workspace/report.md` using Verilog file operations, with one line per test indicating "pass" or "fail."
 
 Place the implemented testbench into `/workspace/multiplier_tb.v`
-Place the test report into `/workspace/report.md` even if not all tests passed. make sure to print testbench results into report.md
 
 Ensure the following points are addressed within the testbench:
 
-### Pipeline Latency: (1 pts)
+### Pipeline Functionality: (1 pts)
    - Verify that the product is correctly calculated after exactly three clock cycles.
+   - Include test cases to test pipeline functionality including stalling and valid signals.
 
 ### Input Combinations: (1 pts)
    - Test all possible input combinations (4-bit × 4-bit = 256 cases).
-
-### Reset Behavior: (1 pts)
-   - Verify that the pipeline clears and outputs are invalid when reset is asserted.
-
-### Valid Signal: (1 pts)
-   - Ensure valid signal is asserted only when pipeline result is ready.
 
 
 ## Step 3: Debug and Fix Issues

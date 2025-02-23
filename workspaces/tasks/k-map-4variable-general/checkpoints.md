@@ -42,9 +42,6 @@ Ensure the following points are addressed within the testbench:
 ### Exhaustive Testing: (1 pt)
     Verify all 16 possible input combinations (2^4) to ensure correctness.
 
-### Correct Behavior: (1 pt)
-    Check that the logic matches the original K-map truth table.
-
 
 # File Content
 
