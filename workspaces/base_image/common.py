@@ -54,17 +54,18 @@ def modify_messages(checkpoints_list_msg, file_content):
     # messages original content are the checkpoints
     messages = checkpoints_list_msg[:]
     EVAL_JUDGE = """
-        You are a judge evaluating files and their content against predefined checkpoints.  
-        Each checkpoint has an assigned score next to its title.
+        You are a judge evaluating a file content against predefined checkpoints.  
+        Each checkpoint has an assigned score.
 
         Task:  
-        1. Analyze the files based on the given checkpoints.  
+        1. Analyze the file based on the given checkpoints.  
         2. If a checkpoint is met, assign the corresponding score else assign zero. 
         3. Generate a detailed report with the following format:  
             - Clearly list each checkpoint and the corresponding score assigned.  
             - Conclude the report with the final score in the format:  
-                **Final Score: <score>/<total specified>**
+                **Final Score: <score>/<total>**
         Don't make introduction or conclusion just respond directly with the report in the format specified above.
+
     """
     CHEKCPOINTS_INTRO = """
 
@@ -72,8 +73,15 @@ def modify_messages(checkpoints_list_msg, file_content):
 
     """
 
+    FILE_SPECIFICATION = """
+
+        Listed below are the contents for all files in the workspace. You are required to evaluate only the file that is
+        relevant to the defined checkpoints.
+
+    """
+
     # Prepend the EVAL_JUDGE and CHEKCPOINTS_INTRO to the messages and append the file content
-    messages[0]["content"] = f"{EVAL_JUDGE}{CHEKCPOINTS_INTRO}{checkpoints_list_msg[0]['content']}{file_content}"
+    messages[0]["content"] = f"{EVAL_JUDGE}{CHEKCPOINTS_INTRO}{checkpoints_list_msg[0]['content']}{FILE_SPECIFICATION}{file_content}"
 
     return messages
 

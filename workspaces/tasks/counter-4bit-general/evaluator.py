@@ -21,6 +21,7 @@ with open('/instruction/checkpoints.md', 'r') as f:
 
 # Split by lines containing only hyphens (allowing extra dashes)
 sections = re.split(r'\n\s*-{3,}\s*\n', content)
+testbench_path = None # holds the evaluated testbench path
 
 # sections[0]: Action Checkpoints (ignored)
 # sections[1]: Main Module Checkpoints
@@ -83,63 +84,91 @@ def check_with_llm_F(checkpoints, file_content): # to handle the case of functin
         return (int(score.group(1)), int(total_score.group(1)))
     else:
         return (0, 0)
-
-
-def is_file_exist(file_path):
-    """
-     Check if a file exists at the given path.
-    """
-    if not file_path:
-        logging.warning("is_file_exist: Empty path provided")
-        return False
-
-    abs_path = os.path.abspath(file_path)
-
+def run_find_command(find_cmd):
+    """Run a find command and return a list of file paths."""
     try:
-        return os.path.isfile(abs_path)
+        result = subprocess.run(find_cmd, shell=True, stdout=subprocess.PIPE,
+                                stderr=subprocess.PIPE, text=True)
+        if result.returncode == 0:
+            return result.stdout.strip().splitlines()
+        else:
+            return []
     except Exception as e:
-        logging.warning(f"Error in is_file_exist: {e}")
-        return False
+        print(f"Error running command '{find_cmd}': {e}")
+        return []
+
+def collect_files(find_cmd, exclude):
+    """
+    Run a find command and collect files that do not contain any of the
+    excluded substrings. Returns a dictionary mapping file paths to their content.
+    """
+    files = {}
+    file_paths = run_find_command(find_cmd)
+    for file_path in file_paths:
+        # Skip files that contain any substring from the exclude list
+        if any(sub in file_path for sub in exclude):
+            continue
+        try:
+            with open(file_path, 'r') as f:
+                files[file_path] = f.read()
+        except Exception as e:
+            print(f"Could not read file {file_path}: {e}")
+    return files
+
+def build_workspace_content(files, file_type):
+    """
+    Build a workspace content string that lists each file and its content
+    in the given markdown format.
+    """
+    workspace_content = ""
+    for file_name, content in files.items():
+        workspace_content += f"\n# {file_name}\n"
+        workspace_content += f"```{file_type}\n{content}\n```\n"
+    return workspace_content
 
 @grader
-def grade_checkpoint1():
-
-    score = 0.0
-    if is_file_exist(find_file_path("counter.v")):
-        score += 1
-    else:
-        print("file counter.v doesn't exist")
-
-    if is_file_exist(find_file_path("counter_tb.v")):
-        score += 1
-    else:
-        print("file counter_tb.v does not exist")
-
-    if is_file_exist(find_file_path("report.md")):
-        score += 1
-    else:
-        print("file report.md does not exist")
+def grade_checkpoint_llm(CHECK_POINTS, file_type):
+    # List of substrings to exclude from file names
+    exclude = ['test_runner.py', 'cocotb_iverilog_dump.v', 'openhands/miniforge3']
     
-    # round score to the nearest integer
-    return int(score)
+    files = {}
+    search_paths = ["/workspace", "/outputs", "/openhands/workspace/"]
 
-
+    # Collect Verilog files (.v and .sv) from each search path
+    for directory in search_paths:
+        verilog_cmd = f"find {directory} -type f \\( -name '*.v' -o -name '*.sv' \\)"
+        files.update(collect_files(verilog_cmd, exclude))
     
-@grader
-def grade_checkpoint_llm(CHECK_POINTS, file_path, file_type):
-    file_content = None
-    # check if the file /openhands/workspace/counter.v exists
-    if is_file_exist(file_path):
-        # read it content into file
-        with open(file_path, 'r') as file:
-            file_content = file.read()
-            file_content = f"\n{file_type}```\n" + file_content + "\n```\n"
-
-        return check_with_llm_F(CHECK_POINTS, file_content)
+    # Optionally include Python files if file_type is 'verilog/python'
+    if file_type == 'verilog/python':
+        for directory in search_paths:
+            python_cmd = f"find {directory} -type f -name '*.py'"
+            files.update(collect_files(python_cmd, exclude))
     
+    # Build workspace content and send to the LLM if any files are found
+    if files:
+        workspace_content = build_workspace_content(files, file_type)
+        return check_with_llm_F(CHECK_POINTS, workspace_content)
     else:
-        print(f"{file_path} does not exist")
+        print("workspace is empty")
         return (0, 0)
+    
+
+def execute_testbench(shell_script_path):
+    if shell_script_path:
+        try:
+            # Run the shell script
+            result = subprocess.run(shell_script_path, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+            # Check if the exit code indicates success
+            if result.returncode == 0:
+                return (1, 1)
+            else:
+                return (0, 1)
+        except Exception as e:
+            print(f"Error executing testbench: {e}")
+            return (0, 1)
+    else:
+        return (0, 1)
 
 
 def grade_checkpoints(trajectory="") -> Result:
@@ -148,25 +177,14 @@ def grade_checkpoints(trajectory="") -> Result:
 
     # Define the total scores corresponding to each checkpoint function with unique keys
     scores = {
-        'checkpoint1': (grade_checkpoint1(), 3),
-        # 'checkpoint_llm_module': (grade_checkpoint_llm(CHECK_POINTS_MODULE, '/openhands/workspace/counter.v', 'verilog'), 4),
-        'checkpoint_llm_module': grade_checkpoint_llm(CHECK_POINTS_MODULE, find_file_path('counter.v'), 'verilog'),
-        # 'checkpoint_llm_tb': (grade_checkpoint_llm(CHECK_POINTS_TB, '/openhands/workspace/counter_tb.v', 'verilog'), 7),
-        'checkpoint_llm_tb': grade_checkpoint_llm(CHECK_POINTS_TB,  find_file_path('counter_tb.v'), 'verilog'),
-        # 'checkpoint_llm_report': (grade_checkpoint_llm(CHECK_POINTS_REPORT, '/openhands/workspace/report.md', 'markdown'), 5),
-        'checkpoint_llm_report': grade_checkpoint_llm(CHECK_POINTS_REPORT,  find_file_path('report.md'), 'markdown')
+        'checkpoint_llm_module': grade_checkpoint_llm(CHECK_POINTS_MODULE, 'verilog'),
+        'checkpoint_llm_tb': grade_checkpoint_llm(CHECK_POINTS_TB, 'verilog/python'),
+        'checkpoint_llm_functionality': execute_testbench(find_file_path("run_test.sh")) #TODO update that to depend on the exit code.
     }
-    W_A = 10
-    W_M = 20
-    W_T = 20
-    W_F = 50
+    W_M = 30
+    W_T = 30
+    W_F = 40
     Final = 0
-
-    # Checkpoint 1
-    if scores['checkpoint1'][1] != 0:
-        A = scores['checkpoint1'][0] / scores['checkpoint1'][1]
-    else:
-        A = 0
 
     # Checkpoint LLM Module
     if scores["checkpoint_llm_module"][1] != 0:
@@ -181,17 +199,16 @@ def grade_checkpoints(trajectory="") -> Result:
         T = 0
 
     # Checkpoint LLM Report
-    if scores['checkpoint_llm_report'][1] != 0:
-        F = scores["checkpoint_llm_report"][0] / scores["checkpoint_llm_report"][1]
+    if scores['checkpoint_llm_functionality'][1] != 0:
+        F = scores["checkpoint_llm_functionality"][0] / scores["checkpoint_llm_functionality"][1]
     else:
         F = 0
 
 
     scores_checkpoints = {
-        'checkpoint1':(A*W_A, W_A),
         'checkpoint_llm_module':(M*W_M,W_M),
         'checkpoint_llm_tb':(T*W_T, W_T),
-        'checkpoint_llm_report':(((F + T) / 2)*W_F, W_F),
+        'checkpoint_llm_functionality':(((F + T) / 2)*W_F, W_F),
     }
 
     for final_score_key, (final_score, total_score) in scores_checkpoints.items():

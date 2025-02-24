@@ -1,12 +1,3 @@
-## Action Checkpoints - Total 3 pts (grade_checkpoint1)
-
-### File creation counter.v: (1 pts)
-    a file is created for counter module counter.v 
-### File creation counter_tb.v: (1pts)
-    a testbench file was created for the counter module counter_tb.v 
-
-### File creation report.md (1 pts)
-    a test file is created for the output of the testbench report.md 
 
 ---
 
@@ -24,10 +15,6 @@
 - `reset`
 - `count` (4 bits)
 
-# File Content
-
-## counter.v
-
 ---
 
 ## Testbench Comprehensiveness checkpoints - Total 2 pts (grade_checkpoint3)
@@ -39,19 +26,9 @@ Ensure the following points are addressed within the test bench
 ### Wrap-Around: (1 pts)
      Ensure the counter wraps back to 0 after reaching 15 (4-bit overflow).
 
-
-# File Content
-
-## counter_tb.v
-
 ---
 
-## Functionality - Total (# of tests in report.md) pts (grade_checkpoint4)
-    Returns the count of passed test cases in the report.md file and the total number of cases in the file. in the specific format of course **Final Score: <score - number of cases passed>/<total number of cases>**
 
-# File Content
-
-## report.md
 
 
 
