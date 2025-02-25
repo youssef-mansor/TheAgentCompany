@@ -5,6 +5,7 @@ import logging
 import subprocess
 import time
 import re
+import litellm
 
 
 from typing import List
@@ -153,22 +154,65 @@ def grade_checkpoint_llm(CHECK_POINTS, file_type):
         print("workspace is empty")
         return (0, 0)
     
+def llm_confirm(file_content=None):
+    if TEST_MODE:
+        return {'choices': [{'message': {"content": "Hello, how are you?","role": "user"}}]}
+    
+    messages = [
+        {
+            "content": f"Answer with only 'yes' or 'no'. Does the following script run either Python or Verilog code? say yes if it runs a python script and say yes if it compiles and runs a verilog file. say no otherwise.  `{file_content}`",
+            "role": "user"}
+    ]
 
-def execute_testbench(shell_script_path):
+    return litellm.completion(
+        api_key=LITELLM_API_KEY,
+        base_url=LITELLM_BASE_URL,
+        model=LITELLM_MODEL,
+        messages=messages
+    ).json()
+
+def execute_testbench(shell_script_path): # added to base image, update docker image, delete from here.
     if shell_script_path:
         try:
-            # Run the shell script
-            result = subprocess.run(shell_script_path, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
-            # Check if the exit code indicates success
-            if result.returncode == 0:
-                return (1, 1)
-            else:
-                return (0, 1)
+            # Read the file content
+            with open(shell_script_path, 'r') as file:
+                file_content = file.read()
         except Exception as e:
-            print(f"Error executing testbench: {e}")
+            print(f"Error reading file: {e}")
+            return (0, 1)
+
+        # Pass the file content to llm_confirm() and get the response
+        llm_response = llm_confirm(file_content)
+
+        # Extract the confirmation text and check for 'yes'
+        confirmation_text = llm_response['choices'][0]['message']['content'].lower()
+        print(f"confirmation_text: {confirmation_text}\n")
+        if "yes" in confirmation_text:
+            try:
+                # Run the shell script
+                result = subprocess.run(
+                    shell_script_path,
+                    shell=True,
+                    stdout=subprocess.PIPE,
+                    stderr=subprocess.PIPE,
+                    text=True
+                )
+                # Check if the exit code indicates success
+                if result.returncode == 0:
+                    return (1, 1)
+                else:
+                    return (0, 1)
+            except Exception as e:
+                print(f"Error executing testbench: {e}")
+                return (0, 1)
+        else:
+            print("Testbench execution not confirmed by LLM.")
             return (0, 1)
     else:
         return (0, 1)
+    
+
+
 
 
 def grade_checkpoints(trajectory="") -> Result:
@@ -208,7 +252,7 @@ def grade_checkpoints(trajectory="") -> Result:
     scores_checkpoints = {
         'checkpoint_llm_module':(M*W_M,W_M),
         'checkpoint_llm_tb':(T*W_T, W_T),
-        'checkpoint_llm_functionality':(((F + T) / 2)*W_F, W_F),
+        'checkpoint_llm_functionality':(F*W_F, W_F),
     }
 
     for final_score_key, (final_score, total_score) in scores_checkpoints.items():
