@@ -27,8 +27,3 @@ Ensure the following points are addressed within the test bench
      Ensure the counter wraps back to 0 after reaching 15 (4-bit overflow).
 
 ---
-
-
-
-
-

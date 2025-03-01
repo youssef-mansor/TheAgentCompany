@@ -1,11 +1,5 @@
 # Verilog Neural Network Implementation and Testing
 
-## Step 0: Files creation
-Create the following files
-- `/workspace/report.md`
-- `/workspace/neural_network.v`
-- `/workspace/neural_network_tb.v`
-
 ## Step 1: Implement a Neural Network in Verilog
 Design a synthesizable neural network module in Verilog that implements the following Python model:
 
@@ -37,41 +31,34 @@ class CustomNN(nn.Module):
 ```
 
 The Verilog implementation must have the following interface:
-```verilog
-module neural_network (
     // Clock and reset
-    input wire clk,                  // Clock signal
-    input wire rst,                  // Reset signal
-    
-    // Wishbone interface
-    input wire [31:0] addr_in,       // Address input
-    input wire [31:0] data_in,       // Data input
-    input wire we,                   // Write enable
-    output wire [31:0] data_out,     // Data output
-    output wire ack_o,               // Acknowledge signal
+    clk,                  // Clock signal
+    rst,                  // Reset signal
+   
+     interface
+    [31:0] addr_in,       // Address input
+    [31:0] data_in,       // Data input
+    we,                   // Write enable
+    [31:0] data_out,     // Data output
+    ack_o,               // Acknowledge signal
     
     // Control interface
-    input wire start,                // Start computation
-    output wire ready                // Result ready
-);
-```
+    start,                // Start computation
+    ready                // Result ready
+
 
 Requirements:
 - IEEE-754 single precision floating point compliance
 - Wishbone protocol for memory-mapped I/O
 - Modular design with separate functional units
 - Hardware parallelism for efficient computation
-- Sigmoid activation function implementation
+- ReLU activation function implementation
 - Control signals for operation flow
 
-Place the implemented neural network into `/workspace/neural_network.v`
-
 ## Step 2: Create a Self-Checking Testbench
-- Develop a comprehensive testbench that verifies the neural network against the Python model.
-- Ensure it automatically verifies correctness and prints the results.
-- Save the output in a Markdown file with:
-  - **Test title**
-  - **Pass/Fail status**
+- Develop a comprehensive testbench using cocotb that verifies the neural network against the Python model with asserstions that covers all possible cases.  
+- If a case fails, the assertion should stop the testbench execution. 
+- The test bench should run the neural network in python one time and the verilog code another time and make sure outputs are the same.
 
 Ensure the following points are addressed within the testbench:
 
@@ -90,15 +77,10 @@ Ensure the following points are addressed within the testbench:
 ### Edge Cases: (1 pts)
    - Test boundary conditions and special values.
 
-### Parallel Processing: (1 pts)
-   - Test concurrent neuron computations.
-
-### Reset Behavior: (1 pts)
-   - Test reset functionality and state clearing.
-
-Place the implemented testbench into `/workspace/neural_network_tb.v`
-Place the test report into `/workspace/report.md`
-
 ## Step 3: Debug and Fix Issues
 - If the module does not pass all test cases, revisit and refine the Verilog code.
 - Modify the design until all test cases pass successfully.  
+
+## Step 4: `run_test.sh` File Creation
+- Create a shel script `run_test.sh` that contains the command to only run the testbench.
+- execute the `run_test.sh` to make sure it successfully runs the testbench.

@@ -22,5 +22,5 @@ Ensure the following points are addressed within the test bench
 - Modify the design until all test cases pass successfully.  
 
 ## Step 4: `run_test.sh` File Creation
-- Create a shel script `run_test.sh` that contains the command to run the testbench.
+- Create a shel script `run_test.sh` that contains the command to only run the testbench.
 - execute the `run_test.sh` to make sure it successfully runs the testbench.

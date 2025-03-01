@@ -1,13 +1,3 @@
-## Action Checkpoints - Total 3 pt (grade_checkpoint1)
-
-### File creation dff.v: (1 pts)
-   - A file is created for the D flip-flop module `dff.v`
-
-### File creation dff_tb.v: (1 pts)
-   - A testbench file is created for the D flip-flop module `dff_tb.v`
-
-### File creation report.md: (1 pts)
-   - A test file is created for the output of the testbench `report.md`
 
 ---
 
@@ -29,10 +19,6 @@
    - `d`
    - `q`
 
-# File Content
-
-## dff.v
-
 ---
 
 ### Testbench Comprehensiveness checkpoints - Total 1 pts (grade_checkpoint3)
@@ -42,16 +28,4 @@ Ensure the following points are addressed within the test bench
 ### Normal Operation: (1 pts)
    - Different test cases with different values of `d` at different time intervals are applied.
 
-
-# File Content
-
-## dff_tb.v
-
 ---
-
-## Functionality - Total (# of tests in report.md) pts (grade_checkpoint4)
-    Returns the count of passed test cases in the report.md file and the total number of cases in the file. in the specific format of course **Final Score: <score - number of cases passed>/<total number of cases>**
-
-# File Content
-
-## report.md

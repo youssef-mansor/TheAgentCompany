@@ -1,13 +1,3 @@
-## Action Checkpoints - Total 3 pts (grade_checkpoint1)
-
-### File creation fpu.v: (1 pts)
-   - A file is created for the FPU module `fpu.v` (1 pts)
-
-### File creation fpu_tb.v: (1 pts)
-   - A testbench file is created for the FPU module `fpu_tb.v` (1 pts)
-
-### File creation report.md: (1 pts)
-   - A test report file is created `report.md` (1 pts)
 
 ---
 
@@ -96,9 +86,3 @@
      - The code tests normalization cases (1 pts)
 
 ---
-
-## Functionality - Total (# of tests in report.md) pts (grade_checkpoint4)
-    Returns the count of passed test cases in the report.md file and the total number of cases in the file in the specific format of course **Final Score: <score - number of cases passed>/<total number of cases>**
-
-
-

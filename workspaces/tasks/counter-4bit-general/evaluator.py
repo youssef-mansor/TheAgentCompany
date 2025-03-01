@@ -5,8 +5,6 @@ import logging
 import subprocess
 import time
 import re
-import litellm
-
 
 from typing import List
 from scoring import Result, Checkpoint
@@ -22,17 +20,9 @@ with open('/instruction/checkpoints.md', 'r') as f:
 
 # Split by lines containing only hyphens (allowing extra dashes)
 sections = re.split(r'\n\s*-{3,}\s*\n', content)
-testbench_path = None # holds the evaluated testbench path
-
-# sections[0]: Action Checkpoints (ignored)
-# sections[1]: Main Module Checkpoints
-# sections[2]: Testbench Comprehensiveness
-# sections[3]: Functionality
 
 CHECK_POINTS_MODULE = sections[1].strip()
 CHECK_POINTS_TB = sections[2].strip()
-CHECK_POINTS_REPORT = sections[3].strip()
-
 
 def config_env(dir_path):
     """configure enviroment"""
@@ -58,161 +48,6 @@ def config_env(dir_path):
         return False
     else:
         logging.info(f"Dependencies installed successfully.")
-
-    
-def check_with_llm_F(checkpoints, file_content): # to handle the case of functinality score
-
-    if len(checkpoints) == 0:
-        return (0, 0)
-
-    messages = [
-        {
-            "content": f"{checkpoints}",
-            "role": "user"}
-    ]
-
-    llm_response = llm_complete(messages, file_content)
-
-    print("\n************************************Evaluation Report*******************************************")
-    llm_response_txt = llm_response['choices'][0]['message']['content'].lower()
-    print(llm_response_txt)
-    print("*************************************************************************************************\n")
-
-
-    score = re.search(r'(?i)final\s+score:\s*(\d{1,2})/\d{1,2}', llm_response_txt)
-    total_score = re.search(r'(?i)final\s+score:\s*\d{1,2}/(\d{1,3})', llm_response_txt)
-    if score:
-        return (int(score.group(1)), int(total_score.group(1)))
-    else:
-        return (0, 0)
-def run_find_command(find_cmd):
-    """Run a find command and return a list of file paths."""
-    try:
-        result = subprocess.run(find_cmd, shell=True, stdout=subprocess.PIPE,
-                                stderr=subprocess.PIPE, text=True)
-        if result.returncode == 0:
-            return result.stdout.strip().splitlines()
-        else:
-            return []
-    except Exception as e:
-        print(f"Error running command '{find_cmd}': {e}")
-        return []
-
-def collect_files(find_cmd, exclude):
-    """
-    Run a find command and collect files that do not contain any of the
-    excluded substrings. Returns a dictionary mapping file paths to their content.
-    """
-    files = {}
-    file_paths = run_find_command(find_cmd)
-    for file_path in file_paths:
-        # Skip files that contain any substring from the exclude list
-        if any(sub in file_path for sub in exclude):
-            continue
-        try:
-            with open(file_path, 'r') as f:
-                files[file_path] = f.read()
-        except Exception as e:
-            print(f"Could not read file {file_path}: {e}")
-    return files
-
-def build_workspace_content(files, file_type):
-    """
-    Build a workspace content string that lists each file and its content
-    in the given markdown format.
-    """
-    workspace_content = ""
-    for file_name, content in files.items():
-        workspace_content += f"\n# {file_name}\n"
-        workspace_content += f"```{file_type}\n{content}\n```\n"
-    return workspace_content
-
-@grader
-def grade_checkpoint_llm(CHECK_POINTS, file_type):
-    # List of substrings to exclude from file names
-    exclude = ['test_runner.py', 'cocotb_iverilog_dump.v', 'openhands/miniforge3']
-    
-    files = {}
-    search_paths = ["/workspace", "/outputs", "/openhands/workspace/"]
-
-    # Collect Verilog files (.v and .sv) from each search path
-    for directory in search_paths:
-        verilog_cmd = f"find {directory} -type f \\( -name '*.v' -o -name '*.sv' \\)"
-        files.update(collect_files(verilog_cmd, exclude))
-    
-    # Optionally include Python files if file_type is 'verilog/python'
-    if file_type == 'verilog/python':
-        for directory in search_paths:
-            python_cmd = f"find {directory} -type f -name '*.py'"
-            files.update(collect_files(python_cmd, exclude))
-    
-    # Build workspace content and send to the LLM if any files are found
-    if files:
-        workspace_content = build_workspace_content(files, file_type)
-        return check_with_llm_F(CHECK_POINTS, workspace_content)
-    else:
-        print("workspace is empty")
-        return (0, 0)
-    
-def llm_confirm(file_content=None):
-    if TEST_MODE:
-        return {'choices': [{'message': {"content": "Hello, how are you?","role": "user"}}]}
-    
-    messages = [
-        {
-            "content": f"Answer with only 'yes' or 'no'. Does the following script run either Python or Verilog code? say yes if it runs a python script and say yes if it compiles and runs a verilog file. say no otherwise.  `{file_content}`",
-            "role": "user"}
-    ]
-
-    return litellm.completion(
-        api_key=LITELLM_API_KEY,
-        base_url=LITELLM_BASE_URL,
-        model=LITELLM_MODEL,
-        messages=messages
-    ).json()
-
-def execute_testbench(shell_script_path): # added to base image, update docker image, delete from here.
-    if shell_script_path:
-        try:
-            # Read the file content
-            with open(shell_script_path, 'r') as file:
-                file_content = file.read()
-        except Exception as e:
-            print(f"Error reading file: {e}")
-            return (0, 1)
-
-        # Pass the file content to llm_confirm() and get the response
-        llm_response = llm_confirm(file_content)
-
-        # Extract the confirmation text and check for 'yes'
-        confirmation_text = llm_response['choices'][0]['message']['content'].lower()
-        print(f"confirmation_text: {confirmation_text}\n")
-        if "yes" in confirmation_text:
-            try:
-                # Run the shell script
-                result = subprocess.run(
-                    shell_script_path,
-                    shell=True,
-                    stdout=subprocess.PIPE,
-                    stderr=subprocess.PIPE,
-                    text=True
-                )
-                # Check if the exit code indicates success
-                if result.returncode == 0:
-                    return (1, 1)
-                else:
-                    return (0, 1)
-            except Exception as e:
-                print(f"Error executing testbench: {e}")
-                return (0, 1)
-        else:
-            print("Testbench execution not confirmed by LLM.")
-            return (0, 1)
-    else:
-        return (0, 1)
-    
-
-
 
 
 def grade_checkpoints(trajectory="") -> Result:
@@ -260,5 +95,3 @@ def grade_checkpoints(trajectory="") -> Result:
         checkpoints.append(Checkpoint(int(total_score), int(final_score)))
 
     return result
-
-
