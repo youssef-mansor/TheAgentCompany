@@ -24,12 +24,6 @@ sections = re.split(r'\n\s*-{3,}\s*\n', content)
 CHECK_POINTS_MODULE = sections[1].strip()
 CHECK_POINTS_TB = sections[2].strip()
 
-if CHECK_POINTS_MODULE:
-    print("CHECK_POINTS_MODULE \n".join(CHECK_POINTS_MODULE.splitlines()[:2]))
-
-if CHECK_POINTS_TB:
-    print("CHECK_POINTS_MODULE \n".join(CHECK_POINTS_TB.splitlines()[:2]))
-
 def config_env(dir_path):
     """configure enviroment"""
     try:

@@ -267,6 +267,7 @@ def grade_checkpoint_llm(CHECK_POINTS, file_type):
             files.update(collect_files(python_cmd, exclude))
     
     workspace_files = list(files.keys())
+    print(f"workspace files are assigned: {workspace_files}")
     # Build workspace content and send to the LLM if any files are found
     if files:
         workspace_content = build_workspace_content(files, file_type)

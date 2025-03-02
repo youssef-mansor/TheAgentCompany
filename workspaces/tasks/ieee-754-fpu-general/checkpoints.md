@@ -39,6 +39,7 @@
 
 ### 4. Pipeline Implementation (1 pt)
    - The code implements pipelining. ( 1pt)
+   
 ---
 
 ## Testbench Comprehensiveness checkpoints - Total 24 pts (grade_checkpoint3)
