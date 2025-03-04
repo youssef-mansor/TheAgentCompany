@@ -1,30 +1,20 @@
 # Verilog RISC-V32I Single-Cycle Implementation and Testing
 
-## Step 0: Files creation
-Create the following files
-- `/workspace/report.md`
-- `/workspace/riscv32i.v`
-- `/workspace/riscv32i_tb.v`
-
 ## Step 1: Implement a RISC-V32I Single-Cycle Processor
 Design a RISC-V32I processor in Verilog with the following interface:
-```verilog
-module riscv32i(
-    input wire clk,                      // Clock signal
-    input wire reset,                    // Reset signal
-    output wire [31:0] instr_mem_addr,   // Instruction memory address
-    input wire [31:0] instr_mem_data,    // Instruction memory data
-    output wire [31:0] data_mem_addr,    // Data memory address
-    output wire [31:0] data_mem_data_in, // Data memory write data
-    input wire [31:0] data_mem_data_out, // Data memory read data
-    output wire data_mem_we,             // Data memory write enable
-    input wire [4:0] regfile_debug_read_addr,  // Debug register address
-    output wire [31:0] regfile_debug_read_data // Debug register data
-);
-```
+    input clk,                      // Clock signal
+    input reset,                    // Reset signal
+    output [31:0] instr_mem_addr,   // Instruction memory address
+    input [31:0] instr_mem_data,    // Instruction memory data
+    output [31:0] data_mem_addr,    // Data memory address
+    output [31:0] data_mem_data_in, // Data memory write data
+    input [31:0] data_mem_data_out, // Data memory read data
+    output data_mem_we,             // Data memory write enable
+    input [4:0] regfile_debug_read_addr,  // Debug register address
+    output [31:0] regfile_debug_read_data // Debug register data
 
 The processor should implement:
-- Basic RISC-V32I instruction set (load-store, ALU, branches)
+- Only basic RISC-V32I instruction set (load-store, ALU, branches, shifting). Specifically (lw, sw, add, sub, and, or, beq, SLL, SRL, SRA)
 - Modular design with separate functional units
 - Single-cycle execution
 - Proper control signal generation
@@ -38,41 +28,33 @@ Required modules:
 5. Branch & Jump Logic
 6. Data Memory Interface
 
-Place the implemented processor into `/workspace/riscv32i.v`
 
 ## Step 2: Create a Self-Checking Testbench
-- Develop a comprehensive testbench for the processor that covers all instruction types.
-- Ensure it automatically verifies correctness and prints the results.
-- Save the output in a Markdown file with:
-  - **Test title**
-  - **Pass/Fail status**
+- Develop a comprehensive testbench for the top module with asserstions that covers all possible cases.  
+- If a case fails, the assertion should stop the testbench execution. 
+- the test bench should cover all instruction types.
 
 Ensure the following points are addressed within the testbench:
 
-### ALU Operations: (1 pts)
+### ALU Operations:
    - Test arithmetic, logical, and shift instructions.
 
-### Memory Operations: (1 pts)
+### Memory Operations:
    - Test load/store instructions with different data sizes.
 
-### Branch & Jump: (1 pts)
+### Branch & Jump:
    - Test conditional branches and jump instructions.
 
-### Control Flow: (1 pts)
+### Control Flow:
    - Test instruction sequencing and control signal generation.
 
-### Register File: (1 pts)
+### Register File:
    - Test register read/write operations and x0 behavior.
-
-### Edge Cases: (1 pts)
-   - Test overflow, alignment, and boundary conditions.
-
-### Stress Testing: (1 pts)
-   - Test complex instruction sequences and corner cases.
-
-Place the implemented testbench into `/workspace/riscv32i_tb.v`
-Place the test report into `/workspace/report.md`
 
 ## Step 3: Debug and Fix Issues
 - If the module does not pass all test cases, revisit and refine the Verilog code.
 - Modify the design until all test cases pass successfully.
+
+## Step 4: `run_test.sh` File Creation
+- Create a shel script `run_test.sh` that contains the command to only run the testbench.
+- execute the `run_test.sh` to make sure it successfully runs the testbench.

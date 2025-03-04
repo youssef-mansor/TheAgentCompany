@@ -103,16 +103,6 @@ def grade_checkpoint1():
         score += 1
     else:
         print("file EF_I2S.v doesn't exist")
-
-    # if is_file_exist("/openhands/workspace/shifter_tb.v"):
-    #     score += 1
-    # else:
-    #     print("file shifter_tb.v does not exist")
-
-    # if is_file_exist("/openhands/workspace/report.md"):
-    #     score += 1
-    # else:
-    #     print("file report.md does not exist")
     
     # round score to the nearest integer
     return int(score)

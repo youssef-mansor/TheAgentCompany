@@ -82,7 +82,7 @@ echo "Server hostname: $SERVER_HOSTNAME"
 # Iterate through each directory in tasks
 # for task_dir in "$TASKS_DIR"/*/; do
 # for task_name in "k-map-4variable-general" "shifter-8bit-general" "gpio-integration-caravel" "multiplier-4bit-unsigned-pipelined-general" "uart-general" "uart-integration-caravel" "ieee-754-fpu-general" "vending-machine-fsm-general"; do
-for task_name in "d-flip-flop-openlane"; do
+for task_name in "uart-general"; do
 
     # task_name=$(basename "$task_dir")
     # task_name="vending-machine-fsm-general"
@@ -115,7 +115,7 @@ for task_name in "d-flip-flop-openlane"; do
         # Prune unused images and volumes
     #   docker image rm "$task_image"
         docker images "ghcr.io/ahmed-alllam/runtime" -q | xargs -r docker rmi -f
-        docker images d-flip-flop-openlane -q | xargs -r docker rmi -f
+        docker images uart-general -q | xargs -r docker rmi -f
         docker volume prune -f
         docker system prune -f
         

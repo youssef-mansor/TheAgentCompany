@@ -1,7 +1,7 @@
 
 ---
 
-## Main Module Checkpoints - Total 6 pts (grade_checkpoint2)
+## Main Module Checkpoints - Total 5 pts (grade_checkpoint2)
 
 The module implements the following interface: (1 pt)
 - `A` (4-bit input)
@@ -9,8 +9,6 @@ The module implements the following interface: (1 pt)
 - `cin` (carry-in)
 - `S` (4-bit sum output)
 - `cout` (carry-out)
-
-The code uses four full adders (one for each bit in the input) or does the addition normally but for each input bit (1 pt)
 
 The code calculates the four Generate (G) terms (1 pt)
 
