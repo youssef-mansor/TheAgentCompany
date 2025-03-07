@@ -1,0 +1,21 @@
+************************************Evaluation Report*******************************************
+## testbench comprehensiveness checkpoints - total 7 pts
+
+### zero multiplication: (1 pts)
+- the code tests zero multiplication: 1 pts
+
+### boundary values: (3 pts)
+- the code tests maximum values (15 x 15): 1 pts
+- the code tests minimum values (0 x n): 1 pts
+- the code tests single bit multiplications: 1 pts
+
+### pipeline hazards: (2 pts)
+- the code tests pipeline stalls: 0 pts
+- the code tests valid signal propagation: 1 pts
+
+### exhaustive testing: (1 pts)
+- the code tests all input combinations: 1 pts
+
+**final score: 6/7**
+*************************************************************************************************
+

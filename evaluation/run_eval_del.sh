@@ -86,15 +86,15 @@ echo "Server hostname: $SERVER_HOSTNAME"
 # Iterate through each directory in tasks
 for task_dir in "$TASKS_DIR"/*/; do
     # Get the task name
-    task_name=$(basename "$task_dir")
-    # task_name="riscv-general"
+    # task_name=$(basename "$task_dir")
+    task_name="edge-detector-general"
     # Skip specific tasks
-    if [[ "$task_name" == "riscv-general" || 
-          "$task_name" == "multiplier-4bit-unsigned-pipelined-openlane" || 
-          "$task_name" == "neural-network-general" || 
-          "$task_name" == "d-flip-flop-openlane" ]]; then
-        continue
-    fi
+    # if [[ "$task_name" == "riscv-general" || 
+    #       "$task_name" == "multiplier-4bit-unsigned-pipelined-openlane" || 
+    #       "$task_name" == "neural-network-general" || 
+    #       "$task_name" == "d-flip-flop-openlane" ]]; then
+    #     continue
+    # fi
 
     # Check if evaluation file exists
     if [ -f "$OUTPUTS_PATH/eval_${task_name}.json" ]; then
@@ -127,6 +127,8 @@ for task_dir in "$TASKS_DIR"/*/; do
         docker images d-flip-flop-general -q | xargs -r docker rmi -f
         docker volume prune -f
         docker system prune -f
+
+        break
 
 done
 

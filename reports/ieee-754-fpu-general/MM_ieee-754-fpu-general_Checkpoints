@@ -1,0 +1,28 @@
+************************************Evaluation Report*******************************************
+### 1. interface (1 pts)
+- the code implements the specified interface.
+- **score: 1/1**
+
+### 2. operations support (5 pts)
+- the code implements addition/subtraction.
+- the code implements multiplication.
+- the code implements division.
+- the code implements int-to-float conversion.
+- the code implements float-to-int conversion.
+- **score: 5/5**
+
+### 3. ieee 754 compliance (5 pts)
+- the code handles special values (nan, infinity, zero).
+- the code implements all four rounding modes.
+- the code detects overflow and underflow.
+- the code handles division by zero.
+- the code detects invalid operations.
+- **score: 5/5**
+
+### 4. pipeline implementation (1 pt)
+- the code implements pipelining.
+- **score: 1/1**
+
+**final score: 12/12**
+*************************************************************************************************
+

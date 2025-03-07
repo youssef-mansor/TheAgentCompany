@@ -1,0 +1,15 @@
+************************************Evaluation Report*******************************************
+### testbench comprehensiveness checkpoints
+
+#### edge detection: (1 pts)
+- verified that `signal_out` is `1` only when there is a rising edge on `signal_in`: **score: 1**
+
+#### multiple edges: (1 pts)
+- no test case was found applying multiple rising edges on `signal_in` and confirming `signal_out` is asserted for one clock cycle for each rising edge: **score: 0**
+
+#### no false positives: (1 pts)
+- test confirms that `signal_out` returns to `0` after one cycle when there is no rising edge, but fails to ensure that `signal_out` remains `0` when `signal_in` is stable: **score: 0**
+
+**final score: 1/3**
+*************************************************************************************************
+

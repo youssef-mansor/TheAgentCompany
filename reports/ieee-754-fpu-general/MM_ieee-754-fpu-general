@@ -1,0 +1,825 @@
+
+        You are a judge evaluating a file content against predefined checkpoints.  
+        Each checkpoint has an assigned score.
+
+        Task:  
+        1. Analyze the file based on the given checkpoints.  
+        2. If a checkpoint is met, assign the corresponding score else assign zero. 
+        3. Generate a detailed report with the following format:  
+            - Clearly list each checkpoint and the corresponding score assigned.  
+            - Conclude the report with the final score in the format:  
+                **Final Score: <score>/<total>**
+        Don't make introduction or conclusion just respond directly with the report in the format specified above.
+
+    
+
+        # Checkpoints
+
+    ## Main Module Checkpoints - Total 12 pts (grade_checkpoint2)
+
+### 1. Interface (1 pts)
+   - The code implements the following interface:
+   ```psuedo-verilog
+   module fpu(
+      clk,                  // Clock signal for pipelining
+      [1:0] rounding_mode,  // Selects the rounding mode
+      [2:0] operation,      // Selects the FPU operation
+      [31:0] operand_A,     // First operand (single-precision)
+      [31:0] operand_B,     // Second operand (single-precision)
+      [31:0] out,          // Result of the operation
+      overflow,            // Overflow exception
+      underflow,           // Underflow exception
+      div_by_zero,         // Division by zero exception
+      inexact,             // Inexact result exception
+      invalid_operation    // Invalid operation exception
+   );
+   ```
+
+### 2. Operations Support (5 pts)
+   - The code implements IEEE-754 operations:
+     - The code implements addition/subtraction (1 pts)
+     - The code implements multiplication (1 pts)
+     - The code implements division (1 pts)
+     - The code implements int-to-float conversion (1 pts)
+     - The code implements float-to-int conversion (1 pts)
+
+### 3. IEEE 754 Compliance (5 pts)
+   - The code implements standard features:
+     - The code handles special values (NaN, Infinity, Zero) (1 pts)
+     - The code implements all four rounding modes (1 pts)
+     - The code detects overflow and underflow (1 pts)
+     - The code handles division by zero (1 pts)
+     - The code detects invalid operations (1 pts)
+
+### 4. Pipeline Implementation (1 pt)
+   - The code implements pipelining. ( 1pt)
+
+        Listed below are the contents for all files in the workspace. You are required to evaluate only the file that is
+        relevant to the defined checkpoints.
+
+    
+# /workspace/fpu.v
+```verilog
+module fpu (
+    input wire clk,
+    input wire [1:0] rounding_mode,
+    input wire [2:0] operation,
+    input wire [31:0] operand_A,
+    input wire [31:0] operand_B,
+    output reg [31:0] out,
+    output reg overflow,
+    output reg underflow,
+    output reg div_by_zero,
+    output reg inexact,
+    output reg invalid_operation
+);
+
+    // IEEE 754 single precision fields
+    wire sign_A = operand_A[31];
+    wire sign_B = operand_B[31];
+    wire [7:0] exp_A = operand_A[30:23];
+    wire [7:0] exp_B = operand_B[30:23];
+    wire [22:0] frac_A = operand_A[22:0];
+    wire [22:0] frac_B = operand_B[22:0];
+
+    // Pipeline registers
+    reg [31:0] op_A_r = 0, op_B_r = 0;
+    reg [2:0] op_r = 0;
+    reg [1:0] round_r = 0;
+    
+    // Stage 1: Input registration and special cases detection
+    reg is_nan_A = 0, is_nan_B = 0;
+    reg is_inf_A = 0, is_inf_B = 0;
+    reg is_zero_A = 0, is_zero_B = 0;
+    reg sign_out_s1 = 0;
+    reg [7:0] exp_out_s1 = 0;
+    reg [24:0] frac_out_s1 = 0;
+    reg invalid_op_s1 = 0;
+    reg overflow_s1 = 0;
+    reg underflow_s1 = 0;
+    reg div_zero_s1 = 0;
+    reg inexact_s1 = 0;
+
+    // Stage 2: Operation execution
+    reg sign_out_s2 = 0;
+    reg [7:0] exp_out_s2 = 0;
+    reg [24:0] frac_out_s2 = 0;
+    reg invalid_op_s2 = 0;
+    reg overflow_s2 = 0;
+    reg underflow_s2 = 0;
+    reg div_zero_s2 = 0;
+    reg inexact_s2 = 0;
+
+    // Stage 3: Rounding and normalization
+    reg sign_out_s3 = 0;
+    reg [7:0] exp_out_s3 = 0;
+    reg [22:0] frac_out_s3 = 0;
+    reg invalid_op_s3 = 0;
+    reg overflow_s3 = 0;
+    reg underflow_s3 = 0;
+    reg div_zero_s3 = 0;
+    reg inexact_s3 = 0;
+
+    // Constants
+    localparam BIAS = 8'd127;
+    localparam MAX_EXP = 8'd254;
+    localparam MIN_EXP = 8'd1;
+
+    // Operation codes
+    localparam ADD = 3'b000;
+    localparam SUB = 3'b001;
+    localparam MUL = 3'b010;
+    localparam DIV = 3'b011;
+    localparam INT_TO_FLOAT = 3'b100;
+    localparam FLOAT_TO_INT = 3'b101;
+
+    // Stage 1: Input registration and special cases detection
+    always @(posedge clk) begin
+        // Register inputs
+        op_A_r <= operand_A;
+        op_B_r <= operand_B;
+        op_r <= operation;
+        round_r <= rounding_mode;
+
+        // Default assignments
+        invalid_op_s1 <= 0;
+        div_zero_s1 <= 0;
+        overflow_s1 <= 0;
+        underflow_s1 <= 0;
+        inexact_s1 <= 0;
+
+        // Detect special cases
+        is_nan_A <= (exp_A == 8'hFF && frac_A != 0);
+        is_nan_B <= (exp_B == 8'hFF && frac_B != 0);
+        is_inf_A <= (exp_A == 8'hFF && frac_A == 0);
+        is_inf_B <= (exp_B == 8'hFF && frac_B == 0);
+        is_zero_A <= (exp_A == 0 && frac_A == 0);
+        is_zero_B <= (exp_B == 0 && frac_B == 0);
+
+        // Handle special cases
+        if (is_nan_A || is_nan_B) begin
+            // NaN input
+            invalid_op_s1 <= 1;
+            sign_out_s1 <= 1;
+            exp_out_s1 <= 8'hFF;
+            frac_out_s1 <= {2'b11, 23'h7FFFFF};
+        end else if (is_inf_A || is_inf_B) begin
+            case (operation)
+                ADD, SUB: begin
+                    if ((operation == ADD && is_inf_A && is_inf_B && sign_A != sign_B) ||
+                        (operation == SUB && is_inf_A && is_inf_B && sign_A == sign_B)) begin
+                        // inf - inf = NaN
+                        invalid_op_s1 <= 1;
+                        sign_out_s1 <= 1;
+                        exp_out_s1 <= 8'hFF;
+                        frac_out_s1 <= {2'b11, 23'h7FFFFF};
+                    end else begin
+                        // inf + x = inf
+                        sign_out_s1 <= is_inf_A ? sign_A : sign_B;
+                        exp_out_s1 <= 8'hFF;
+                        frac_out_s1 <= 0;
+                    end
+                end
+
+                MUL: begin
+                    if ((is_inf_A && is_zero_B) || (is_zero_A && is_inf_B)) begin
+                        // 0 * inf = NaN
+                        invalid_op_s1 <= 1;
+                        sign_out_s1 <= 1;
+                        exp_out_s1 <= 8'hFF;
+                        frac_out_s1 <= {2'b11, 23'h7FFFFF};
+                    end else begin
+                        // inf * x = inf
+                        sign_out_s1 <= sign_A ^ sign_B;
+                        exp_out_s1 <= 8'hFF;
+                        frac_out_s1 <= 0;
+                    end
+                end
+
+                DIV: begin
+                    if (is_inf_A && is_inf_B) begin
+                        // inf / inf = NaN
+                        invalid_op_s1 <= 1;
+                        sign_out_s1 <= 1;
+                        exp_out_s1 <= 8'hFF;
+                        frac_out_s1 <= {2'b11, 23'h7FFFFF};
+                    end else if (is_inf_A) begin
+                        // inf / x = inf
+                        sign_out_s1 <= sign_A ^ sign_B;
+                        exp_out_s1 <= 8'hFF;
+                        frac_out_s1 <= 0;
+                    end else begin
+                        // x / inf = 0
+                        sign_out_s1 <= sign_A ^ sign_B;
+                        exp_out_s1 <= 0;
+                        frac_out_s1 <= 0;
+                    end
+                end
+
+                FLOAT_TO_INT: begin
+                    // inf to int = invalid
+                    invalid_op_s1 <= 1;
+                    sign_out_s1 <= sign_A;
+                    exp_out_s1 <= 0;
+                    frac_out_s1 <= 0;
+                end
+
+                default: begin
+                    // Pass through infinity
+                    sign_out_s1 <= sign_A;
+                    exp_out_s1 <= 8'hFF;
+                    frac_out_s1 <= 0;
+                end
+            endcase
+        end else if (is_zero_A || is_zero_B) begin
+            case (operation)
+                ADD, SUB: begin
+                    if (is_zero_A && is_zero_B) begin
+                        // 0 + 0 = 0, 0 - 0 = 0
+                        sign_out_s1 <= (operation == ADD) ? (sign_A & sign_B) : (sign_A & !sign_B);
+                        exp_out_s1 <= 0;
+                        frac_out_s1 <= 0;
+                    end else if (is_zero_A) begin
+                        // 0 + x = x
+                        sign_out_s1 <= (operation == ADD) ? sign_B : !sign_B;
+                        exp_out_s1 <= exp_B;
+                        frac_out_s1 <= {2'b01, frac_B};
+                    end else begin
+                        // x + 0 = x
+                        sign_out_s1 <= sign_A;
+                        exp_out_s1 <= exp_A;
+                        frac_out_s1 <= {2'b01, frac_A};
+                    end
+                end
+
+                MUL: begin
+                    // 0 * x = 0
+                    sign_out_s1 <= sign_A ^ sign_B;
+                    exp_out_s1 <= 0;
+                    frac_out_s1 <= 0;
+                end
+
+                DIV: begin
+                    if (is_zero_A && is_zero_B) begin
+                        // 0/0 = NaN
+                        invalid_op_s1 <= 1;
+                        sign_out_s1 <= 1;
+                        exp_out_s1 <= 8'hFF;
+                        frac_out_s1 <= {2'b11, 23'h7FFFFF};
+                    end else if (is_zero_B) begin
+                        // x/0 = inf
+                        div_zero_s1 <= 1;
+                        sign_out_s1 <= sign_A ^ sign_B;
+                        exp_out_s1 <= 8'hFF;
+                        frac_out_s1 <= 0;
+                    end else begin
+                        // 0/x = 0
+                        sign_out_s1 <= sign_A ^ sign_B;
+                        exp_out_s1 <= 0;
+                        frac_out_s1 <= 0;
+                    end
+                end
+
+                INT_TO_FLOAT: begin
+                    // 0 to float = 0
+                    sign_out_s1 <= 0;
+                    exp_out_s1 <= 0;
+                    frac_out_s1 <= 0;
+                end
+
+                FLOAT_TO_INT: begin
+                    // 0 to int = 0
+                    sign_out_s1 <= 0;
+                    exp_out_s1 <= 0;
+                    frac_out_s1 <= 0;
+                end
+
+                default: begin
+                    // Pass through zero
+                    sign_out_s1 <= sign_A;
+                    exp_out_s1 <= 0;
+                    frac_out_s1 <= 0;
+                end
+            endcase
+        end else begin
+            // Normal numbers
+            case (operation)
+                ADD, SUB: begin
+                    sign_out_s1 <= sign_A;
+                    exp_out_s1 <= exp_A;
+                    frac_out_s1 <= (exp_A == 0) ? {1'b0, frac_A} : {1'b1, frac_A};
+                end
+
+                MUL: begin
+                    sign_out_s1 <= sign_A ^ sign_B;
+                    exp_out_s1 <= exp_A + exp_B - BIAS;
+                    frac_out_s1 <= (exp_A == 0) ? {1'b0, frac_A} : {1'b1, frac_A};
+                end
+
+                DIV: begin
+                    sign_out_s1 <= sign_A ^ sign_B;
+                    exp_out_s1 <= exp_A - exp_B + BIAS;
+                    frac_out_s1 <= (exp_A == 0) ? {1'b0, frac_A} : {1'b1, frac_A};
+                end
+
+                INT_TO_FLOAT: begin
+                    sign_out_s1 <= operand_A[31];
+                    exp_out_s1 <= BIAS + 31;
+                    frac_out_s1 <= sign_A ? (-operand_A[24:0]) : operand_A[24:0];
+                end
+
+                FLOAT_TO_INT: begin
+                    if (exp_A > (BIAS + 30)) begin
+                        invalid_op_s1 <= 1;
+                        sign_out_s1 <= sign_A;
+                        exp_out_s1 <= 0;
+                        frac_out_s1 <= 0;
+                    end else begin
+                        sign_out_s1 <= sign_A;
+                        exp_out_s1 <= exp_A;
+                        frac_out_s1 <= {2'b01, frac_A};
+                    end
+                end
+
+                default: begin
+                    invalid_op_s1 <= 1;
+                    sign_out_s1 <= 1;
+                    exp_out_s1 <= 8'hFF;
+                    frac_out_s1 <= {2'b11, 23'h7FFFFF};
+                end
+            endcase
+        end
+    end
+
+    // Stage 2: Operation execution
+    always @(posedge clk) begin
+        case (op_r)
+            ADD, SUB: begin
+                // Align fractions and perform addition/subtraction
+                reg [24:0] aligned_A, aligned_B;
+                reg [7:0] exp_diff;
+                reg [24:0] sum;
+                reg final_sign;
+                reg effective_sub;
+
+                // Determine if we're effectively doing subtraction
+                effective_sub = (op_r == SUB) ^ (sign_out_s1 != sign_B);
+
+                // Determine larger operand and align fractions
+                reg [7:0] exp_diff;
+                reg [24:0] larger_frac;
+                reg [24:0] smaller_frac;
+                reg larger_is_A;
+                reg [24:0] temp_A;
+                reg [24:0] temp_B;
+                begin
+
+                // Determine which operand is larger
+                if (exp_out_s1 > exp_B || (exp_out_s1 == exp_B && frac_out_s1 >= {1'b1, frac_B})) begin
+                    larger_frac = frac_out_s1;
+                    smaller_frac = {1'b1, frac_B};
+                    exp_out_s2 <= exp_out_s1;
+                    exp_diff = exp_out_s1 - exp_B;
+                    final_sign = sign_out_s1;
+                    larger_is_A = 1;
+                end else begin
+                    larger_frac = {1'b1, frac_B};
+                    smaller_frac = frac_out_s1;
+                    exp_out_s2 <= exp_B;
+                    exp_diff = exp_B - exp_out_s1;
+                    final_sign = effective_sub ? !sign_B : sign_B;
+                    larger_is_A = 0;
+                end
+
+                // Handle denormal numbers
+                if (exp_out_s1 == 0) begin
+                    if (larger_is_A) begin
+                        larger_frac = {1'b0, frac_out_s1};
+                    end else begin
+                        smaller_frac = {1'b0, frac_out_s1};
+                    end
+                end
+                if (exp_B == 0) begin
+                    if (larger_is_A) begin
+                        smaller_frac = {1'b0, frac_B};
+                    end else begin
+                        larger_frac = {1'b0, frac_B};
+                    end
+                end
+
+                // Align fractions
+                temp_A = larger_is_A ? larger_frac : (smaller_frac >> exp_diff);
+                temp_B = larger_is_A ? (smaller_frac >> exp_diff) : larger_frac;
+                aligned_A = temp_A;
+                aligned_B = temp_B;
+
+                // Perform addition or subtraction
+                if (effective_sub) begin
+                    if (aligned_A >= aligned_B) begin
+                        sum = aligned_A - aligned_B;
+                        final_sign = sign_out_s1;
+                    end else begin
+                        sum = aligned_B - aligned_A;
+                        final_sign = !sign_out_s1;
+                    end
+                end else begin
+                    sum = aligned_A + aligned_B;
+                end
+
+                // Normalize result
+                if (sum == 0) begin
+                    // Result is zero
+                    frac_out_s2 <= 0;
+                    exp_out_s2 <= 0;
+                    sign_out_s2 <= (op_r == ADD) ? (sign_out_s1 & sign_B) : (sign_out_s1 & !sign_B);
+                end else begin
+                    // Find leading 1
+                    reg [4:0] shift_count;
+                    reg [24:0] temp_sum;
+                    begin
+                        shift_count = 0;
+                        temp_sum = sum;
+                        if (temp_sum[24]) begin
+                            // Overflow, shift right
+                            temp_sum = temp_sum >> 1;
+                            exp_out_s2 <= exp_out_s2 + 1;
+                        end else begin
+                            // Normalize
+                            while (!temp_sum[23] && shift_count < 23) begin
+                                temp_sum = temp_sum << 1;
+                                shift_count = shift_count + 1;
+                            end
+                            exp_out_s2 <= exp_out_s2 - shift_count;
+                        end
+                        frac_out_s2 <= temp_sum;
+                    end
+                    sign_out_s2 <= final_sign;
+                end
+            end
+
+            MUL: begin
+                // Multiply fractions and adjust exponent
+                reg [47:0] product;
+                reg [7:0] new_exp;
+                reg [24:0] normalized_product;
+                reg [4:0] shift_count;
+
+                // Prepare operands
+                reg [24:0] op_a;
+                reg [24:0] op_b;
+                begin
+                    op_a = (exp_out_s1 == 0) ? {1'b0, frac_out_s1} : frac_out_s1;
+                    op_b = (exp_B == 0) ? {1'b0, frac_B} : {1'b1, frac_B};
+
+                    // Perform multiplication
+                    product = op_a * op_b;
+                    new_exp = exp_out_s1 + exp_B - BIAS;
+                end
+
+                // Normalize product
+                if (product[47]) begin
+                    // Need to shift right
+                    normalized_product = product[47:23];
+                    new_exp = new_exp + 1;
+                end else if (product[46]) begin
+                    // No shift needed
+                    normalized_product = product[46:22];
+                end else begin
+                    // Need to shift left
+                    shift_count = 0;
+                    normalized_product = product[45:21];
+                    while (!normalized_product[24] && shift_count < 23) begin
+                        normalized_product = normalized_product << 1;
+                        shift_count = shift_count + 1;
+                        new_exp = new_exp - 1;
+                    end
+                end
+
+                // Check for overflow/underflow
+                if (new_exp >= MAX_EXP) begin
+                    overflow_s2 <= 1;
+                    exp_out_s2 <= MAX_EXP;
+                    frac_out_s2 <= 0;
+                end else if (new_exp <= MIN_EXP) begin
+                    underflow_s2 <= 1;
+                    exp_out_s2 <= 0;
+                    frac_out_s2 <= 0;
+                end else begin
+                    exp_out_s2 <= new_exp;
+                    frac_out_s2 <= normalized_product;
+                end
+
+                sign_out_s2 <= sign_out_s1 ^ sign_B;
+            end
+
+            DIV: begin
+                // Check for division by zero
+                if (is_zero_B) begin
+                    div_zero_s2 <= 1;
+                    if (is_zero_A) begin
+                        // 0/0 = NaN
+                        invalid_op_s2 <= 1;
+                        exp_out_s2 <= 8'hFF;
+                        frac_out_s2 <= {2'b11, 23'h7FFFFF};
+                    end else begin
+                        // x/0 = ±∞
+                        exp_out_s2 <= 8'hFF;
+                        frac_out_s2 <= 0;
+                        sign_out_s2 <= sign_out_s1 ^ sign_B;
+                    end
+                end else begin
+                    // Prepare operands
+                    reg [47:0] dividend;
+                    reg [24:0] divisor;
+                    reg [47:0] quotient;
+                    reg [7:0] new_exp;
+
+                    // Handle denormal numbers and prepare operands
+                    dividend = (exp_out_s1 == 0) ? {1'b0, frac_out_s1, 23'b0} : {frac_out_s1, 23'b0};
+                    divisor = (exp_B == 0) ? {1'b0, frac_B} : {1'b1, frac_B};
+
+                    // Perform division
+                    quotient = dividend / divisor;
+                    new_exp = exp_out_s1 - exp_B + BIAS;
+
+                    // Normalize quotient
+                    if (quotient[47]) begin  // Need to shift right
+                        frac_out_s2 <= quotient[47:23];
+                        new_exp = new_exp + 1;
+                    end else if (quotient[46]) begin  // No shift needed
+                        frac_out_s2 <= quotient[46:22];
+                    end else begin  // Need to shift left
+                        frac_out_s2 <= quotient[45:21];
+                        new_exp = new_exp - 1;
+                    end
+
+                    exp_out_s2 <= new_exp;
+                    sign_out_s2 <= sign_out_s1 ^ sign_B;
+
+                    // Check for overflow/underflow
+                    if (new_exp >= MAX_EXP) begin
+                        overflow_s2 <= 1;
+                    end else if (new_exp <= MIN_EXP) begin
+                        underflow_s2 <= 1;
+                    end
+                end
+            end
+
+            INT_TO_FLOAT: begin
+                // Convert integer to float
+                reg [31:0] abs_int;
+                reg [4:0] leading_zeros;
+                reg [31:0] temp;
+                reg [7:0] exp;
+                reg [24:0] frac;
+
+                // Get absolute value and handle special case of most negative number
+                if (operand_A == 32'h80000000) begin
+                    exp_out_s2 <= BIAS + 31;
+                    frac_out_s2 <= {2'b01, 23'b0};
+                    sign_out_s2 <= 1;
+                end else begin
+                    // Get absolute value
+                    abs_int = operand_A[31] ? -operand_A : operand_A;
+                    
+                    if (abs_int == 0) begin
+                        // Handle zero
+                        exp_out_s2 <= 0;
+                        frac_out_s2 <= 0;
+                        sign_out_s2 <= 0;
+                    end else begin
+                        // Count leading zeros
+                        leading_zeros = 0;
+                        temp = abs_int;
+                        while (leading_zeros < 31 && temp[31] == 0) begin
+                            leading_zeros = leading_zeros + 1;
+                            temp = temp << 1;
+                        end
+
+                        // Calculate exponent and fraction
+                        exp = BIAS + (31 - leading_zeros);
+                        temp = abs_int << leading_zeros;  // Normalize so the leading 1 is at bit 31
+                        frac = {2'b01, temp[30:8]};  // Take 23 bits after the leading 1
+
+                        // Check for overflow
+                        if (exp >= MAX_EXP) begin
+                            overflow_s2 <= 1;
+                            exp_out_s2 <= MAX_EXP;
+                            frac_out_s2 <= 0;
+                        end else begin
+                            exp_out_s2 <= exp;
+                            frac_out_s2 <= frac;
+                        end
+                        sign_out_s2 <= operand_A[31];
+                    end
+                end
+            end
+
+            FLOAT_TO_INT: begin
+                // Convert float to integer
+                reg [31:0] int_val;
+                reg [7:0] shift_amount;
+                reg [31:0] shifted_frac;
+                reg [31:0] round_bits;
+                reg round_up;
+
+                if (is_nan_A || is_inf_A || exp_out_s1 > (BIAS + 30)) begin
+                    // Invalid conversion
+                    invalid_op_s2 <= 1;
+                    frac_out_s2 <= 0;
+                    exp_out_s2 <= 0;
+                    sign_out_s2 <= sign_out_s1;
+                end else if (exp_out_s1 <= BIAS) begin
+                    // Number is less than 1, result is 0
+                    frac_out_s2 <= 0;
+                    exp_out_s2 <= 0;
+                    sign_out_s2 <= 0;
+                end else begin
+                    // Valid conversion
+                    shift_amount = BIAS + 31 - exp_out_s1;
+                    if (shift_amount <= 31) begin
+                        // Prepare integer value
+                        shifted_frac = {1'b1, frac_out_s1[22:0], 8'b0} >> shift_amount;
+                        round_bits = {1'b1, frac_out_s1[22:0], 8'b0} << (32 - shift_amount);
+
+                        // Determine rounding
+                        case (round_r)
+                            2'b00: begin // Round to nearest even
+                                if (shift_amount > 0) begin
+                                    round_up = round_bits[31] && (round_bits[30:0] != 0 || shifted_frac[0]);
+                                end else begin
+                                    round_up = 0;
+                                end
+                            end
+                            2'b01: begin // Round toward zero
+                                round_up = 0;
+                            end
+                            2'b10: begin // Round toward +∞
+                                round_up = !sign_out_s1 && (round_bits != 0);
+                            end
+                            2'b11: begin // Round toward -∞
+                                round_up = sign_out_s1 && (round_bits != 0);
+                            end
+                        endcase
+
+                        // Apply rounding
+                        int_val = shifted_frac + (round_up ? 1 : 0);
+
+                        // Handle sign
+                        if (sign_out_s1) begin
+                            if (int_val == 32'h80000000) begin
+                                // Special case: most negative number
+                                frac_out_s2 <= int_val;
+                            end else begin
+                                frac_out_s2 <= -int_val;
+                            end
+                        end else begin
+                            frac_out_s2 <= int_val;
+                        end
+                    end else begin
+                        // Shift amount too large, result is 0
+                        frac_out_s2 <= 0;
+                    end
+
+                    exp_out_s2 <= 0;
+                    sign_out_s2 <= sign_out_s1;
+                end
+            end
+
+            default: begin
+                // Keep previous values
+                frac_out_s2 <= frac_out_s1;
+                exp_out_s2 <= exp_out_s1;
+                sign_out_s2 <= sign_out_s1;
+            end
+        endcase
+
+        // Forward exception flags
+        invalid_op_s2 <= invalid_op_s1;
+        overflow_s2 <= overflow_s1;
+        underflow_s2 <= underflow_s1;
+        div_zero_s2 <= div_zero_s1;
+        inexact_s2 <= inexact_s1;
+    end
+
+    // Stage 3: Rounding and normalization
+    always @(posedge clk) begin
+        // Default assignments
+        sign_out_s3 <= sign_out_s2;
+        exp_out_s3 <= exp_out_s2;
+        frac_out_s3 <= frac_out_s2[23:1];  // Take bits [23:1] to get the fractional part
+        overflow_s3 <= overflow_s2;
+        underflow_s3 <= underflow_s2;
+        invalid_op_s3 <= invalid_op_s2;
+        div_zero_s3 <= div_zero_s2;
+        inexact_s3 <= inexact_s2;
+
+        // Handle special cases first
+        if (invalid_op_s2) begin
+            // NaN
+            sign_out_s3 <= 1;
+            exp_out_s3 <= 8'hFF;
+            frac_out_s3 <= 23'h400000;  // Quiet NaN
+        end else if (div_zero_s2) begin
+            // Infinity due to division by zero
+            sign_out_s3 <= sign_out_s2;
+            exp_out_s3 <= 8'hFF;
+            frac_out_s3 <= 0;
+        end else if (overflow_s2) begin
+            // Handle overflow based on rounding mode
+            case (round_r)
+                2'b00: begin // Round to nearest even
+                    exp_out_s3 <= 8'hFF;
+                    frac_out_s3 <= 0;  // Infinity
+                end
+                2'b01: begin // Round toward zero
+                    exp_out_s3 <= 8'hFE;
+                    frac_out_s3 <= 23'h7FFFFF;  // Largest finite number
+                end
+                2'b10: begin // Round toward +∞
+                    exp_out_s3 <= 8'hFF;
+                    frac_out_s3 <= sign_out_s2 ? 23'h7FFFFF : 0;
+                end
+                2'b11: begin // Round toward -∞
+                    exp_out_s3 <= 8'hFF;
+                    frac_out_s3 <= sign_out_s2 ? 0 : 23'h7FFFFF;
+                end
+            endcase
+        end else if (underflow_s2) begin
+            // Handle underflow
+            exp_out_s3 <= 0;
+            case (round_r)
+                2'b00: frac_out_s3 <= 0;  // Round to nearest (zero)
+                2'b01: frac_out_s3 <= 0;  // Round toward zero
+                2'b10: frac_out_s3 <= sign_out_s2 ? 0 : 1;  // Round toward +∞
+                2'b11: frac_out_s3 <= sign_out_s2 ? 1 : 0;  // Round toward -∞
+            endcase
+        end else if (|frac_out_s2) begin
+            // Normal number, apply rounding
+            reg [24:0] rounded_frac;
+            reg [7:0] final_exp;
+            reg round_up;
+
+            // Determine if we should round up
+            case (round_r)
+                2'b00: begin // Round to nearest even
+                    round_up = frac_out_s2[23] && (frac_out_s2[24] || |frac_out_s2[22:0]);
+                end
+                2'b01: begin // Round toward zero
+                    round_up = 0;
+                end
+                2'b10: begin // Round toward +∞
+                    round_up = !sign_out_s2 && |frac_out_s2[23:0];
+                end
+                2'b11: begin // Round toward -∞
+                    round_up = sign_out_s2 && |frac_out_s2[23:0];
+                end
+            endcase
+
+            // Apply rounding
+            if (round_up) begin
+                if (frac_out_s2[22:0] == 23'h7FFFFF) begin
+                    // Rounding causes carry into exponent
+                    exp_out_s3 <= exp_out_s2 + 1;
+                    frac_out_s3 <= 0;
+                    if (exp_out_s2 == 8'hFE) begin
+                        // Rounding causes overflow
+                        overflow_s3 <= 1;
+                    end
+                end else begin
+                    frac_out_s3 <= frac_out_s2[22:0] + 1;
+                end
+                inexact_s3 <= 1;
+            end
+        end
+    end
+
+    // Final output stage
+    always @(posedge clk) begin
+        // Special cases
+        if (invalid_op_s3) begin
+            out <= {1'b1, 8'hFF, 23'h400000};  // Quiet NaN
+        end else if (div_zero_s3) begin
+            out <= {sign_out_s3, 8'hFF, 23'h0};  // Infinity
+        end else if (overflow_s3) begin
+            case (round_r)
+                2'b00: out <= {sign_out_s3, 8'hFF, 23'h0};  // Infinity
+                2'b01: out <= {sign_out_s3, 8'hFE, 23'h7FFFFF};  // Max finite
+                2'b10: out <= sign_out_s3 ? {1'b1, 8'hFE, 23'h7FFFFF} : {1'b0, 8'hFF, 23'h0};
+                2'b11: out <= sign_out_s3 ? {1'b1, 8'hFF, 23'h0} : {1'b0, 8'hFE, 23'h7FFFFF};
+            endcase
+        end else if (underflow_s3) begin
+            out <= {sign_out_s3, 8'h00, frac_out_s3};  // Denormal or zero
+        end else begin
+            out <= {sign_out_s3, exp_out_s3, frac_out_s3};
+        end
+
+        // Exception flags
+        overflow <= overflow_s3;
+        underflow <= underflow_s3;
+        div_by_zero <= div_zero_s3;
+        inexact <= inexact_s3;
+        invalid_operation <= invalid_op_s3;
+    end
+
+endmodule

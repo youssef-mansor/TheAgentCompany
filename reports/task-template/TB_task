@@ -1,0 +1,143 @@
+ 
+        You are a judge evaluating a file content against predefined checkpoints.  
+        Each checkpoint has an assigned score.
+
+        Task:  
+        1. Analyze the file based on the given checkpoints.  
+        2. If a checkpoint is met, assign the corresponding score else assign zero. 
+        3. Generate a detailed report with the following format:  
+            - Clearly list each checkpoint and the corresponding score assigned.  
+            - Conclude the report with the final score in the format:  
+                **Final Score: <score>/<total>**
+        Don't make introduction or conclusion just respond directly with the report in the format specified above.
+
+    
+
+        # Checkpoints
+
+    ## Testbench Comprehensiveness checkpoints - Total 24 pts (grade_checkpoint3)
+
+### Basic Operations: (4 pts)
+   - The testbench code tests:
+     - The code tests addition operations (1 pts)
+     - The code tests subtraction operations (1 pts)
+     - The code tests multiplication operations (1 pts)
+     - The code tests division operations (1 pts)
+
+### Special Values: (4 pts)
+   - The testbench code tests:
+     - The code tests NaN handling (1 pts)
+     - The code tests infinity handling (1 pts)
+     - The code tests zero handling (1 pts)
+     - The code tests denormalized numbers (1 pts)
+
+### Rounding Modes: (4 pts)
+   - The testbench code tests:
+     - The code tests round to nearest even (1 pts)
+     - The code tests round toward zero (1 pts)
+     - The code tests round toward +∞ (1 pts)
+     - The code tests round toward -∞ (1 pts)
+
+### Exceptions: (4 pts)
+   - The testbench code tests:
+     - The code tests overflow conditions (1 pts)
+     - The code tests underflow conditions (1 pts)
+     - The code tests division by zero (1 pts)
+     - The code tests invalid operations (1 pts)
+
+### Conversions: (4 pts)
+   - The testbench code tests:
+     - The code tests positive int-to-float conversion (1 pts)
+     - The code tests negative int-to-float conversion (1 pts)
+     - The code tests positive float-to-int conversion (1 pts)
+     - The code tests negative float-to-int conversion (1 pts)
+
+### Edge Cases: (4 pts)
+   - The testbench code tests:
+     - The code tests maximum float values (1 pts)
+     - The code tests minimum float values (1 pts)
+     - The code tests power of 2 boundaries (1 pts)
+     - The code tests normalization cases (1 pts)
+
+        Listed below are the contents for all files in the workspace. You are required to evaluate only the file that is
+        relevant to the defined checkpoints.
+
+    
+# /workspace/fpu.v
+```verilog/python
+module fpu (
+    input wire clk,
+    input wire [1:0] rounding_mode,
+    input wire [2:0] operation,
+    input wire [31:0] operand_A,
+    input wire [31:0] operand_B,
+    output reg [31:0] out,
+    output reg overflow,
+    output reg underflow,
+    output reg div_by_zero,
+    output reg inexact,
+    output reg invalid_operation
+);
+
+    // IEEE 754 single precision fields
+    wire sign_A = operand_A[31];
+    wire sign_B = operand_B[31];
+    wire [7:0] exp_A = operand_A[30:23];
+    wire [7:0] exp_B = operand_B[30:23];
+    wire [22:0] frac_A = operand_A[22:0];
+    wire [22:0] frac_B = operand_B[22:0];
+
+    // Pipeline registers
+    reg [31:0] op_A_r, op_B_r;
+    reg [2:0] op_r;
+    reg [1:0] round_r;
+    
+    // Internal signals for pipeline stages
+    reg [24:0] mantissa_A, mantissa_B; // 1 hidden bit + 23 fraction bits + 1 guard bit
+    reg [8:0] exponent_A, exponent_B;  // 1 extra bit for overflow
+    reg sign_result;
+    reg [47:0] product;  // For multiplication
+    reg [24:0] sum;  
+```
+
+# /workspace/test_fpu.py
+```verilog/python
+import cocotb
+from cocotb.clock import Clock
+from cocotb.triggers import RisingEdge, Timer
+from cocotb.binary import BinaryValue
+import struct
+import random
+
+def float_to_binary(f):
+    """Convert a float to its IEEE 754 binary representation"""
+    return struct.unpack('!I', struct.pack('!f', f))[0]
+
+def binary_to_float(b):
+    """Convert an IEEE 754 binary representation to float"""
+    return struct.unpack('!f', struct.pack('!I', b))[0]
+
+@cocotb.test()
+async def test_basic_operations(dut):
+    """Test basic arithmetic operations"""
+    
+    # Create a 10ns period clock
+    clock = Clock(dut.clk, 10, units="ns")
+    cocotb.start_soon(clock.start())
+    
+    # Reset values
+    dut.rounding_mode.value = 0  # Round to nearest even
+    dut.operation.value = 0      # Addition
+    dut.operand_A.value = 0
+    dut.operand_B.value = 0
+    
+    # Wait 10 clock cycles for pipeline to clear and signals to stabilize
+    for _ in range(10):
+        await RisingEdge(dut.clk)
+        
+    # Reset al
+```
+
+
+
+=== Code Execution Successful ===

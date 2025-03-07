@@ -1,0 +1,40 @@
+************************************Evaluation Report*******************************************
+### basic operations: (4 pts)
+- the code tests addition operations (1 pts): **0 pts**
+- the code tests subtraction operations (1 pts): **0 pts**
+- the code tests multiplication operations (1 pts): **0 pts**
+- the code tests division operations (1 pts): **0 pts**
+
+### special values: (4 pts)
+- the code tests nan handling (1 pts): **0 pts**
+- the code tests infinity handling (1 pts): **0 pts**
+- the code tests zero handling (1 pts): **0 pts**
+- the code tests denormalized numbers (1 pts): **0 pts**
+
+### rounding modes: (4 pts)
+- the code tests round to nearest even (1 pts): **0 pts**
+- the code tests round toward zero (1 pts): **0 pts**
+- the code tests round toward +∞ (1 pts): **0 pts**
+- the code tests round toward -∞ (1 pts): **0 pts**
+
+### exceptions: (4 pts)
+- the code tests overflow conditions (1 pts): **0 pts**
+- the code tests underflow conditions (1 pts): **0 pts**
+- the code tests division by zero (1 pts): **0 pts**
+- the code tests invalid operations (1 pts): **0 pts**
+
+### conversions: (4 pts)
+- the code tests positive int-to-float conversion (1 pts): **0 pts**
+- the code tests negative int-to-float conversion (1 pts): **0 pts**
+- the code tests positive float-to-int conversion (1 pts): **0 pts**
+- the code tests negative float-to-int conversion (1 pts): **0 pts**
+
+### edge cases: (4 pts)
+- the code tests maximum float values (1 pts): **0 pts**
+- the code tests minimum float values (1 pts): **0 pts**
+- the code tests power of 2 boundaries (1 pts): **0 pts**
+- the code tests normalization cases (1 pts): **0 pts**
+
+**final score: 0/24**
+*************************************************************************************************
+

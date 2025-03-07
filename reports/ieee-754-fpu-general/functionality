@@ -1,0 +1,107 @@
+Answer only yes or no. Given that the workspace contains the following files and their contents: 
+---
+
+# /workspace/Makefile
+```
+SIM ?= icarus
+TOPLEVEL_LANG ?= verilog
+
+VERILOG_SOURCES = $(PWD)/fpu.v
+TOPLEVEL = fpu
+MODULE = test_fpu
+PYTHONPATH := $(PWD)/tests:$(PYTHONPATH)
+
+include $(shell cocotb-config --makefiles)/Makefile.sim
+```
+
+# /workspace/run_test.sh
+```
+#!/bin/bash
+make
+```
+
+# /workspace/tests/test_fpu.py
+```
+import cocotb
+from cocotb.clock import Clock
+from cocotb.triggers import RisingEdge, Timer
+from cocotb.binary import BinaryValue
+import struct
+import random
+
+def float_to_binary(f):
+    """Convert a float to its IEEE 754 single-precision binary representation."""
+    return struct.unpack('!I', struct.pack('!f', f))[0]
+
+def binary_to_float(b):
+    """Convert an IEEE 754 single-precision binary representation to float."""
+    return struct.unpack('!f', struct.pack('!I', b))[0]
+
+def is_nan(b):
+    """Check if a binary value represents NaN."""
+    exp = (b >> 23) & 0xFF
+    frac = b & 0x7FFFFF
+    return exp == 0xFF and frac != 0
+
+def is_inf(b):
+    """Check if a binary value represents infinity."""
+    exp = (b >> 23) & 0xFF
+    frac = b & 0x7FFFFF
+    return exp == 0xFF and frac == 0
+
+@cocotb.test()
+async def test_basic_operations(dut):
+    """Test basic arithmetic operations."""
+    # Create a clock and start it
+    clock = Clock(dut.clk, 10, units="ns")
+    cocotb.start_soon(clock.star
+```
+
+# /workspace/fpu.v
+```
+module fpu (
+    input wire clk,
+    input wire [1:0] rounding_mode,
+    input wire [2:0] operation,
+    input wire [31:0] operand_A,
+    input wire [31:0] operand_B,
+    output reg [31:0] out,
+    output reg overflow,
+    output reg underflow,
+    output reg div_by_zero,
+    output reg inexact,
+    output reg invalid_operation
+);
+
+    // IEEE 754 single precision fields
+    wire sign_A = operand_A[31];
+    wire sign_B = operand_B[31];
+    wire [7:0] exp_A = operand_A[30:23];
+    wire [7:0] exp_B = operand_B[30:23];
+    wire [22:0] frac_A = operand_A[22:0];
+    wire [22:0] frac_B = operand_B[22:0];
+
+    // Pipeline registers
+    reg [31:0] op_A_r = 0, op_B_r = 0;
+    reg [2:0] op_r = 0;
+    reg [1:0] round_r = 0;
+    
+    // Stage 1: Input registration and special cases detection
+    reg is_nan_A = 0, is_nan_B = 0;
+    reg is_inf_A = 0, is_inf_B = 0;
+    reg is_zero_A = 0, is_zero_B = 0;
+    reg sign_out_s1 = 0;
+    reg [7:0] exp_out_s1 = 0;
+    reg [24:0] frac_out_s1 = 0;
+    reg inva
+```
+
+---
+, is the following script:
+```bash
+#!/bin/bash
+make
+```
+used to run the testbench?
+
+=== Code Execution Successful ===

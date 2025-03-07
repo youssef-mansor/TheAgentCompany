@@ -19,6 +19,7 @@ IMAGE_JPEG = 'image/jpeg'
 IMAGE_PNG = 'image/png'
 
 workspace_files = None #all verilog and python files in the workspace names
+workspace_content = None #all verilog and python files in the workspace content
 
 
 class MockRocketChatClient:
@@ -101,6 +102,19 @@ def llm_complete(checkpoints_list_msg, file_content=None):
     ).json()
 
 def llm_confirm(file_content=None):
+
+    # make the logic to add the rest of the files here
+    files = {}
+    search_paths = ["/workspace", "/outputs", "/openhands/workspace/"]
+    exclude = ['cocotb_iverilog_dump.v', 'openhands/miniforge3']
+
+    for directory in search_paths:
+        file_cmd = f"find {directory} -type f \\( -name '*.bash' -o -name '*.sh' -o -name '*.py' -o -name '*.v' -o -name '*.sv' -o -iname 'makefile*' \\)"
+        files.update(collect_files(file_cmd, exclude))
+
+    workspace_content = build_workspace_content_truncated(files, "any", 1000)
+
+
     if TEST_MODE:
         return {'choices': [{'message': {"content": "Hello, how are you?","role": "user"}}]}
     
@@ -108,7 +122,7 @@ def llm_confirm(file_content=None):
 
     messages = [
         {
-            "content": f"Given that the workspace contains the following files: {workspace_files}, is the following script:\n```bash\n{file_content}\n```\nused to run the testbench?"  ,
+            "content": f"Answer only yes or no. Given that the workspace contains the following files and their contents: \n---\n{workspace_content}\n---\n, is the following script:\n```bash\n{file_content}\n```\nused to run the testbench?"  ,
             "role": "user"}
     ]
 
@@ -149,12 +163,13 @@ def execute_testbench(shell_script_path):
                 if result.returncode == 0:
                     return (1, 1)
                 else:
+                    print(f"Testbench execution failed with exit code {result.returncode}")
                     return (0, 1)
             except Exception as e:
                 print(f"Error executing testbench: {e}")
                 return (0, 1)
         else:
-            print("Testbench execution not confirmed by LLM.")
+            print("script is not used to run the testbench")
             return (0, 1)
     else:
         return (0, 1)
@@ -214,7 +229,24 @@ def build_workspace_content(files, file_type):
     workspace_content = ""
     for file_name, content in files.items():
         workspace_content += f"\n# {file_name}\n"
-        workspace_content += f"```{file_type}\n{content}\n```\n"
+        if file_type == "any":
+            workspace_content += f"```\n{content}\n```\n"
+        else:   
+            workspace_content += f"```{file_type}\n{content}\n```\n"
+    return workspace_content
+
+def build_workspace_content_truncated(files, file_type, n):
+    """
+    Build a workspace content string that lists each file and its content
+    in the given markdown format.
+    """
+    workspace_content = ""
+    for file_name, content in files.items():
+        workspace_content += f"\n# {file_name}\n"
+        if file_type == "any":
+            workspace_content += f"```\n{content[0:n]}\n```\n"
+        else:   
+            workspace_content += f"```{file_type}\n{content[0:n]}\n```\n"
     return workspace_content
 
 def check_with_llm_F(checkpoints, file_content): # to handle the case of functinality score
@@ -250,6 +282,7 @@ def check_with_llm_F(checkpoints, file_content): # to handle the case of functin
 def grade_checkpoint_llm(CHECK_POINTS, file_type):
     # List of substrings to exclude from file names
     global workspace_files
+    global workspace_content
     exclude = ['test_runner.py', 'cocotb_iverilog_dump.v', 'openhands/miniforge3']
     
     files = {}
@@ -265,6 +298,7 @@ def grade_checkpoint_llm(CHECK_POINTS, file_type):
         for directory in search_paths:
             python_cmd = f"find {directory} -type f -name '*.py'"
             files.update(collect_files(python_cmd, exclude))
+
     
     workspace_files = list(files.keys())
     print(f"workspace files are assigned: {workspace_files}")

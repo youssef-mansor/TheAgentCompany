@@ -1,0 +1,33 @@
+************************************Evaluation Report*******************************************
+```
+### main module checkpoints - total 12 pts (grade_checkpoint2)
+
+#### 1. interface (1 pts)
+- the code implements the specified interface.
+  - **score: 1 pts**
+
+#### 2. operations support (5 pts)
+- the code's operations include:
+  - addition/subtraction: **not explicitly shown** in the provided extract.
+  - multiplication: **present** (product signal indicates multiplication).
+  - division: **not explicitly shown** in the provided extract.
+  - int-to-float conversion: **not explicitly shown** in the provided extract.
+  - float-to-int conversion: **not explicitly shown** in the provided extract.
+  - **score: 1 pts**
+
+#### 3. ieee 754 compliance (5 pts)
+- handles special values (nan, infinity, zero): **not explicitly shown** in the provided extract.
+- implements all four rounding modes: **indicated by rounding_mode** input but not described further.
+- detects overflow and underflow: **present** (overflow, underflow signals).
+- handles division by zero: **present** (div_by_zero signal).
+- detects invalid operations: **present** (invalid_operation signal).
+  - **score: 3 pts**
+
+#### 4. pipeline implementation (1 pt)
+- the code implements pipelining (op_a_r, op_b_r, op_r, round_r).
+  - **score: 1 pts**
+
+**final score: 6/12**
+```
+*************************************************************************************************
+

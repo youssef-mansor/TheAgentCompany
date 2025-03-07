@@ -1,0 +1,57 @@
+************************************Evaluation Report*******************************************
+### testbench comprehensiveness checkpoints - total 24 pts (grade_checkpoint3)
+
+#### basic operations: (4 pts)
+- the code tests addition operations (1 pts)
+- the code tests subtraction operations (1 pts)
+- the code tests multiplication operations (1 pts)
+- the code tests division operations (1 pts)
+
+**score: 4/4**
+
+#### special values: (4 pts)
+- the code tests nan handling (1 pts)
+- the code tests infinity handling (1 pts)
+- the code tests zero handling (1 pts)
+- the code tests denormalized numbers (1 pts)
+
+**score: 3/4**
+(the code does not appear to test denormalized numbers.)
+
+#### rounding modes: (4 pts)
+- the code tests round to nearest even (1 pts)
+- the code tests round toward zero (1 pts)
+- the code tests round toward +∞ (1 pts)
+- the code tests round toward -∞ (1 pts)
+
+**score: 4/4**
+
+#### exceptions: (4 pts)
+- the code tests overflow conditions (1 pts)
+- the code tests underflow conditions (1 pts)
+- the code tests division by zero (1 pts)
+- the code tests invalid operations (1 pts)
+
+**score: 4/4**
+
+#### conversions: (4 pts)
+- the code tests positive int-to-float conversion (1 pts)
+- the code tests negative int-to-float conversion (1 pts)
+- the code tests positive float-to-int conversion (1 pts)
+- the code tests negative float-to-int conversion (1 pts)
+
+**score: 4/4**
+
+#### edge cases: (4 pts)
+- the code tests maximum float values (1 pts)
+- the code tests minimum float values (1 pts)
+- the code tests power of 2 boundaries (1 pts)
+- the code tests normalization cases (1 pts)
+
+**score: 0/4**
+(the testbench does not include tests for maximum/minimum float values, power of 2 boundaries, or normalization cases.)
+
+**final score: 19/24**
+*************************************************************************************************
+
+
