@@ -55,7 +55,6 @@ def config_env(dir_path):
     else:
         logging.info(f"Dependencies installed successfully.")
 
-
 def grade_checkpoints(trajectory="") -> Result:
     checkpoints: List[Checkpoint] = []
     result = Result(checkpoints)
