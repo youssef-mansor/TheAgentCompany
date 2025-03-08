@@ -87,7 +87,7 @@ echo "Server hostname: $SERVER_HOSTNAME"
 for task_dir in "$TASKS_DIR"/*/; do
     # Get the task name
     # task_name=$(basename "$task_dir")
-    task_name="edge-detector-general"
+    task_name="gpio-integration-caravel"
     # Skip specific tasks
     # if [[ "$task_name" == "riscv-general" || 
     #       "$task_name" == "multiplier-4bit-unsigned-pipelined-openlane" || 
@@ -124,7 +124,7 @@ for task_dir in "$TASKS_DIR"/*/; do
         # Prune unused images and volumes
     #   docker image rm "$task_image"
         docker images "ghcr.io/ahmed-alllam/runtime" -q | xargs -r docker rmi -f
-        docker images d-flip-flop-general -q | xargs -r docker rmi -f
+        docker images gpio-integration-caravel -q | xargs -r docker rmi -f
         docker volume prune -f
         docker system prune -f
 

@@ -23,21 +23,6 @@ def find_file(file_name):
     except Exception as e:
         return f"Error: {e}"
 
-def find_file_specific_v2(file_path):
-    search_paths = ["/workspace", "/home", "/outputs", "/openhands"]
-    for path in search_paths:
-        print(f"current path: {path}")
-        try:
-            command = ["find", path, "-path", f"*/{file_path}"]
-            result = subprocess.run(command, stdout=subprocess.PIPE, stderr=subprocess.DEVNULL, text=True)
-            lines = result.stdout.splitlines()
-            # if lines:
-            #     print(f"I will return lines[0]: {lines[0]} from this list {lines}")
-            # print(f"lines: \n{lines}")
-            if lines:
-                return lines[0]
-        except subprocess.CalledProcessError:
-            continue  # If no results are found in this path, continue to the next
 
 REPO_DIR = '/workspace/openhands/'
 UT_FILE = REPO_DIR + 'tests/unit/test_agent_skill.py'
@@ -107,12 +92,12 @@ def is_file_exist(file_path):
 @grader
 def grade_checkpoint1():
     score = 0.0
-    if is_file_exist(find_file_specific_v2("uart/.git/HEAD")):
+    if is_file_exist(find_file_path("uart/.git/HEAD")):
         score += 1
     else:
         print("file uart/.git/HEAD not found")
 
-    if is_file_exist(find_file_specific_v2("verilog/rtl/user_project_wrapper.v")):
+    if is_file_exist(find_file_path("user_project_wrapper*.v")): #wild card in case the agent produced user_project_wrapper.new.v for example
         score += 1
     else:
         print("file user_proj_wrapper.v not found")

@@ -37,7 +37,7 @@ def find_file(file_name):
 #         return f"Error: {e}"
     
 
-def find_file_specific(filename = "user_proj_wrapper.v"):
+def find_file_specific(filename = "user_project_wrapper.v"):
     search_paths = ["/openhands", "/home", "/outputs", "/workspace"]
     for path in search_paths:
         try:
@@ -139,25 +139,32 @@ def is_file_exist(file_path):
 @grader
 def grade_checkpoint1():
     score = 0.0
-    if is_file_exist(find_file_path("caravel_user_project_ol2/verilog/rtl/user_proj_wrapper.v")):
-        score += 1
+    if is_file_exist(find_file_path("caravel_user_project_ol2/verilog/rtl/user_project_wrapper.v")):
+        score += 2
     else:
-        print("file user_proj_wrapper.v doesn't exist as part of caravel template")
-        if is_file_exist(find_file_path("user_proj_wrapper.v")):
+        print("file user_project_wrapper.v doesn't exist as part of caravel template")
+        if is_file_exist(find_file_path("user_proj_wrapper.v") or find_file_path("user_project_wrapper.v")):
             score += 1
         else:
-            print("file user_proj_wrapper.v doesn't exist at all")
-    if is_file_exist(find_file_path("report.md")):
-        score += 1
-    else:
-        print("file report.md does not exist")        
+            print("file user_proj_wrapper.v and user_project_wrapper.v  don't exist at all")
+    # if is_file_exist(find_file_path("report.md")):
+    #     score += 1
+    # else:
+    #     print("file report.md does not exist")        
     return score
 
-@grader
 def grade_checkpoint_llm(CHECK_POINTS, file_path, file_type):
     file_content = None
     # check if the file /openhands/workspace/shifter.v exists
     if is_file_exist(file_path):
+        # read it content into file
+        with open(file_path, 'r') as file:
+            file_content = file.read()
+            file_content = f"\n{file_type}```\n" + file_content + "\n```\n"
+
+        return check_with_llm_F(CHECK_POINTS, file_content)
+    
+    elif is_file_exist(find_file_path("user_project_wrapper.v")):
         # read it content into file
         with open(file_path, 'r') as file:
             file_content = file.read()
@@ -177,8 +184,13 @@ def grade_checkpoints(trajectory="") -> Result:
     # Define the total scores corresponding to each checkpoint function with unique keys
     scores = {
         'checkpoint1': (grade_checkpoint1(), 2),
-        'checkpoint_llm_integration': grade_checkpoint_llm(CHECK_POINTS_INTEGRATION, find_file_path("caravel_user_project_ol2/verilog/rtl/user_proj_wrapper.v"), 'verilog')
+        'checkpoint_llm_integration': grade_checkpoint_llm(CHECK_POINTS_INTEGRATION, find_file_path("caravel_user_project_ol2/verilog/rtl/user_project_wrapper.v"), 'verilog')
     }
+
+    # print scores
+    print(f"Scores: {scores}")
+
+
     W_A = 30
     W_M = 70
     Final = 0
@@ -190,8 +202,8 @@ def grade_checkpoints(trajectory="") -> Result:
     else:
         A = 0
 
-    print(f"find_file_specific('user_proj_wrapper.v'): {find_file_specific('user_proj_wrapper.v')}")
-    print(f"find_file('user_proj_wrapper.v'): {find_file('user_proj_wrapper.v')}")
+    print(f"find_file_specific('user_project_wrapper.v'): {find_file_specific('user_project_wrapper.v')}")
+    print(f"find_file('user_project_wrapper.v'): {find_file('user_project_wrapper.v')}")
 
 
     # Checkpoint LLM Module
@@ -205,7 +217,7 @@ def grade_checkpoints(trajectory="") -> Result:
         'checkpoint_llm_integration':(M*W_M,W_M)
     }
 
-    print(find_file("user_proj_wrapper.v"))
+    print(find_file("user_project_wrapper.v"))
     for final_score_key, (final_score, total_score) in scores_checkpoints.items():
         # Append the checkpoint with the total score and the calculated score
         checkpoints.append(Checkpoint(int(total_score), int(final_score)))

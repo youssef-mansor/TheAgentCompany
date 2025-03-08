@@ -151,13 +151,14 @@ def execute_testbench(shell_script_path):
         print(f"confirmation_text: {confirmation_text}\n")
         if "yes" in confirmation_text:
             try:
-                # Run the shell script
+                # Run the shell script with a timeout of 400 seconds
                 result = subprocess.run(
                     shell_script_path,
                     shell=True,
                     stdout=subprocess.PIPE,
                     stderr=subprocess.PIPE,
-                    text=True
+                    text=True,
+                    timeout=400  # Timeout after 400 seconds
                 )
                 # Check if the exit code indicates success
                 if result.returncode == 0:
@@ -165,6 +166,9 @@ def execute_testbench(shell_script_path):
                 else:
                     print(f"Testbench execution failed with exit code {result.returncode}")
                     return (0, 1)
+            except subprocess.TimeoutExpired:
+                print("Testbench execution timed out after 400 seconds.")
+                return (0, 1)
             except Exception as e:
                 print(f"Error executing testbench: {e}")
                 return (0, 1)
@@ -173,6 +177,7 @@ def execute_testbench(shell_script_path):
             return (0, 1)
     else:
         return (0, 1)
+
 
 def find_file_path(file_path):
     search_paths = ["/workspace", "/home", "/outputs", "/openhands"]

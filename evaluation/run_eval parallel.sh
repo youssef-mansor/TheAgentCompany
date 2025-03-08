@@ -92,8 +92,7 @@ for task_dir in "$TASKS_DIR"/*/; do
     if [[ "$task_name" == "riscv-general" || 
           "$task_name" == "multiplier-4bit-unsigned-pipelined-openlane" || 
           "$task_name" == "neural-network-general" || 
-          "$task_name" == "d-flip-flop-openlane" ||
-          "$task_name" == "gpio-integration-caravel" ]]; then
+          "$task_name" == "d-flip-flop-openlane" ]]; then
         continue
     fi
 
@@ -105,13 +104,24 @@ for task_dir in "$TASKS_DIR"/*/; do
 
     echo "Running evaluation for task: $task_name"
 
-    # build the task image
-    docker images $task_name -q | xargs -r docker rmi -f || true && cd ~/TheAgentCompany/workspaces/tasks/$task_name/ && make build;
+    # Define the default image tag
+    default_tag="${task_name}:latest"
 
+    # Check if the default image is being used by any container
+    if [ -n "$(docker ps -a --filter "ancestor=$default_tag" -q)" ]; then
+        echo "Image $default_tag is in use. Building a new version with a unique tag..."
+        unique_tag="${task_name}:$(date +%s)"
+        cd ~/TheAgentCompany/workspaces/tasks/"$task_name"/ && make build TAG="$unique_tag"
+        task_image="$unique_tag"
+    else
+        echo "No containers are using image $default_tag. Rebuilding image..."
+        # Remove the existing image if it's not in use
+        docker images "$task_name" -q | xargs -r docker rmi -f || true
+        cd ~/TheAgentCompany/workspaces/tasks/"$task_name"/ && make build
+        task_image="$default_tag"
+    fi
 
-    # NOTE: MY EDIT
-    task_image="${task_name}:latest"
-    echo "Use released image $task_image..."
+    echo "Using released image $task_image..."
 
     # Run evaluation from the evaluation directory
     cd "$SCRIPT_DIR"
@@ -122,12 +132,16 @@ for task_dir in "$TASKS_DIR"/*/; do
         --server-hostname "$SERVER_HOSTNAME" \
         --task-image-name "$task_image"
 
-        # Prune unused images and volumes
-    #   docker image rm "$task_image"
-        docker images "ghcr.io/ahmed-alllam/runtime" -q | xargs -r docker rmi -f
-        docker images d-flip-flop-general -q | xargs -r docker rmi -f
-        docker volume prune -f
-        docker system prune -f
+    # Remove any stopped containers created from the task image
+    docker ps -a --filter "ancestor=$task_image" --filter "status=exited" -q | xargs -r docker rm
+
+    # Optionally, if no container is using the image, remove it.
+    if [ -z "$(docker ps -a --filter "ancestor=$task_image" -q)" ]; then
+        echo "No containers are using image $task_image, pruning image..."
+        docker rmi "$task_image"
+    else
+        echo "Image $task_image is still in use, not pruning."
+    fi
 
 done
 
