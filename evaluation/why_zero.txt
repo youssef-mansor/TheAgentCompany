@@ -1,0 +1,3 @@
+network error, timing out while connecting with llm api
+
+ last_error='RuntimeError: There was an unexpected error while running the agent. Please report this error to the developers. Your session ID is default. Error type: Timeout'

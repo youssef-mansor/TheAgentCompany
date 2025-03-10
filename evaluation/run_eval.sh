@@ -25,8 +25,25 @@ AGENT_LLM_CONFIG="agent"
 # [llm.<ENV_LLM_CONFIG>], e.g. [llm.env]
 ENV_LLM_CONFIG="env"
 
+# Check if AGENT_LLM is set
+if [ -z "$AGENT_LLM" ]; then
+  echo "Error: AGENT_LLM environment variable is not set."
+  exit 1
+fi
+
+# Allowed values for AGENT_LLM
+ALLOWED_VALUES=("deepseek-chat" "claude-3-5-sonnet-20241022" "gpt-4o")
+
+# Check if AGENT_LLM is in the allowed values
+if [[ ! " ${ALLOWED_VALUES[@]} " =~ " $AGENT_LLM " ]]; then
+  echo "Error: Invalid AGENT_LLM value. Allowed values are: ${ALLOWED_VALUES[*]}"
+  exit 1
+fi
+
 # OUTPUTS_PATH is the path to save trajectories and evaluation results
-OUTPUTS_PATH="outputs"
+echo "Using AGENT_LLM: $AGENT_LLM"
+
+OUTPUTS_PATH="outputs/$AGENT_LLM"
 
 # SERVER_HOSTNAME is the hostname of the server that hosts all the web services,
 # including RocketChat, ownCloud, GitLab, and Plane.
@@ -89,8 +106,7 @@ for task_dir in "$TASKS_DIR"/*/; do
     task_name=$(basename "$task_dir")
     # task_name="riscv-general"
     # Skip specific tasks
-    if [[ "$task_name" == "riscv-general" || 
-          "$task_name" == "multiplier-4bit-unsigned-pipelined-openlane" || 
+    if [[ "$task_name" == "multiplier-4bit-unsigned-pipelined-openlane" || 
           "$task_name" == "neural-network-general" || 
           "$task_name" == "d-flip-flop-openlane" ]]; then
         continue

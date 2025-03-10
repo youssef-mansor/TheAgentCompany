@@ -154,34 +154,57 @@ def grade_checkpoint1():
     return score
 
 def grade_checkpoint_llm(CHECK_POINTS, file_path, file_type):
-    file_content = None
-    # check if the file /openhands/workspace/shifter.v exists
-    if is_file_exist(file_path):
-        # read it content into file
-        with open(file_path, 'r') as file:
-            file_content = file.read()
-            file_content = f"\n{file_type}```\n" + file_content + "\n```\n"
-
-        return check_with_llm_F(CHECK_POINTS, file_content)
-    
-    elif is_file_exist(find_file_path("user_project_wrapper.v")):
-        # read it content into file
-        with open(file_path, 'r') as file:
-            file_content = file.read()
-            file_content = f"\n{file_type}```\n" + file_content + "\n```\n"
-
-        return check_with_llm_F(CHECK_POINTS, file_content)
-    
-    else:
-        print(f"{file_path} does not exist")
+    print(f"file_path inside grade_checkpoint: {file_path}")
+    try:
+        file_content = None
+        
+        # Try the primary file path first
+        if is_file_exist(file_path):
+            print(f"[INFO] Found file at '{file_path}'. Attempting to read it...")
+            try:
+                with open(file_path, 'r') as file:
+                    file_content = file.read()
+                file_content = f"\n{file_type}```\n" + file_content + "\n```\n"
+                print(f"[SUCCESS] Successfully read file at '{file_path}'.")
+                return check_with_llm_F(CHECK_POINTS, file_content)
+            except Exception as read_err:
+                print(f"[ERROR] Failed to read file at '{file_path}': {read_err}")
+                return (0, 0)
+        
+        # If the primary file isn't found, try the alternative file
+        alt_file_path = find_file_path("user_project_wrapper.v")
+        if is_file_exist(alt_file_path):
+            print(f"[INFO] Primary file not found. Found alternative file at '{alt_file_path}'. Attempting to read it...")
+            try:
+                with open(alt_file_path, 'r') as file:
+                    file_content = file.read()
+                file_content = f"\n{file_type}```\n" + file_content + "\n```\n"
+                print(f"[SUCCESS] Successfully read alternative file at '{alt_file_path}'.")
+                return check_with_llm_F(CHECK_POINTS, file_content)
+            except Exception as read_err:
+                print(f"[ERROR] Failed to read alternative file at '{alt_file_path}': {read_err}")
+                return (0, 0)
+        
+        # Neither file exists
+        print(f"[ERROR] Neither the primary file '{file_path}' nor the alternative file '{alt_file_path}' exists.")
         return (0, 0)
+    
+    except Exception as e:
+        print(f"[CRITICAL] An unexpected error occurred in grade_checkpoint_llm: {e}")
+        return (0, 0)
+
 
 
 def grade_checkpoints(trajectory="") -> Result:
     checkpoints: List[Checkpoint] = []
     result = Result(checkpoints)
 
-    # Define the total scores corresponding to each checkpoint function with unique keys
+    # # Define the total scores corresponding to each checkpoint function with unique keys
+    # scores = {
+    #     'checkpoint1': (grade_checkpoint1(), 2),
+    #     'checkpoint_llm_integration': grade_checkpoint_llm(CHECK_POINTS_INTEGRATION, find_file_path("caravel_user_project_ol2/verilog/rtl/user_project_wrapper.v"), 'verilog')
+    # }
+
     scores = {
         'checkpoint1': (grade_checkpoint1(), 2),
         'checkpoint_llm_integration': grade_checkpoint_llm(CHECK_POINTS_INTEGRATION, find_file_path("caravel_user_project_ol2/verilog/rtl/user_project_wrapper.v"), 'verilog')
