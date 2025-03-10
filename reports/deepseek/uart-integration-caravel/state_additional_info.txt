@@ -1,0 +1,5 @@
+16:38:17 - openhands:ERROR: loop.py:22 - AgentStuckInLoopError: Agent got stuck in a loop
+
+
+INFO:root:result is: {'checkpoints': [{'total': 10, 'result': 10}, {'total': 20, 'result': 0}, {'total': 20, 'result': 20}, {'total': 50, 'result': 0}], 'final_score': {'total': 100, 'result': 30}}
+

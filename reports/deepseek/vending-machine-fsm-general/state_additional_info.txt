@@ -1,0 +1,2 @@
+INFO:root:result is: {'checkpoints': [{'total': 30, 'result': 25}, {'total': 30, 'result': 20}, {'total': 40, 'result': 0}], 'final_score': {'total': 100, 'result': 45}}
+

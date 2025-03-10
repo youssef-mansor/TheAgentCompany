@@ -92,8 +92,7 @@ for task_dir in "$TASKS_DIR"/*/; do
     if [[ "$task_name" == "riscv-general" || 
           "$task_name" == "multiplier-4bit-unsigned-pipelined-openlane" || 
           "$task_name" == "neural-network-general" || 
-          "$task_name" == "d-flip-flop-openlane" ||
-          "$task_name" == "gpio-integration-caravel" ]]; then
+          "$task_name" == "d-flip-flop-openlane" ]]; then
         continue
     fi
 

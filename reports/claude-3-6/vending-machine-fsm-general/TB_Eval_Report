@@ -1,0 +1,17 @@
+
+************************************Evaluation Report*******************************************
+### 1. money denominations (1 pt)
+   - the testbench in `test_vending_machine.py` tests money denominations of 5, 10, and 20 as seen in the `test_product_a_exact_money`, `test_product_b_exact_money`, `test_product_c_with_change`, and `test_cancel_purchase` tests.
+   - **score assigned: 1**
+
+### 2. product selection (1 pt)
+   - the testbench covers vending for all products (`proda`, `prodb`, `prodc`) through multiple test cases such as `test_product_a_exact_money`, `test_product_b_exact_money`, `test_product_c_with_change`, and additionally tests product cancellation.
+   - **score assigned: 1**
+
+### 3. output validation (1 pt)
+   - each test case in `test_vending_machine.py` provides an assertion to validate expected vs. actual results and determines pass/fail status with print statements describing the error if assertions fail.
+   - **score assigned: 1**
+
+**final score: 3/3**
+*************************************************************************************************
+

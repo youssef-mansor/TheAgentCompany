@@ -1,0 +1,31 @@
+
+************************************Evaluation Report*******************************************
+### checkpoint evaluation report
+
+1. **module interface (1 pt)**
+   - the module interface correctly defines the required ports: clk, reset, money, select_product, extra_cash, proda, prodb, prodc, and balance.
+   **score: 1/1**
+
+2. **state definition (1 pt)**
+   - the file defines parameters for different states of the vending machine using an enumerated type.
+   **score: 1/1**
+
+3. **state transitions (1 pt)**
+   - there is a procedural block using `@(posedge clk or posedge reset)` that manages transitions between states.
+   **score: 1/1**
+
+4. **reset behavior (1 pt)**
+   - the reset behavior in the code returns the machine to the `idle` state, which acts as the default/initial state.
+   **score: 1/1**
+
+5. **state transition logic (1 pt)**
+   - the use of a `case` statement within an `always @(*)` block manages the transitions between states based on `money` and `select_product` signals.
+   **score: 1/1**
+
+6. **output handling (1 pt)**
+   - the vending machine output logic is defined in procedural blocks, but `$display` isn't used for visualization of state changes or outputs.
+   **score: 0/1**
+
+**final score: 5/6**
+*************************************************************************************************
+

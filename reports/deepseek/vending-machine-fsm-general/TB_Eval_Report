@@ -1,0 +1,22 @@
+
+************************************Evaluation Report*******************************************
+### vending machine testbench checkpoints - total 3 pts (grade_checkpoint2)
+
+#### 1. money denominations (1 pt)
+- tests all possible money denominations (5, 10, 20):
+  - the state machine logic includes adding money denominations 5, 10, and 20 to the balance, meeting this checkpoint.
+  **score: 1/1**
+
+#### 2. product selection (1 pt)
+- tests vending for all products (proda, prodb, prodc):
+  - the input select_product and corresponding outputs proda, prodb, and prodc are properly handled based on the input, meeting this checkpoint.
+  **score: 1/1**
+
+#### 3. output validation (1 pt)
+- displays expected vs. actual results concisely and determines pass/fail status:
+  - the provided module does not include specific logic to display expected vs. actual results or a pass/fail status, thus this checkpoint is not met.
+  **score: 0/1**
+
+**final score: 2/3**
+*************************************************************************************************
+

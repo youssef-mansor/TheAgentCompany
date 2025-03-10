@@ -211,64 +211,68 @@ def main():
         print(f"No eval_*.json files found in {folder_path}")
         return
 
+    # Build detailed_results with the following tuple structure:
+    # (task_name, total, result, is_perfect, task_nature)
+    # Here we consider a task as "perfect" if its result equals the total.
     detailed_results = [
         (
             task_name,
             total,
             result,
-            calculate_score(total, result),
-            is_perfect_completion(total, result),
+            (result == total),  # using result only to determine perfection
             get_task_nature_category(task_name)
         )
         for task_name, (total, result) in eval_results.items()
     ]
     
-    # Sort by score in descending order
-    detailed_results.sort(key=lambda x: (-x[3], x[0]))
+    # Sort by result (highest first) and then by filename alphabetically
+    detailed_results.sort(key=lambda x: (-x[2], x[0]))
     
-    # Calculate perfect completion stats
-    perfect_completions = sum(1 for _, _, _, _, is_perfect, _ in detailed_results if is_perfect)
+    # Calculate perfect completion stats based solely on the result value.
+    perfect_completions = sum(1 for _, _, _, is_perfect, _ in detailed_results if is_perfect)
     
     # Print header
     print("\n# Evaluation Results Report")
     print("\n## Results per File")
-    print("\n*Sorted by score (⭐ indicates perfect completion)*\n")
+    print("\n*Sorted by result (⭐ indicates perfect completion)*\n")
     
-    # Print table header
-    print("| Filename | Total | Result | Score | Steps | Cost |")
-    print("|----------|--------|---------|-------|-------|------|")
+    # Print table header (Score column removed)
+    print("| Filename | Total | Result | Steps | Cost |")
+    print("|----------|-------|--------|-------|------|")
     
-    # Print individual file results
-    for task_name, total, result, score, is_perfect, task_nature in detailed_results:
+    # Print individual file results with the result value (with a star if perfect)
+    for task_name, total, result, is_perfect, task_nature in detailed_results:
         perfect_marker = " ⭐" if is_perfect else ""
-        print(f"| {task_name} | {total:,} | {result:,} | {score:.2f}{perfect_marker} | {traj_results[task_name][0]} | {traj_results[task_name][1]:.2f} |")
+        print(f"| {task_name} | {total:,} | {result:,}{perfect_marker} | {traj_results[task_name][0]} | {traj_results[task_name][1]:.2f} |")
     
     # Print summary section
     print("\n## Summary\n")
     print(f"**Tasks Evaluated:** {len(eval_results)}\n")
     print(f"**Perfect Completions:** {perfect_completions}/{len(eval_results)} ({(perfect_completions/len(eval_results)*100):.2f}%)\n")
     
-    overall_score = sum(score for _, _, _, score, _, _ in detailed_results) / len(detailed_results) * 100
+    # Calculate overall result as the average of the result values
+    overall_result = sum(result for _, _, result, _, _ in detailed_results) / len(detailed_results)
     avg_steps = sum(steps for steps, _ in traj_results.values()) / len(traj_results)
     avg_cost = sum(cost for _, cost in traj_results.values()) / len(traj_results)
-    print(f"**Overall Score:** {overall_score:.2f}%\n")
+    print(f"**Overall Score (Average Result):** {overall_result:.2f}\n")
     print(f"**Average Steps:** {avg_steps:.2f}\n")
     print(f"**Average Cost (USD):** {avg_cost:.2f}\n")
 
-    # Additional statistics
+    # Additional statistics based solely on the result column
     if detailed_results:
-        highest_score = max(score for _, _, _, score, _, _ in detailed_results)
-        lowest_score = min(score for _, _, _, score, _, _ in detailed_results)
-        median_score = detailed_results[len(detailed_results) // 2][3]
-        avg_score = sum(score for _, _, _, score, _, _ in detailed_results) / len(detailed_results)
+        highest_result = max(result for _, _, result, _, _ in detailed_results)
+        lowest_result = min(result for _, _, result, _, _ in detailed_results)
+        median_result = detailed_results[len(detailed_results) // 2][2]
+        avg_result = overall_result  # same as overall_result
         
         print("\n## Statistics\n")
         print("| Metric | Value |")
-        print("|---------|--------|")
-        print(f"| Highest Task Score | {highest_score*100:.2f}% |")
-        print(f"| Lowest Task Score | {lowest_score*100:.2f}% |")
-        print(f"| Median Task Score | {median_score*100:.2f}% |")
-        print(f"| Average Task Score | {avg_score*100:.2f}% |")
+        print("|---------|-------|")
+        print(f"| Highest Task Result | {highest_result:.2f} |")
+        print(f"| Lowest Task Result | {lowest_result:.2f} |")
+        print(f"| Median Task Result | {median_result:.2f} |")
+        print(f"| Average Task Result | {avg_result:.2f} |")
+
 
 if __name__ == "__main__":
     main()

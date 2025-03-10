@@ -1,0 +1,17 @@
+
+************************************Evaluation Report*******************************************
+- **checkpoint: data transmission (1 pt)**
+  - **analysis:** the testbench contains a mechanism to transmit data incrementally by iterating over byte values and looping the `rx` and `tx` pins. it tests for successful data transmission by verifying that transmitted data matches received data.
+  - **score assigned:** 1
+
+- **checkpoint: assertions (1 pt)**
+  - **analysis:** the testbench uses assertions to verify that the received data matches the expected transmitted data. specifically, it checks if `rxdata` is equal to `data`, and displays a failure message if they do not match.
+  - **score assigned:** 1
+
+- **checkpoint: logging (1 pt)**
+  - **analysis:** the testbench logs messages to indicate the completion and success or failure of the test. it displays a success message ("success: all bytes verified") when all bytes are successfully verified.
+  - **score assigned:** 1
+
+**final score: 3/3**
+*************************************************************************************************
+

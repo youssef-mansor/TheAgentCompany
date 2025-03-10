@@ -1,0 +1,37 @@
+
+************************************Evaluation Report*******************************************
+### vending machine fsm checkpoints - total 5 pts (grade_checkpoint2)
+
+#### 1. module interface (1 pt)
+- defined ports:
+  - clk, reset: clock and reset signals.
+  - [5:0] money: inserted money.
+  - [1:0] select_product: product selection.
+  - extra_cash: additional inserted money.
+  - proda, prodb, prodc: product dispense signals.
+  - [5:0] balance: remaining balance.
+- **score: 1/1**
+
+#### 2. state definition (1 pt)
+- defines parameters for the different states: idle, money_inserted, dispense, return_change, wait_more.
+- **score: 1/1**
+
+#### 3. state transitions (1 pt)
+- implements procedural block `always @(posedge clk or posedge reset)` for state transition handling.
+- **score: 1/1**
+
+#### 4. reset behavior (1 pt)
+- on reset, the machine returns to the idle state with all outputs reset to 0.
+- **score: 1/1**
+
+#### 5. state transition logic (1 pt)
+- uses a `case` statement in `always @(*)` to transition between states based on input conditions.
+- **score: 1/1**
+
+#### 6. output handling (1 pt)
+- while there is output logic defined (`proda`, `prodb`, `prodc`, `balance`), the use of `$display` for output visualization was not explicitly mentioned in the code.
+- **score: 0/1**
+
+**final score: 5/6**
+*************************************************************************************************
+

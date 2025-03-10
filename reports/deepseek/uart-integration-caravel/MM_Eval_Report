@@ -1,0 +1,17 @@
+************************************Evaluation Report*******************************************
+- **check for user project wrapper module (4 pts)**
+  - file name: `user_project_wrapper.v`
+  - ensure that a wishbone wrapper for the uart module is instantiated correctly within the `user_project_wrapper`.
+    - **score assigned: 0 pts** (the content for `user_project_wrapper.v` is missing and cannot be evaluated.)
+  - if `use_power_pins` is defined, verify the presence of `.vpwr(vccd2)` and `.vgnd(vssd2)` connections to ensure proper power and ground connections.
+    - **score assigned: 0 pts** (the content for `user_project_wrapper.v` is missing and cannot be evaluated.)
+  - verify that all wishbone interface signals are correctly connected.
+    - **score assigned: 0 pts** (the content for `user_project_wrapper.v` is missing and cannot be evaluated.)
+  - ensure that the io pads are properly connected.
+    - **score assigned: 0 pts** (the content for `user_project_wrapper.v` is missing and cannot be evaluated.)
+  - confirm that the interrupt request line is connected with `.irq(user_irq)`, ensuring the module can signal interrupts to the system.
+    - **score assigned: 0 pts** (the content for `user_project_wrapper.v` is missing and cannot be evaluated.)
+
+**final score: 0/4**
+*************************************************************************************************
+

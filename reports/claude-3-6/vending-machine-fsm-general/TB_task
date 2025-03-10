@@ -1,0 +1,340 @@
+ 
+        You are a judge evaluating a file content against predefined checkpoints.  
+        Each checkpoint has an assigned score.
+
+        Task:  
+        1. Analyze the file based on the given checkpoints.  
+        2. If a checkpoint is met, assign the corresponding score else assign zero. 
+        3. Generate a detailed report with the following format:  
+            - Clearly list each checkpoint and the corresponding score assigned.  
+            - Conclude the report with the final score in the format:  
+                **Final Score: <score>/<total>**
+        Don't make introduction or conclusion just respond directly with the report in the format specified above.
+
+    
+
+        # Checkpoints
+
+    ## Vending Machine Testbench Checkpoints - Total 3 pts (grade_checkpoint2)  
+
+### 1. Money Denominations (1 pt)  
+   - Tests all possible money denominations (5,  10,  20).  
+
+### 2. Product Selection (1 pt)  
+   - Tests vending for all products (prodA, prodB, prodC).  
+
+### 3. Output Validation (1 pt)  
+   - Displays expected vs. actual results concisely and determines pass/fail status.
+
+        Listed below are the contents for all files in the workspace. You are required to evaluate only the file that is
+        relevant to the defined checkpoints.
+
+    
+# /workspace/vending_machine.v
+```verilog/python
+module vending_machine (
+    input wire clk,
+    input wire reset,
+    input wire [5:0] money,      // 5, 10, 20
+    input wire [1:0] select_product,
+    input wire extra_cash,       // Signal to add more money
+    output reg prodA,
+    output reg prodB,
+    output reg prodC,
+    output reg [5:0] balance    // Maximum balance needed is 40 (when inserting 20*2)
+);
+
+    // FSM states
+    localparam IDLE = 3'b000;
+    localparam MONEY_INSERTED = 3'b001;
+    localparam DISPENSE = 3'b010;
+    localparam RETURN_CHANGE = 3'b011;
+    localparam WAIT_MORE = 3'b100;
+
+    // Product prices
+    localparam PRICE_A = 5;
+    localparam PRICE_B = 10;
+    localparam PRICE_C = 15;
+
+    // State and balance registers
+    reg [2:0] state, next_state;
+    reg [5:0] current_balance, required_amount;
+    
+    // State register
+    always @(posedge clk or posedge reset) begin
+        if (reset) begin
+            state <= IDLE;
+            current_balance <= 0;
+            prodA <= 0;
+            prodB <= 0;
+            prodC <= 0;
+            balance <= 0;
+        end else begin
+            state <= next_state;
+            
+            // Reset product outputs every cycle unless explicitly set
+            prodA <= 0;
+            prodB <= 0;
+            prodC <= 0;
+            balance <= 0;
+            
+            case (state)
+                default: begin
+                    // Do nothing
+                end
+                
+                IDLE: begin
+                    if (money > 0 && (money == 5 || money == 10 || money == 20)) begin
+                        current_balance <= money;
+                    end
+                end
+                
+                MONEY_INSERTED: begin
+                    if (money > 0 && (money == 5 || money == 10 || money == 20)) begin
+                        if (!extra_cash) begin
+                            current_balance <= money;
+                        end else begin
+                            current_balance <= current_balance + money;
+                        end
+                    end
+                end
+                
+                DISPENSE: begin
+                    case (select_product)
+                        2'b00: begin
+                            prodA <= 1;
+                            balance <= current_balance - PRICE_A;
+                            current_balance <= 0;
+                        end
+                        2'b01: begin
+                            prodB <= 1;
+                            balance <= current_balance - PRICE_B;
+                            current_balance <= 0;
+                        end
+                        2'b10: begin
+                            prodC <= 1;
+                            balance <= current_balance - PRICE_C;
+                            current_balance <= 0;
+                        end
+                        default: begin
+                            balance <= current_balance;
+                            current_balance <= 0;
+                        end
+                    endcase
+                end
+                
+                RETURN_CHANGE: begin
+                    balance <= current_balance;
+                    current_balance <= 0;
+                end
+                
+                WAIT_MORE: begin
+                    if (money > 0 && extra_cash && (money == 5 || money == 10 || money == 20)) begin
+                        current_balance <= current_balance + money;
+                    end
+                end
+            endcase
+        end
+    end
+
+    // Next state logic
+    always @(*) begin
+        next_state = IDLE; // Default state
+        case (state)
+            IDLE: begin
+                if (money > 0 && (money == 5 || money == 10 || money == 20)) begin
+                    next_state = MONEY_INSERTED;
+                end else begin
+                    next_state = IDLE;
+                end
+            end
+            
+            MONEY_INSERTED: begin
+                case (select_product)
+                    2'b00: required_amount = PRICE_A;
+                    2'b01: required_amount = PRICE_B;
+                    2'b10: required_amount = PRICE_C;
+                    default: required_amount = 0;
+                endcase
+                
+                if (select_product == 2'b11) begin
+                    next_state = RETURN_CHANGE;
+                end else if (current_balance >= required_amount) begin
+                    next_state = DISPENSE;
+                end else if (extra_cash) begin
+                    next_state = WAIT_MORE;
+                end else begin
+                    next_state = RETURN_CHANGE;
+                end
+            end
+            
+            DISPENSE: begin
+                next_state = IDLE;
+            end
+            
+            RETURN_CHANGE: begin
+                next_state = IDLE;
+            end
+            
+            WAIT_MORE: begin
+                case (select_product)
+                    2'b00: required_amount = PRICE_A;
+                    2'b01: required_amount = PRICE_B;
+                    2'b10: required_amount = PRICE_C;
+                    default: required_amount = 0;
+                endcase
+                
+                if (select_product == 2'b11) begin
+                    next_state = RETURN_CHANGE;
+                end else if (current_balance >= required_amount) begin
+                    next_state = DISPENSE;
+                end else if (!extra_cash) begin
+                    next_state = RETURN_CHANGE;
+                end else begin
+                    next_state = WAIT_MORE;
+                end
+            end
+            
+            default: begin
+                next_state = IDLE;
+            end
+        endcase
+    end
+
+endmodule
+```
+
+# /workspace/test/test_vending_machine.py
+```verilog/python
+import cocotb
+from cocotb.clock import Clock
+from cocotb.triggers import RisingEdge, Timer
+from cocotb.binary import BinaryValue
+
+async def reset_dut(dut):
+    dut.reset.value = 1
+    dut.money.value = 0
+    dut.select_product.value = 0
+    dut.extra_cash.value = 0
+    await Timer(20, units='ns')
+    dut.reset.value = 0
+    await Timer(20, units='ns')
+
+@cocotb.test()
+async def test_product_a_exact_money(dut):
+    """Test buying product A with exact money"""
+    clock = Clock(dut.clk, 10, units="ns")
+    cocotb.start_soon(clock.start())
+    
+    await reset_dut(dut)
+    
+    # Insert 5 coins for product A
+    dut.money.value = 5
+    dut.select_product.value = 0
+    await RisingEdge(dut.clk)
+    dut.money.value = 0
+    
+    # Wait a few cycles and check output
+    for _ in range(3):
+        await RisingEdge(dut.clk)
+    
+    assert dut.prodA.value == 1, f"Product A not dispensed"
+    assert dut.balance.value == 0, f"Unexpected balance {dut.balance.value}"
+
+@cocotb.test()
+async def test_product_b_exact_money(dut):
+    """Test buying product B with exact money"""
+    clock = Clock(dut.clk, 10, units="ns")
+    cocotb.start_soon(clock.start())
+    
+    await reset_dut(dut)
+    
+    # Insert 10 coins for product B
+    dut.money.value = 10
+    dut.select_product.value = 1
+    await RisingEdge(dut.clk)
+    dut.money.value = 0
+    
+    # Wait a few cycles and check output
+    for _ in range(3):
+        await RisingEdge(dut.clk)
+    
+    assert dut.prodB.value == 1, f"Product B not dispensed"
+    assert dut.balance.value == 0, f"Unexpected balance {dut.balance.value}"
+
+@cocotb.test()
+async def test_product_c_with_change(dut):
+    """Test buying product C with change"""
+    clock = Clock(dut.clk, 10, units="ns")
+    cocotb.start_soon(clock.start())
+    
+    await reset_dut(dut)
+    
+    # Insert 20 coins for product C (costs 15)
+    dut.money.value = 20
+    dut.select_product.value = 2
+    await RisingEdge(dut.clk)
+    dut.money.value = 0
+    
+    # Wait a few cycles and check output
+    for _ in range(3):
+        await RisingEdge(dut.clk)
+    
+    assert dut.prodC.value == 1, f"Product C not dispensed"
+    assert dut.balance.value == 5, f"Expected change of 5, got {dut.balance.value}"
+
+@cocotb.test()
+async def test_insufficient_money_with_extra(dut):
+    """Test buying product C with insufficient money first, then adding more"""
+    clock = Clock(dut.clk, 10, units="ns")
+    cocotb.start_soon(clock.start())
+    
+    await reset_dut(dut)
+    
+    # Insert 10 coins for product C (costs 15)
+    dut.money.value = 10
+    dut.select_product.value = 2
+    dut.extra_cash.value = 1
+    await RisingEdge(dut.clk)
+    dut.money.value = 0
+    
+    # Wait a cycle
+    await RisingEdge(dut.clk)
+    
+    # Add 5 more
+    dut.money.value = 5
+    await RisingEdge(dut.clk)
+    dut.money.value = 0
+    
+    # Wait a few cycles and check output
+    for _ in range(3):
+        await RisingEdge(dut.clk)
+    
+    assert dut.prodC.value == 1, f"Product C not dispensed"
+    assert dut.balance.value == 0, f"Unexpected balance {dut.balance.value}"
+
+@cocotb.test()
+async def test_cancel_purchase(dut):
+    """Test canceling purchase and getting refund"""
+    clock = Clock(dut.clk, 10, units="ns")
+    cocotb.start_soon(clock.start())
+    
+    await reset_dut(dut)
+    
+    # Insert 20 coins
+    dut.money.value = 20
+    dut.select_product.value = 3  # Cancel code
+    await RisingEdge(dut.clk)
+    dut.money.value = 0
+    
+    # Wait a few cycles and check output
+    for _ in range(3):
+        await RisingEdge(dut.clk)
+    
+    assert dut.balance.value == 20, f"Expected refund of 20, got {dut.balance.value}"
+    assert dut.prodA.value == 0 and dut.prodB.value == 0 and dut.prodC.value == 0, "No product should be dispensed"
+```
+
+
+
+=== Code Execution Successful ===
