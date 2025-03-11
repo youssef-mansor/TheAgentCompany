@@ -12,7 +12,7 @@ The CLA should use generate (G) and propagate (P) signals for implementation of 
 
 ## Step 2: Create a Self-Checking Testbench
 - Develop a comprehensive testbench for the CLA modulewith asserstions that covers all possible cases.  
-- If a case fails, the assertion should stop the testbench execution
+- If a test case fails, the assertion should terminate the testbench execution. If you are using a Verilog testbench, you must use the **$fatal** macro.
 
 Ensure to Test random combinations of inputs (A, B, cin)
 

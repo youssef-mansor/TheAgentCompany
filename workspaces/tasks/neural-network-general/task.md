@@ -57,24 +57,24 @@ Requirements:
 
 ## Step 2: Create a Self-Checking Testbench
 - Develop a comprehensive testbench using cocotb that verifies the neural network against the Python model with asserstions that covers all possible cases.  
-- If a case fails, the assertion should stop the testbench execution. 
+- If a test case fails, the assertion should terminate the testbench execution. If you are using a Verilog testbench, you must use the **$fatal** macro.
 - The test bench should run the neural network in python one time and the verilog code another time and make sure outputs are the same.
 
 Ensure the following points are addressed within the testbench:
 
-### Basic Operations: (1 pts)
+### Basic Operations:
    - Test input loading and weight initialization.
 
-### Python Validation: (1 pts)
+### Python Validation:
    - Test against Python model outputs.
 
-### Wishbone Protocol: (1 pts)
+### Wishbone Protocol:
    - Test memory-mapped I/O operations.
 
-### Control Flow: (1 pts)
+### Control Flow:
    - Test start/ready signaling and computation flow.
 
-### Edge Cases: (1 pts)
+### Edge Cases:
    - Test boundary conditions and special values.
 
 ## Step 3: Debug and Fix Issues

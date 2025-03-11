@@ -9,7 +9,7 @@ Design a D flip-flop in Verilog with the following interface:
 
 ## Step 2: Create a Self-Checking Testbench  
 - Develop a comprehensive testbench for the D Flip Flop module with asserstions that covers all possible cases.  
-- If a case fails, the assertion should stop the testbench execution. 
+- If a test case fails, the assertion should terminate the testbench execution. If you are using a Verilog testbench, you must use the **$fatal** macro.
 
 ## Step 3: Debug and Fix Issues  
 - If the module does not pass all test cases, revisit and refine the Verilog code.  

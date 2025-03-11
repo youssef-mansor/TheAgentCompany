@@ -31,7 +31,7 @@ Required modules:
 
 ## Step 2: Create a Self-Checking Testbench
 - Develop a comprehensive testbench for the top module with asserstions that covers all possible cases.  
-- If a case fails, the assertion should stop the testbench execution. 
+- If a test case fails, the assertion should terminate the testbench execution. If you are using a Verilog testbench, you must use the **$fatal** macro.
 - the test bench should cover all instruction types.
 
 Ensure the following points are addressed within the testbench:

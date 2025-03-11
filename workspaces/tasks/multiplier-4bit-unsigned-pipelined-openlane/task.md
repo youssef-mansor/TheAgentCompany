@@ -13,7 +13,7 @@ The multiplier should have a three-cycle pipeline.
 
 ## Step 2: Create a Self-Checking Testbench
 - Develop a comprehensive testbench for the multiplier module with asserstions that covers all possible cases.  
-- If a case fails, the assertion should stop the testbench execution. 
+- If a test case fails, the assertion should terminate the testbench execution. If you are using a Verilog testbench, you must use the **$fatal** macro.
 
 Ensure the following points are addressed within the testbench:
 

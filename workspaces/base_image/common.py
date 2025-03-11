@@ -20,6 +20,8 @@ IMAGE_PNG = 'image/png'
 
 workspace_files = None #all verilog and python files in the workspace names
 workspace_content = None #all verilog and python files in the workspace content
+cocotb_test = None # boolean to check if cocotb test is used
+fatal_macro = None # boolean to check if $fatal macro is used
 
 
 class MockRocketChatClient:
@@ -94,6 +96,7 @@ def llm_complete(checkpoints_list_msg, file_content=None):
     
     messages = modify_messages(checkpoints_list_msg, file_content)
 
+
     return litellm.completion(
         api_key=LITELLM_API_KEY,
         base_url=LITELLM_BASE_URL,
@@ -101,7 +104,9 @@ def llm_complete(checkpoints_list_msg, file_content=None):
         messages=messages
     ).json()
 
-def llm_confirm(file_content=None):
+
+
+def llm_confirm(file_content=None): # the function confirms the contents of sh script are used to run the testbench and that the testbench has assertions that stop execution on a failed test.
 
     # make the logic to add the rest of the files here
     files = {}
@@ -126,12 +131,18 @@ def llm_confirm(file_content=None):
             "role": "user"}
     ]
 
-    return litellm.completion(
+    llm_response =  litellm.completion(
         api_key=LITELLM_API_KEY,
         base_url=LITELLM_BASE_URL,
         model=LITELLM_MODEL,
         messages=messages
     ).json()
+
+    # check if no coco_tb test is not used and $fatal macro is not used and in such case modify llm_response['choices'][0]['message']['content'].lower() to be only the text "no, because the $fatal macro is not used in verilog testbench"
+    if not cocotb_test and not fatal_macro:
+        llm_response['choices'][0]['message']['content'] = "no, because the $fatal macro is not used in verilog testbench"
+
+    return llm_response
 
 def execute_testbench(shell_script_path):
     if shell_script_path:
@@ -288,6 +299,9 @@ def grade_checkpoint_llm(CHECK_POINTS, file_type):
     # List of substrings to exclude from file names
     global workspace_files
     global workspace_content
+    global cocotb_test
+    global fatal_macro
+
     exclude = ['test_runner.py', 'cocotb_iverilog_dump.v', 'openhands/miniforge3']
     
     files = {}
@@ -310,6 +324,11 @@ def grade_checkpoint_llm(CHECK_POINTS, file_type):
     # Build workspace content and send to the LLM if any files are found
     if files:
         workspace_content = build_workspace_content(files, file_type)
+        # Logic for checking if test_runner.py exists (cocotb testing is used) in workspace_files and if no, checking for $fatal macro in the workspace_content
+        cocotb_test = "test_runner.py" in workspace_files
+        fatal_macro = "$fatal" in workspace_content
+        print(f"cocotb_test: {cocotb_test}")
+        print(f"fatal_macro: {fatal_macro}")
         return check_with_llm_F(CHECK_POINTS, workspace_content)
     else:
         print("workspace is empty")

@@ -59,14 +59,15 @@ def config_env(dir_path):
 @grader
 def grade_checkpoint_openlane():
     score = 0
-    search_paths = ["/workspace", "/outputs", "/openhands/workspace/"]
+    search_paths = ["/workspace", "/outputs", "/openhands/workspace/", "/tmp"]
+    exclude = ["/home/openhands/caravel_template/", "/home/openhands/.volare/", "/home/openhands/openlane2/", "/root", "/etc", "/proc", "/sys", "/home/openhands/openlane2/", "/usr", "/openhands/micromamba/envs", "/openhands/miniforge3", "/nix"]
 
     # Search for config.json outside any "runs" subdirectories.
     config_found = False
     for path in search_paths:
         try:
             result = subprocess.run(
-                f'find {path} -type f -name "config.json" ! -path "*/runs/*"',
+                f'find {path} -type f -name "*config*json" ! -path "*/runs/*"',
                 shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True
             )
             if result.stdout.strip():

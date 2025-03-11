@@ -27,7 +27,7 @@ The FSM should handle:
 
 ## Step 2: Create a Self-Checking Testbench  
 - Develop a comprehensive testbench for the vending machine FSM with asserstions that covers all possible cases.  
-- If a case fails, the assertion should stop the testbench execution. 
+- If a test case fails, the assertion should terminate the testbench execution. If you are using a Verilog testbench, you must use the **$fatal** macro.
 
 
 Ensure the testbench addresses the following points:  
