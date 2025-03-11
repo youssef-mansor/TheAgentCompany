@@ -106,7 +106,7 @@ def llm_confirm(file_content=None):
     # make the logic to add the rest of the files here
     files = {}
     search_paths = ["/workspace", "/outputs", "/openhands/workspace/"]
-    exclude = ['cocotb_iverilog_dump.v', 'openhands/miniforge3']
+    exclude = ['cocotb_iverilog_dump.v', 'openhands/miniforge3', 'runs']
 
     for directory in search_paths:
         file_cmd = f"find {directory} -type f \\( -name '*.bash' -o -name '*.sh' -o -name '*.py' -o -name '*.v' -o -name '*.sv' -o -iname 'makefile*' \\)"
@@ -295,7 +295,7 @@ def grade_checkpoint_llm(CHECK_POINTS, file_type):
 
     # Collect Verilog files (.v and .sv) from each search path
     for directory in search_paths:
-        verilog_cmd = f"find {directory} -type f \\( -name '*.v' -o -name '*.sv' \\)"
+        verilog_cmd = f"find {directory} -type f \\( -name '*.v' -o -name '*.sv' \\) -not -path '*/runs/*'"
         files.update(collect_files(verilog_cmd, exclude))
     
     # Optionally include Python files if file_type is 'verilog/python'

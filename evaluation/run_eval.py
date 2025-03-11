@@ -112,7 +112,7 @@ def codeact_user_response(state: State) -> str:
             return (
                 msg
                 + 'If you have genuinely tried multiple approaches and still cannot solve the task, '
-                + 'you can give up by running: <execute_bash> exit </execute_bash>.\n'
+                + 'Please FINISH the task using FINISH tool\n'
             )
     return msg
 
