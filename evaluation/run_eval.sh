@@ -106,8 +106,7 @@ for task_dir in "$TASKS_DIR"/*/; do
     task_name=$(basename "$task_dir")
     # task_name="riscv-general"
     # Skip specific tasks
-    if [[ "$task_name" == "multiplier-4bit-unsigned-pipelined-openlane" || 
-          "$task_name" == "neural-network-general" || 
+    if [[ "$task_name" == "multiplier-4bit-unsigned-pipelined-openlane" ||
           "$task_name" == "d-flip-flop-openlane" ]]; then
         continue
     fi

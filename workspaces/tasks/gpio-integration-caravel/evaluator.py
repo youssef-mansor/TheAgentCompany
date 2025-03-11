@@ -246,5 +246,3 @@ def grade_checkpoints(trajectory="") -> Result:
         checkpoints.append(Checkpoint(int(total_score), int(final_score)))
 
     return result
-
-
