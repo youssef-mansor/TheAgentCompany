@@ -6,6 +6,8 @@ import subprocess
 import functools
 import re
 import requests
+import xml.etree.ElementTree as ET
+
 
 import litellm
 from requests.auth import HTTPBasicAuth
@@ -34,6 +36,44 @@ class MockRocketChatClient:
         def method(*args, **kwargs):
             return self.JsonResponse()
         return method
+    
+def extract_test_results(xml_file):
+    """
+    Parses a cocotb XML file and returns a tuple:
+    (number of test cases, number of failures)
+    
+    If the file is not a valid XML, it notifies the user and returns None.
+    
+    Args:
+        xml_file (str): Path to the XML file.
+    
+    Returns:
+        tuple or None: (num_testcases, num_failures) if successful, else None.
+    """
+    try:
+        tree = ET.parse(xml_file)
+    except FileNotFoundError:
+        print(f"Error: The file '{xml_file}' does not exist.")
+        return None
+    except ET.ParseError as e:
+        print(f"Error: The file '{xml_file}' is not a valid XML file. {e}")
+        return None
+    except Exception as e:
+        print(f"Error: An unexpected error occurred: {e}")
+        return None
+
+    root = tree.getroot()
+    
+    # Count the <testcase> elements
+    test_cases = root.findall(".//testcase")
+    num_testcases = len(test_cases)
+    
+    # Count the <failure> elements within the testcases
+    failures = root.findall(".//failure")
+    num_failures = len(failures)
+    
+    return num_testcases, num_failures
+
 
 
 def grader(func):
@@ -173,7 +213,14 @@ def execute_testbench(shell_script_path):
                 )
                 # Check if the exit code indicates success
                 if result.returncode == 0:
-                    return (1, 1)
+                    # check if the resultant xml indeed does not have any failures
+                    _, num_failures = extract_test_results(find_file_path("results.xml"))
+                    if num_failures == 0:
+                        print("Testbench execution successful.")
+                        return (1, 1)
+                    else:
+                        print(f"Testbench execution failed with {num_failures} failures.")
+                        return (0, 1)
                 else:
                     print(f"Testbench execution failed with exit code {result.returncode}")
                     return (0, 1)
@@ -191,7 +238,7 @@ def execute_testbench(shell_script_path):
 
 
 def find_file_path(file_path):
-    search_paths = ["/workspace", "/home", "/outputs", "/openhands"]
+    search_paths = ["/workspace", "/outputs", "/openhands/workspace"]
     for path in search_paths:
         print(f"current path: {path}")
         try:
@@ -325,7 +372,7 @@ def grade_checkpoint_llm(CHECK_POINTS, file_type):
     if files:
         workspace_content = build_workspace_content(files, file_type)
         # Logic for checking if test_runner.py exists (cocotb testing is used) in workspace_files and if no, checking for $fatal macro in the workspace_content
-        cocotb_test = "test_runner.py" in workspace_files
+        cocotb_test = any(f.endswith(".py") for f in workspace_files)
         fatal_macro = "$fatal" in workspace_content
         print(f"cocotb_test: {cocotb_test}")
         print(f"fatal_macro: {fatal_macro}")
