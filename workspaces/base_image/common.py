@@ -226,7 +226,7 @@ def execute_testbench(shell_script_path):
                             return (1, 1)
                         else:
                             print("Testbench execution not trustworthy as $fatal macro is not used in the testbench.")
-                            # pass the result of running the subprocess above to the llm with the question of wether this text indicates that all test cases has been passed and only ask the llm to answer only with yes or no
+                            # pass the result of running the command above to the llm with the question of wether this text indicates that all test cases has been passed and only ask the llm to answer only with yes or no
                             messages = [ 
                                 { "content": f"Answer only yes or no. Given the following output:\n```{result.stdout}```\n, does the output indicate that all test cases have passed?",
                                 "role": "user"}
@@ -340,6 +340,7 @@ def check_with_llm_F(checkpoints, file_content): # to handle the case of functin
 
     if len(checkpoints) == 0:
         print(f"position 1: returning {(0, 0)}")
+        print("No checkpoints provided, Finished check_with_llm_F function called within grade_checkpoint_llm")
         return (0, 0)
 
     messages = [
@@ -360,9 +361,11 @@ def check_with_llm_F(checkpoints, file_content): # to handle the case of functin
     total_score = re.search(r'(?i)final\s+score:\s*\d{1,2}/(\d{1,3})', llm_response_txt)
     if score:
         print(f"position 2: returning {(int(score.group(1)), int(total_score.group(1)))}")
+        print("Finished check_with_llm_F function called within grade_checkpoint_llm")
         return (int(score.group(1)), int(total_score.group(1)))
     else:
         print(f"position 3: returning {(0, 0)}")
+        print("Finished check_with_llm_F function called within grade_checkpoint_llm")
         return (0, 0)
 
 @grader
@@ -400,8 +403,10 @@ def grade_checkpoint_llm(CHECK_POINTS, file_type):
         fatal_macro = "$fatal" in workspace_content
         print(f"cocotb_test: {cocotb_test}")
         print(f"fatal_macro: {fatal_macro}")
+        print("calling check_with_llm_F function within grade_checkpoint_llm") 
         return check_with_llm_F(CHECK_POINTS, workspace_content)
     else:
+        print("Finished grade_checkpoint_llm function")
         print("workspace is empty")
         return (0, 0)
 

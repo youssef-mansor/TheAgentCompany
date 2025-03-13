@@ -166,7 +166,7 @@ def run_evaluator(runtime: Runtime, env_llm_config: LLMConfig, trajectory_path: 
     logger.info(action, extra={'msg_type': 'ACTION'})
     obs = runtime.run_action(action)
     logger.info(obs, extra={'msg_type': 'OBSERVATION'})
-    assert obs.exit_code == 0
+    assert obs.exit_code == 0 # always reaches the timeout
 
 
 if __name__ == '__main__':

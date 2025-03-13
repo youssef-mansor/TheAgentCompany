@@ -57,6 +57,7 @@ def config_env(dir_path):
 
 
 def grade_checkpoints(trajectory="") -> Result:
+    print("Grading checkpoints ...")
     checkpoints: List[Checkpoint] = []
     result = Result(checkpoints)
 
