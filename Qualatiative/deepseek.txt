@@ -4,3 +4,12 @@
       The VCD file was successfully generated. Now we can analyze the waveforms to verify the processor's behavior. Would you like me to proceed with creating the `run_test.sh` script as mentioned in the task requirements, or would you prefer to analyze the simulation results first?\n\nThe `run_test.sh` script would contain:\n```bash\n#!/bin/bash\niverilog -g2012 -o riscv32i_tb.vvp riscv32i_tb.v riscv32i_single_cycle.v\nvvp riscv32i_tb.vvp\n```\n\nLet me know how you'd like to proceed!
       
       dumbing the vcd is not self checking
+      
+      
+      It seems the issue persists because the `new_str` and `old_str` are identical. Let me rewrite the testbench with a simpler and more compatible structure, ensuring the `new_str` is different from `old_str`.
+      
+       Let me fix this by properly handling the mantissa selection in the `round` function
+       
+       
+       
+       look at the RV trajectory, right then wrong then right 

@@ -178,10 +178,6 @@ def llm_confirm(file_content=None): # the function confirms the contents of sh s
         messages=messages
     ).json()
 
-    # check if no coco_tb test is not used and $fatal macro is not used and in such case modify llm_response['choices'][0]['message']['content'].lower() to be only the text "no, because the $fatal macro is not used in verilog testbench"
-    if not cocotb_test and not fatal_macro:
-        llm_response['choices'][0]['message']['content'] = "no, because the $fatal macro is not used in verilog testbench"
-
     return llm_response
 
 def execute_testbench(shell_script_path):
@@ -202,30 +198,58 @@ def execute_testbench(shell_script_path):
         print(f"confirmation_text: {confirmation_text}\n")
         if "yes" in confirmation_text:
             try:
-                # Run the shell script with a timeout of 400 seconds
+                # Run the shell script with a timeout of 250 seconds
                 result = subprocess.run(
                     shell_script_path,
                     shell=True,
                     stdout=subprocess.PIPE,
                     stderr=subprocess.PIPE,
                     text=True,
-                    timeout=400  # Timeout after 400 seconds
+                    timeout=250  # Timeout after 250 seconds
                 )
                 # Check if the exit code indicates success
                 if result.returncode == 0:
-                    # check if the resultant xml indeed does not have any failures
-                    _, num_failures = extract_test_results(find_file_path("results.xml"))
-                    if num_failures == 0:
-                        print("Testbench execution successful.")
-                        return (1, 1)
-                    else:
-                        print(f"Testbench execution failed with {num_failures} failures.")
-                        return (0, 1)
+                    # check if coco_tb test is true 
+                    if cocotb_test:
+                        # check if the resultant xml indeed does not have any failures
+                        _, num_failures = extract_test_results(find_file_path("results.xml"))
+                        if num_failures == 0:
+                            print("Testbench execution successful.")
+                            return (1, 1)
+                        else:
+                            print(f"Testbench execution failed with {num_failures} failures.")
+                            return (0, 1)
+                    else: # then it is a verilog testbench
+                        #check if the fatal macro is used in the testbench
+                        if fatal_macro:
+                            print("Testbench execution successful.")
+                            return (1, 1)
+                        else:
+                            print("Testbench execution not trustworthy as $fatal macro is not used in the testbench.")
+                            # pass the result of running the subprocess above to the llm with the question of wether this text indicates that all test cases has been passed and only ask the llm to answer only with yes or no
+                            messages = [ 
+                                { "content": f"Answer only yes or no. Given the following output:\n```{result.stdout}```\n, does the output indicate that all test cases have passed?",
+                                "role": "user"}
+                            ]
+                            print(f"messages for checking the stdout of running the testbench: {messages}")
+                            llm_response = litellm.completion(
+                                api_key=LITELLM_API_KEY,
+                                base_url=LITELLM_BASE_URL,
+                                model=LITELLM_MODEL,
+                                messages=messages
+                            ).json()
+                            confirmation_text = llm_response['choices'][0]['message']['content'].lower()
+                            if "yes" in confirmation_text:
+                                print("Testbench execution successful and all test cases have passed.") 
+                                return (1, 1)
+                            else:
+                                print("Some test cases didn't pass")
+                                return (0, 1)                            
                 else:
                     print(f"Testbench execution failed with exit code {result.returncode}")
                     return (0, 1)
             except subprocess.TimeoutExpired:
-                print("Testbench execution timed out after 400 seconds.")
+                print("Testbench execution timed out after 250 seconds.")
                 return (0, 1)
             except Exception as e:
                 print(f"Error executing testbench: {e}")
