@@ -25,20 +25,7 @@ AGENT_LLM_CONFIG="agent"
 # [llm.<ENV_LLM_CONFIG>], e.g. [llm.env]
 ENV_LLM_CONFIG="env"
 
-# Check if AGENT_LLM is set
-if [ -z "$AGENT_LLM" ]; then
-  echo "Error: AGENT_LLM environment variable is not set."
-  exit 1
-fi
-
-# Allowed values for AGENT_LLM
-ALLOWED_VALUES=("deepseek-chat" "claude-3-5-sonnet-20241022" "gpt-4o")
-
-# Check if AGENT_LLM is in the allowed values
-if [[ ! " ${ALLOWED_VALUES[@]} " =~ " $AGENT_LLM " ]]; then
-  echo "Error: Invalid AGENT_LLM value. Allowed values are: ${ALLOWED_VALUES[*]}"
-  exit 1
-fi
+# AGENT_LLM validation is handled by the wrapper script
 
 # OUTPUTS_PATH is the path to save trajectories and evaluation results
 echo "Using AGENT_LLM: $AGENT_LLM"
