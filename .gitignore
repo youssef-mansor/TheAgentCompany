@@ -180,3 +180,4 @@ matterbridge/*
 redis*
 !matterbridge/matterbridge.toml
 /evaluation/reports/vending-machine-fsm-general
+evaluation/eval_script.sh
