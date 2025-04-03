@@ -1,11 +1,8 @@
 import asyncio
 import os
 import shutil
-from typing import List
 import json
-import yaml
 import tempfile
-import base64
 
 from openhands.controller.state.state import State
 from openhands.core.config import (
@@ -18,11 +15,9 @@ from openhands.core.config import (
 from openhands.core.logger import openhands_logger as logger
 from openhands.core.main import create_runtime, run_controller
 from openhands.events.action import CmdRunAction, MessageAction
-from openhands.events.observation import CmdOutputObservation, BrowserOutputObservation
+from openhands.events.observation import CmdOutputObservation
 from openhands.runtime.base import Runtime
 from openhands.utils.async_utils import call_async_from_sync
-
-from browsing import pre_login
 
 
 def get_config(
@@ -54,41 +49,6 @@ def get_config(
     return config
 
 
-def load_dependencies(runtime: Runtime) -> List[str]:
-    """
-    Every task has a dependencies.yml file, which lists all the services that the
-    task depends on. This function loads the file and returns all dependent service names.
-    """
-    command = (
-        "cat /utils/dependencies.yml"
-    )
-    action = CmdRunAction(command=command)
-    logger.info(action, extra={'msg_type': 'ACTION'})
-    obs: CmdOutputObservation = runtime.run_action(action)
-    logger.info(obs, extra={'msg_type': 'OBSERVATION'})
-    assert obs.exit_code == 0
-    dependencies = yaml.safe_load(obs.content)
-    if dependencies is None:
-        dependencies = []
-    return dependencies
-
-
-def init_task_env(runtime: Runtime, hostname: str, env_llm_config: LLMConfig):
-    command = (
-        f"SERVER_HOSTNAME={hostname} "
-        f"LITELLM_API_KEY={env_llm_config.api_key} "
-        f"LITELLM_BASE_URL={env_llm_config.base_url} "
-        f"LITELLM_MODEL={env_llm_config.model} "
-        "bash /utils/init.sh"
-    )
-    action = CmdRunAction(command=command)
-    action.timeout = 900
-    logger.info(action, extra={'msg_type': 'ACTION'})
-    obs = runtime.run_action(action)
-    logger.info(obs, extra={'msg_type': 'OBSERVATION'})
-    assert obs.exit_code == 0
-
-
 def codeact_user_response(state: State) -> str:
     msg = (
         'Please continue working on the task on whatever approach you think is suitable.\n'
@@ -117,13 +77,9 @@ def codeact_user_response(state: State) -> str:
     return msg
 
 
-def run_solver(runtime: Runtime, task_name: str, config: AppConfig, dependencies: List[str],
-               save_final_state: bool, state_dir: str,
-               save_screenshots: bool, screenshots_dir: str) -> State:
+def run_solver(runtime: Runtime, task_name: str, config: AppConfig,
+               save_final_state: bool, state_dir: str) -> State:
     instruction = "Complete the task in /instruction/task.md"
-
-    if 'gitlab' in dependencies:
-        instruction += "\n\nGitlab username is 'root' and password is 'theagentcompany'"
 
     state: State | None = asyncio.run(
         run_controller(
@@ -135,15 +91,6 @@ def run_solver(runtime: Runtime, task_name: str, config: AppConfig, dependencies
         )
     )
     logger.info(state)
-
-    if save_screenshots:
-        screenshots_dir = os.path.join(screenshots_dir, task_name)
-        os.makedirs(screenshots_dir, exist_ok=True)
-        for image_id, obs in enumerate(state.history):
-            if isinstance(obs, BrowserOutputObservation):
-                image_data = base64.b64decode(obs.screenshot)
-                with open(os.path.join(screenshots_dir, f'{image_id}.png'), 'wb') as file:
-                    file.write(image_data)
 
     if save_final_state:
         os.makedirs(state_dir, exist_ok=True)
@@ -246,22 +193,8 @@ if __name__ == '__main__':
 
     # init_task_env(runtime, args.server_hostname, env_llm_config)
 
-    # dependencies = load_dependencies(runtime)
-    dependencies = []
-    logger.info(f"Service dependencies: {dependencies}")
-
-    # try:
-    #     pre_login(runtime, dependencies, save_screenshots=True, screenshots_dir=os.path.join(os.path.abspath(args.outputs_path), "screenshots"))
-    # except Exception as e:
-    #     logger.error(f"Failed to pre-login: {e}")
-    #
-    #     # before giving up, let's try to init and login again
-    #     init_task_env(runtime, args.server_hostname, env_llm_config)
-    #     pre_login(runtime, dependencies, save_screenshots=True, screenshots_dir=os.path.join(os.path.abspath(args.outputs_path), "screenshots"))
-
-    state = run_solver(runtime, task_short_name, config, dependencies,
-                       save_final_state=True, state_dir=os.path.abspath(args.outputs_path),
-                       save_screenshots=True, screenshots_dir=os.path.join(os.path.abspath(args.outputs_path), "screenshots"))
+    state = run_solver(runtime, task_short_name, config,
+                       save_final_state=True, state_dir=os.path.abspath(args.outputs_path))
 
     # this path is the absolute path in the runtime container
     trajectory_path = f'/outputs/traj_{task_short_name}.json'

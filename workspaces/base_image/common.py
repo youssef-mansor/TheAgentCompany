@@ -17,9 +17,6 @@ from config import *
 
 logging.basicConfig(level=logging.INFO)
 
-IMAGE_JPEG = 'image/jpeg'
-IMAGE_PNG = 'image/png'
-
 workspace_files = None #all verilog and python files in the workspace names
 workspace_content = None #all verilog and python files in the workspace content
 cocotb_test = None # boolean to check if cocotb test is used
@@ -422,19 +419,3 @@ def grade_checkpoint_llm(CHECK_POINTS, file_type):
         print("Finished grade_checkpoint_llm function")
         print("workspace is empty")
         return (0, 0)
-
-
-
-def check_repo_exists(project_name: str):
-    try:
-        if project_name not in PROJECT_FILES:
-            logging.warning(f"Unknown project: {project_name}")
-            return False
-            
-        file_path = os.path.join('/workspace', project_name, PROJECT_FILES[project_name])
-        return os.path.isfile(file_path)
-    except Exception as e:
-        logging.warning(f"Error checking file: {e}")
-        return False
-    
-    
