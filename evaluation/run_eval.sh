@@ -90,12 +90,13 @@ echo "Server hostname: $SERVER_HOSTNAME"
 for task_dir in "$TASKS_DIR"/*/; do
     # Get the task name
     task_name=$(basename "$task_dir")
+    task_name="cla-4bit-general"
     # task_name="riscv-general"
     # Skip specific tasks
-    if [[ "$task_name" == "multiplier-4bit-unsigned-pipelined-openlane" ||
-          "$task_name" == "d-flip-flop-openlane" ]]; then
-        continue
-    fi
+    # if [[ "$task_name" == "multiplier-4bit-unsigned-pipelined-openlane" ||
+    #       "$task_name" == "d-flip-flop-openlane" ]]; then
+    #     continue
+    # fi
 
     # Check if evaluation file exists
     if [ -f "$OUTPUTS_PATH/eval_${task_name}.json" ]; then
@@ -105,13 +106,10 @@ for task_dir in "$TASKS_DIR"/*/; do
 
     echo "Running evaluation for task: $task_name"
 
-    # build the task image
-    docker images $task_name -q | xargs -r docker rmi -f || true && cd ~/TheAgentCompany/workspaces/tasks/$task_name/ && make build;
-
-
-    # NOTE: MY EDIT
+    # Build the task image
+    cd ~/TheAgentCompany/workspaces/tasks/$task_name/ && make build
     task_image="${task_name}:latest"
-    echo "Use released image $task_image..."
+    echo "Using image $task_image..."
 
     # Run evaluation from the evaluation directory
     cd "$SCRIPT_DIR"
@@ -123,11 +121,13 @@ for task_dir in "$TASKS_DIR"/*/; do
         --task-image-name "$task_image"
 
         # Prune unused images and volumes
-    #   docker image rm "$task_image"
+        docker image rm "$task_image"
         docker images "ghcr.io/ahmed-alllam/runtime" -q | xargs -r docker rmi -f
-        docker images d-flip-flop-general -q | xargs -r docker rmi -f
+        docker images "$task_name" -q | xargs -r docker rmi -f
         docker volume prune -f
         docker system prune -f
+        
+        break
 
 done
 
