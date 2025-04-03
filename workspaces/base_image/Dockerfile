@@ -14,6 +14,7 @@ COPY config.py /utils
 COPY scoring.py /utils
 COPY eval.py /utils
 COPY encrypt.py /utils
+COPY base_evaluator.py /utils
 
 # create instruction directory (examinee should read instructions from here)
 RUN mkdir -p /instruction
