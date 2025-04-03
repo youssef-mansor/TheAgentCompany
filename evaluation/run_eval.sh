@@ -78,8 +78,7 @@ if [[ ! "$OUTPUTS_PATH" = /* ]]; then
     OUTPUTS_PATH="$(cd "$(dirname "$OUTPUTS_PATH")" 2>/dev/null && pwd)/$(basename "$OUTPUTS_PATH")"
 fi
 
-echo "Using agent LLM config: $AGENT_LLM_CONFIG"
-echo "Using environment LLM config: $ENV_LLM_CONFIG"
+echo "Using evaluator LLM: $ENV_LLM_CONFIG"
 echo "Outputs path: $OUTPUTS_PATH"
 echo "Server hostname: $SERVER_HOSTNAME"
 

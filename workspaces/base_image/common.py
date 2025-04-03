@@ -25,18 +25,6 @@ workspace_content = None #all verilog and python files in the workspace content
 cocotb_test = None # boolean to check if cocotb test is used
 fatal_macro = None # boolean to check if $fatal macro is used
 
-
-class MockRocketChatClient:
-
-    class JsonResponse:
-        def json(self):
-            return {'users': [], 'messages': []}
-
-    def __getattr__(self, name):
-        def method(*args, **kwargs):
-            return self.JsonResponse()
-        return method
-    
 def extract_test_results(xml_file):
     """
     Parses a cocotb XML file and returns a tuple:
