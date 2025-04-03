@@ -249,34 +249,59 @@ def execute_testbench(shell_script_path):
         return (0, 1)
 
 
-def find_file_path(file_path):
-    search_paths = ["/workspace", "/outputs", "/openhands/workspace"]
-    for path in search_paths:
-        print(f"current path: {path}")
-        try:
-            command = ["find", path, "-path", f"*/{file_path}"]
-            result = subprocess.run(command, stdout=subprocess.PIPE, stderr=subprocess.DEVNULL, text=True)
-            lines = result.stdout.splitlines()
-            # if lines:
-            #     print(f"I will return lines[0]: {lines[0]} from this list {lines}")
-            # print(f"lines: \n{lines}")
-            if lines:
-                return lines[0]
-        except subprocess.CalledProcessError:
-            continue  # If no results are found in this path, continue to the next
+def find_files(pattern=None, search_paths=None, command=None, first_match_only=False):
+    """Unified function for finding files in the system.
+    
+    Args:
+        pattern (str, optional): File pattern to search for (e.g. "run_test.sh")
+        search_paths (list, optional): List of paths to search in. Defaults to common paths.
+        command (str, optional): Direct find command to execute. Takes precedence over pattern/paths.
+        first_match_only (bool): Return only the first match found. Defaults to False.
+    
+    Returns:
+        Union[str, List[str], None]: Found file path(s) or None if nothing found
+    """
+    try:
+        if command:
+            # Direct command execution mode
+            result = subprocess.run(command, shell=True, stdout=subprocess.PIPE,
+                                  stderr=subprocess.PIPE, text=True)
+        else:
+            # Pattern-based search mode
+            if search_paths is None:
+                search_paths = ["/workspace", "/outputs", "/openhands/workspace"]
+            
+            for path in search_paths:
+                try:
+                    cmd = ["find", path]
+                    if pattern:
+                        cmd.extend(["-path", f"*/{pattern}"])
+                    result = subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.DEVNULL, text=True)
+                    if result.stdout.strip():
+                        break
+                except subprocess.CalledProcessError:
+                    continue
+            else:
+                return None if first_match_only else []
+        
+        lines = result.stdout.strip().splitlines()
+        if not lines:
+            return None if first_match_only else []
+            
+        return lines[0] if first_match_only else lines
+            
+    except Exception as e:
+        logging.error(f"Error in find_files: {e}")
+        return None if first_match_only else []
 
+# Legacy function maintained for backward compatibility
+def find_file_path(file_path):
+    return find_files(pattern=file_path, first_match_only=True)
+
+# Legacy function maintained for backward compatibility
 def run_find_command(find_cmd):
     """Run a find command and return a list of file paths."""
-    try:
-        result = subprocess.run(find_cmd, shell=True, stdout=subprocess.PIPE,
-                                stderr=subprocess.PIPE, text=True)
-        if result.returncode == 0:
-            return result.stdout.strip().splitlines()
-        else:
-            return []
-    except Exception as e:
-        print(f"Error running command '{find_cmd}': {e}")
-        return []
+    return find_files(command=find_cmd) or []
 
 def collect_files(find_cmd, exclude):
     """
