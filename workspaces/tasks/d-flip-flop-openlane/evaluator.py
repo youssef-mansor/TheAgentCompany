@@ -1,8 +1,10 @@
 from base_evaluator import BaseEvaluator
-from scoring import Result
 from common import grade_checkpoint_llm, execute_testbench, find_file_path
+from scoring import Result, Checkpoint
+
 import subprocess
 import logging
+
 
 class DFlipFlopOpenLaneEvaluator(BaseEvaluator):
     """Evaluator for the D Flip-Flop OpenLane task"""
@@ -136,5 +138,3 @@ def grade_checkpoints(trajectory="") -> Result:
         checkpoints.append(Checkpoint(int(total_score), int(final_score)))
 
     return result
-
-
