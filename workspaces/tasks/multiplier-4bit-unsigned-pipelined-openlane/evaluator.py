@@ -1,97 +1,128 @@
-import os
-import ast
-import sys
-import logging
-import subprocess
-import time
-import re
-
-from typing import List
+from base_evaluator import BaseEvaluator
+from common import grade_checkpoint_llm, execute_testbench, find_file_path
 from scoring import Result, Checkpoint
-from common import *
 
-REPO_DIR = '/workspace/openhands/'
-UT_FILE = REPO_DIR + 'tests/unit/test_agent_skill.py'
-COV_FILE = REPO_DIR + 'tests/unit/test_agent_skill_coverage.xml'
+import subprocess
+import logging
 
 
-with open('/instruction/checkpoints.md', 'r') as f:
-    content = f.read()
+class MultiplierPipelinedOpenLaneEvaluator(BaseEvaluator):
+    """Evaluator for the 4-bit Unsigned Pipelined Multiplier OpenLane task"""
 
-# Split by lines containing only hyphens (allowing extra dashes)
-sections = re.split(r'\n\s*-{3,}\s*\n', content)
+    def custom_evaluation(self, trajectory: str) -> Result:
+        """Custom evaluation logic for the Multiplier OpenLane task
+        
+        Args:
+            trajectory: Path to the trajectory file
+            
+        Returns:
+            Result object containing evaluation results
+        """
+        # Initialize result with default values
+        result = Result()
+        
+        # Add custom evaluation logic here if needed
+        # For now returning an empty result since we need to implement specific Multiplier evaluation logic
+        return result
 
-CHECK_POINTS_MODULE = sections[1].strip()
-CHECK_POINTS_TB = sections[2].strip()
+    def get_default_weights(self):
+        """Override weights to include OpenLane evaluation"""
+        return {
+            'module': 15,      # W_M - Weight for module implementation
+            'testbench': 15,   # W_T - Weight for testbench
+            'functionality': 20,# W_F - Weight for functionality
+            'openlane': 50     # W_O - Weight for OpenLane results
+        }
 
-def config_env(dir_path):
-    """configure enviroment"""
-    try:
-        os.chdir(dir_path)
+    def grade_checkpoint_openlane(self):
+        """Grade OpenLane specific checkpoints"""
+        score = 0
+        search_paths = ["/workspace", "/outputs", "/openhands/workspace/", "/tmp"]
+        
+        # Search for config.json outside any "runs" subdirectories
+        config_found = False
+        for path in search_paths:
+            try:
+                result = subprocess.run(
+                    f'find {path} -type f -name "*config*json" ! -path "*/runs/*"',
+                    shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True
+                )
+                if result.stdout.strip():
+                    config_found = True
+                    break
+            except Exception as e:
+                logging.warning(f"Error searching for config.json: {e}")
 
-        subprocess.run(["poetry", "--version"], check=True, capture_output=True)
-    except Exception as e:
-        logging.warning(f"is_test_run configure step 1. {e}")
-        subprocess.run([sys.executable, "-m", "pip", "install", "poetry"], check=True)
-        time.sleep(5)
+        if config_found:
+            score += 1
+        else:
+            logging.warning("config.json not found")
 
-    logging.info(f"Installing dependencies...")
-    try:
-        result = subprocess.run(["poetry", "install"], capture_output=True, text=True)
-    except Exception as e:
-        logging.warning(f"is_test_run configure step 2. {e}")
-        return False
+        # Search for .gds files within any "/final/gds/" directory
+        gds_found = False
+        for path in search_paths:
+            try:
+                result = subprocess.run(
+                    f'find {path} -type f -path "*/final/gds/*" -name "*.gds"',
+                    shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True
+                )
+                if result.stdout.strip():
+                    gds_found = True
+                    break
+            except Exception as e:
+                logging.warning(f"Error searching for GDS: {e}")
 
-    if result.returncode != 0:
-        logging.warning(f"Error installing dependencies. {e}")
-        logging.warning(f"{result.stderr}")
-        return False
-    else:
-        logging.info(f"Dependencies installed successfully.")
+        if gds_found:
+            score += 1
+        else:
+            logging.warning("GDS file not found")
+
+        return (score, 2)
 
 
+    def grade_checkpoints(self, trajectory="") -> Result:
+        """Override to add OpenLane evaluation"""
+        checkpoints = []
+        weights = self.get_default_weights()
+
+        # Get scores for each checkpoint
+        scores = {
+            'checkpoint_llm_module': grade_checkpoint_llm(self.CHECK_POINTS_MODULE, 'verilog', self.files_dict),
+            'checkpoint_llm_tb': grade_checkpoint_llm(self.CHECK_POINTS_TB, 'verilog/python', self.files_dict),
+            'checkpoint_llm_functionality': execute_testbench(find_file_path("run_test.sh"), self.files_dict, self.verilog_tb_files_dict, self.python_files_dict),
+            'checkpoint_llm_openlane': self.grade_checkpoint_openlane()
+        }
+
+        # Calculate weighted scores
+        weighted_scores = {
+            'checkpoint_llm_module': (
+                self.calculate_score(scores['checkpoint_llm_module'], weights['module']),
+                weights['module']
+            ),
+            'checkpoint_llm_tb': (
+                self.calculate_score(scores['checkpoint_llm_tb'], weights['testbench']),
+                weights['testbench']
+            ),
+            'checkpoint_llm_functionality': (
+                self.calculate_score(scores['checkpoint_llm_functionality'], weights['functionality']),
+                weights['functionality']
+            ),
+            'checkpoint_llm_openlane': (
+                self.calculate_score(scores['checkpoint_llm_openlane'], weights['openlane']),
+                weights['openlane']
+            )
+        }
+
+        # Create checkpoints
+        for _, (score, total) in weighted_scores.items():
+            checkpoints.append(Checkpoint(int(total), int(score)))
+
+        return Result(checkpoints)
+
+
+# Create a singleton instance
+evaluator = MultiplierPipelinedOpenLaneEvaluator()
+
+# Function to be called by the evaluation system
 def grade_checkpoints(trajectory="") -> Result:
-    checkpoints: List[Checkpoint] = []
-    result = Result(checkpoints)
-
-    # Define the total scores corresponding to each checkpoint function with unique keys
-    scores = {
-        'checkpoint_llm_module': grade_checkpoint_llm(CHECK_POINTS_MODULE, 'verilog'),
-        'checkpoint_llm_tb': grade_checkpoint_llm(CHECK_POINTS_TB, 'verilog/python'),
-        'checkpoint_llm_functionality': execute_testbench(find_file_path("run_test.sh")) #TODO update that to depend on the exit code.
-    }
-    W_M = 30
-    W_T = 30
-    W_F = 40
-    Final = 0
-
-    # Checkpoint LLM Module
-    if scores["checkpoint_llm_module"][1] != 0:
-        M = scores["checkpoint_llm_module"][0] / scores["checkpoint_llm_module"][1]
-    else:
-        M = 0
-
-    # Checkpoint LLM TB
-    if scores["checkpoint_llm_tb"][1] != 0:
-        T = scores["checkpoint_llm_tb"][0] / scores["checkpoint_llm_tb"][1]
-    else:
-        T = 0
-
-    # Checkpoint LLM Report
-    if scores['checkpoint_llm_functionality'][1] != 0:
-        F = scores["checkpoint_llm_functionality"][0] / scores["checkpoint_llm_functionality"][1]
-    else:
-        F = 0
-
-
-    scores_checkpoints = {
-        'checkpoint_llm_module':(M*W_M,W_M),
-        'checkpoint_llm_tb':(T*W_T, W_T),
-        'checkpoint_llm_functionality':(F*W_F, W_F),
-    }
-
-    for final_score_key, (final_score, total_score) in scores_checkpoints.items():
-        # Append the checkpoint with the total score and the calculated score
-        checkpoints.append(Checkpoint(int(total_score), int(final_score)))
-
-    return result
+    return evaluator.grade_checkpoints(trajectory)

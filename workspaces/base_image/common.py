@@ -17,11 +17,6 @@ from config import *
 
 logging.basicConfig(level=logging.INFO)
 
-workspace_files = None #all verilog and python files in the workspace names
-workspace_content = None #all verilog and python files in the workspace content
-cocotb_test = None # boolean to check if cocotb test is used
-fatal_macro = None # boolean to check if $fatal macro is used
-
 def extract_test_results(xml_file):
     """
     Parses a cocotb XML file and returns a tuple:
@@ -131,28 +126,32 @@ def llm_complete(checkpoints_list_msg, file_content=None):
 
 
 
-def llm_confirm(file_content=None): # the function confirms the contents of sh script are used to run the testbench and that the testbench has assertions that stop execution on a failed test.
+def llm_confirm(script=None, cocotb_test=False, verilog_tb_files_dict=None, python_files_dict=None): # the function confirms the contents of sh script are used to run the testbench and that the testbench has assertions that stop execution on a failed test.
+    # user assert to raise smooth error if any dict is empty such that if both is empty error is raised
+    assert verilog_tb_files_dict or python_files_dict, "No verilog or python files found in the workspace."
+    # make warning if cocotb_test is true but python_files_Dict is empty or if python_files_dict is not empty but cocotb_test is false. pritn meaninful message
+    if cocotb_test and not python_files_dict:
+        print("Warning: cocotb_test is true but no python files found in the workspace.")
+    elif not cocotb_test and python_files_dict:
+        print("Warning: cocotb_test is false but python files found in the workspace.")    
+    
+    workspace_content_truncated = None
 
-    # make the logic to add the rest of the files here
-    files = {}
-    search_paths = ["/workspace", "/outputs", "/openhands/workspace/"]
-    exclude = ['cocotb_iverilog_dump.v', 'openhands/miniforge3', 'runs']
-
-    for directory in search_paths:
-        file_cmd = f"find {directory} -type f \\( -name '*.bash' -o -name '*.sh' -o -name '*.py' -o -name '*.v' -o -name '*.sv' -o -iname 'makefile*' \\)"
-        files.update(collect_files(file_cmd, exclude))
-
-    workspace_content = build_workspace_content_truncated(files, "any", 1000)
+    # instead workspace_content_truncated, will be assigned such that if cocotb_test is true, the build function will be passed the python_files_dict else the verilog_tb_files_dict  will be assigned
+    if cocotb_test:
+        workspace_content_truncated = build_workspace_content_truncated(python_files_dict, "python", 1000)
+    else:
+        workspace_content_truncated = build_workspace_content_truncated(verilog_tb_files_dict, "verilog", 1000)
 
 
     if TEST_MODE:
         return {'choices': [{'message': {"content": "Hello, how are you?","role": "user"}}]}
     
-    print(f"file content to confirm:\n{file_content}\n")
+    print(f"file content to confirm:\n{script}\n")
 
     messages = [
         {
-            "content": f"Answer only yes or no. Given that the workspace contains the following files and their contents: \n---\n{workspace_content}\n---\n, is the following script:\n```bash\n{file_content}\n```\nused to run the testbench?"  ,
+            "content": f"Answer only yes or no. Given that the workspace contains the following files and their contents: \n---\n{workspace_content_truncated}\n---\n, is the following script:\n```bash\n{script}\n```\nused to run the testbench?"  ,
             "role": "user"}
     ]
 
@@ -165,18 +164,35 @@ def llm_confirm(file_content=None): # the function confirms the contents of sh s
 
     return llm_response
 
-def execute_testbench(shell_script_path):
+def execute_testbench(shell_script_path, files_dict,verilog_tb_files_dict, python_files_dict):
+
+    # Assigning the boolean fatal_macro true if $fatal macro is found in the content of any file in the verilog_tb_files_dict by looping over the dictionary
+    fatal_macro = any("$fatal" in content for content in verilog_tb_files_dict.values())
+    print(f"fatal_macro: {fatal_macro}")
+
+    # Assigning the boolean cocotb_test true if test_runner.py is found as the name of one of the files in files_dict
+    cocotb_test = any("test_runner.py" in content for content in files_dict.keys())
+    print(f"cocotb_test: {cocotb_test}")
+
+    # if verilog_tb_files_dict is empty and cocotb_test is false print appropriate message and return (0,1)
+    if not verilog_tb_files_dict and not cocotb_test:
+        print("No verilog  testbench files found in the workspace.")
+        return (0, 1)
+    
     if shell_script_path:
         try:
             # Read the file content
             with open(shell_script_path, 'r') as file:
-                file_content = file.read()
+                script = file.read()
         except Exception as e:
             print(f"Error reading file: {e}")
             return (0, 1)
 
+
+
+
         # Pass the file content to llm_confirm() and get the response
-        llm_response = llm_confirm(file_content)
+        llm_response = llm_confirm(script, cocotb_test, verilog_tb_files_dict, python_files_dict) # is the script used to run a testbench?
 
         # Extract the confirmation text and check for 'yes'
         confirmation_text = llm_response['choices'][0]['message']['content'].lower()
@@ -194,7 +210,7 @@ def execute_testbench(shell_script_path):
                 )
                 # Check if the exit code indicates success
                 if result.returncode == 0:
-                    # check if coco_tb test is true 
+                    # check if cocotb_test is true 
                     if cocotb_test:
                         # check if the resultant xml indeed does not have any failures
                         _, num_failures = extract_test_results(find_file_path("results.xml"))
@@ -323,28 +339,28 @@ def build_workspace_content(files, file_type):
     Build a workspace content string that lists each file and its content
     in the given markdown format.
     """
-    workspace_content = ""
+    content = ""
     for file_name, content in files.items():
-        workspace_content += f"\n# {file_name}\n"
+        content += f"\n# {file_name}\n"
         if file_type == "any":
-            workspace_content += f"```\n{content}\n```\n"
+            content += f"```\n{content}\n```\n"
         else:   
-            workspace_content += f"```{file_type}\n{content}\n```\n"
-    return workspace_content
+            content += f"```{file_type}\n{content}\n```\n"
+    return content
 
 def build_workspace_content_truncated(files, file_type, n):
     """
     Build a workspace content string that lists each file and its content
     in the given markdown format.
     """
-    workspace_content = ""
+    content_truncated = ""
     for file_name, content in files.items():
-        workspace_content += f"\n# {file_name}\n"
+        content_truncated += f"\n# {file_name}\n"
         if file_type == "any":
-            workspace_content += f"```\n{content[0:n]}\n```\n"
+            content_truncated += f"```\n{content[0:n]}\n```\n"
         else:   
-            workspace_content += f"```{file_type}\n{content[0:n]}\n```\n"
-    return workspace_content
+            content_truncated += f"```{file_type}\n{content[0:n]}\n```\n"
+    return content_truncated
 
 def check_with_llm_F(checkpoints, file_content): # to handle the case of functinality score
 
@@ -378,41 +394,86 @@ def check_with_llm_F(checkpoints, file_content): # to handle the case of functin
         print("Finished check_with_llm_F function called within grade_checkpoint_llm")
         return (0, 0)
 
+
+def is_verilog_testbench(content):
+    """
+    Checks if the given Verilog file content indicates a testbench.
+    
+    Heuristics used:
+      1. A module declaration must exist.
+      2. If the module's name includes typical testbench keywords (e.g., starts with "tb" or contains "test")
+         then it is likely a testbench.
+      3. If the module declaration has an empty port list, that's a strong testbench signal.
+      4. If the file contains simulation-specific constructs (like $dumpfile, $monitor, or initial blocks)
+         and the module name/port list do not strongly indicate a design module, then it may be a testbench.
+    
+    Args:
+        content (str): The content of the Verilog file to check
+    
+    Returns:
+        bool: True if the content indicates a testbench, False otherwise.
+    """
+
+    # Remove block comments (/* ... */)
+    content = re.sub(r'/\*.*?\*/', '', content, flags=re.DOTALL)
+    # Remove single line comments (//...)
+    content = re.sub(r'//.*', '', content)
+
+    # Search for module declarations.
+    # This regex looks for a line starting with the word "module",
+    # followed by the module name (captured in group 1) and an optional port list (captured in group 2).
+    module_pattern = re.compile(r'\bmodule\s+(\w+)\s*(\([^;]*\))?\s*;')
+    modules = module_pattern.findall(content)
+
+    if not modules:
+        return False  # No module found
+
+    # Look for simulation-specific constructs.
+    sim_tasks = re.search(r'\$(dumpfile|monitor|display)\b', content)
+    initial_block = re.search(r'\binitial\b', content)
+
+    # Evaluate each module declaration.
+    for module_name, port_list in modules:
+        module_name_lower = module_name.lower()
+        # Check if the module name clearly indicates a testbench.
+        if module_name_lower.startswith("tb") or "test" in module_name_lower:
+            return True
+
+        # Check if the port list is present and empty.
+        if port_list is not None:
+            # Remove surrounding parentheses and whitespace.
+            ports = port_list.strip()[1:-1].strip()
+            if ports == "":
+                return True
+        else:
+            # If there is no port list at all, that is also a common testbench indicator.
+            return True
+
+    # Even if the above checks didn't fire, simulation constructs may be a hint.
+    # But to avoid false positives (like design modules that use initial blocks), require both:
+    # - simulation constructs present AND a module with an empty port list or a testbench-like name.
+    if (sim_tasks or initial_block):
+        for module_name, port_list in modules:
+            module_name_lower = module_name.lower()
+            # If the module name doesn't strongly look like a design module
+            # (i.e., it has a testbench-like name or an empty port list), then mark as testbench.
+            if (module_name_lower.startswith("tb") or "test" in module_name_lower):
+                return True
+            if port_list is not None:
+                ports = port_list.strip()[1:-1].strip()
+                if ports == "":
+                    return True
+            else:
+                return True
+
+    # If none of the above conditions are met, we assume it's a design module.
+    return False
+
+
 @grader
-def grade_checkpoint_llm(CHECK_POINTS, file_type):
-    # List of substrings to exclude from file names
-    global workspace_files
-    global workspace_content
-    global cocotb_test
-    global fatal_macro
-
-    exclude = ['test_runner.py', 'cocotb_iverilog_dump.v', 'openhands/miniforge3']
-    
-    files = {}
-    search_paths = ["/workspace", "/outputs", "/openhands/workspace/"]
-
-    # Collect Verilog files (.v and .sv) from each search path
-    for directory in search_paths:
-        verilog_cmd = f"find {directory} -type f \\( -name '*.v' -o -name '*.sv' \\) -not -path '*/runs/*'"
-        files.update(collect_files(verilog_cmd, exclude))
-    
-    # Optionally include Python files if file_type is 'verilog/python'
-    if file_type == 'verilog/python':
-        for directory in search_paths:
-            python_cmd = f"find {directory} -type f -name '*.py'"
-            files.update(collect_files(python_cmd, exclude))
-
-    
-    workspace_files = list(files.keys())
-    print(f"workspace files are assigned: {workspace_files}")
-    # Build workspace content and send to the LLM if any files are found
-    if files:
-        workspace_content = build_workspace_content(files, file_type)
-        # Logic for checking if test_runner.py exists (cocotb testing is used) in workspace_files and if no, checking for $fatal macro in the workspace_content
-        cocotb_test = any(f.endswith(".py") for f in workspace_files)
-        fatal_macro = "$fatal" in workspace_content
-        print(f"cocotb_test: {cocotb_test}")
-        print(f"fatal_macro: {fatal_macro}")
+def grade_checkpoint_llm(CHECK_POINTS, file_type, files_dict):
+    if files_dict:
+        workspace_content = build_workspace_content(files_dict, file_type)
         print("calling check_with_llm_F function within grade_checkpoint_llm") 
         return check_with_llm_F(CHECK_POINTS, workspace_content)
     else:

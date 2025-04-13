@@ -56,7 +56,7 @@ def decrypt_and_execute():
     spec.loader.exec_module(evaluator)
     
     global grade_checkpoints
-    grade_checkpoints = evaluator.grade_checkpoints()
+    grade_checkpoints = evaluator.grade_checkpoints
     
 def load_trajectory(file_path):
     try:

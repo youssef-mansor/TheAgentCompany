@@ -90,7 +90,7 @@ echo "Server hostname: $SERVER_HOSTNAME"
 for task_dir in "$TASKS_DIR"/*/; do
     # Get the task name
     task_name=$(basename "$task_dir")
-    task_name="k-map-4variable-general"
+    task_name="multiplier-4bit-unsigned-pipelined-openlane"
     # task_name="riscv-general"
     # Skip specific tasks
     # if [[ "$task_name" == "multiplier-4bit-unsigned-pipelined-openlane" ||
