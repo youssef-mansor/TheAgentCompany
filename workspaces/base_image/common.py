@@ -126,7 +126,7 @@ def llm_complete(checkpoints_list_msg, file_content=None):
 
 
 
-def llm_confirm(script=None, cocotb_test=False, verilog_tb_files_dict=None, python_files_dict=None): # the function confirms the contents of sh script are used to run the testbench and that the testbench has assertions that stop execution on a failed test.
+def llm_confirm(script=None, cocotb_test=False, verilog_tb_files_dict=None, python_files_dict=None, logs=None): # the function confirms the contents of sh script are used to run the testbench and that the testbench has assertions that stop execution on a failed test.
     # user assert to raise smooth error if any dict is empty such that if both is empty error is raised
     assert verilog_tb_files_dict or python_files_dict, "No verilog or python files found in the workspace."
     # make warning if cocotb_test is true but python_files_Dict is empty or if python_files_dict is not empty but cocotb_test is false. pritn meaninful message
@@ -147,13 +147,15 @@ def llm_confirm(script=None, cocotb_test=False, verilog_tb_files_dict=None, pyth
     if TEST_MODE:
         return {'choices': [{'message': {"content": "Hello, how are you?","role": "user"}}]}
     
-    print(f"file content to confirm:\n{script}\n")
-
     messages = [
         {
-            "content": f"Answer only yes or no. Given that the workspace contains the following files and their contents: \n---\n{workspace_content_truncated}\n---\n, is the following script:\n```bash\n{script}\n```\nused to run the testbench?"  ,
+            "content": f"Answer only yes or no. Given that the workspace contains the following files and their contents (only part of each file is shown): \n---\n{workspace_content_truncated}\n---\n, is the following script:\n```bash\n{script}\n```\nused to run the testbench?"  ,
             "role": "user"}
     ]
+
+    # report messages in logs[3]
+    logs[3] += f"\n## LLM Confirmation Prompt (Used to run testbench?):\n"
+    logs[3] += f"{messages[0]['content']}\n"
 
     llm_response =  litellm.completion(
         api_key=LITELLM_API_KEY,
@@ -164,15 +166,18 @@ def llm_confirm(script=None, cocotb_test=False, verilog_tb_files_dict=None, pyth
 
     return llm_response
 
-def execute_testbench(shell_script_path, files_dict,verilog_tb_files_dict, python_files_dict):
+def execute_testbench(shell_script_path, files_dict,verilog_tb_files_dict, python_files_dict, logs):
 
     # Assigning the boolean fatal_macro true if $fatal macro is found in the content of any file in the verilog_tb_files_dict by looping over the dictionary
     fatal_macro = any("$fatal" in content for content in verilog_tb_files_dict.values())
-    print(f"fatal_macro: {fatal_macro}")
 
     # Assigning the boolean cocotb_test true if test_runner.py is found as the name of one of the files in files_dict
     cocotb_test = any("test_runner.py" in content for content in files_dict.keys())
-    print(f"cocotb_test: {cocotb_test}")
+
+    # report boolean variables in logs[3]
+    logs[3] += f"\n## Boolean Variables:\n"
+    logs[3] += f"- fatal_macro: {fatal_macro}\n"
+    logs[3] += f"- cocotb_test: {cocotb_test}\n"
 
     # if verilog_tb_files_dict is empty and cocotb_test is false print appropriate message and return (0,1)
     if not verilog_tb_files_dict and not cocotb_test:
@@ -180,23 +185,31 @@ def execute_testbench(shell_script_path, files_dict,verilog_tb_files_dict, pytho
         return (0, 1)
     
     if shell_script_path:
+        # report shell script path in logs[3]
+        logs[3] += f"\n## Shell Script Path:\n"
+        logs[3] += f"{shell_script_path}\n"
+        
         try:
             # Read the file content
             with open(shell_script_path, 'r') as file:
                 script = file.read()
+                # report script in logs[3]
+                logs[3] += f"\n## Shell Script Content:\n"
+                logs[3] += f"```bash\n{script}\n```\n"
         except Exception as e:
             print(f"Error reading file: {e}")
             return (0, 1)
 
-
-
-
         # Pass the file content to llm_confirm() and get the response
-        llm_response = llm_confirm(script, cocotb_test, verilog_tb_files_dict, python_files_dict) # is the script used to run a testbench?
+        llm_response = llm_confirm(script, cocotb_test, verilog_tb_files_dict, python_files_dict, logs) # is the script used to run a testbench?
+
 
         # Extract the confirmation text and check for 'yes'
         confirmation_text = llm_response['choices'][0]['message']['content'].lower()
-        print(f"confirmation_text: {confirmation_text}\n")
+        # report llm response in logs[3]
+        logs[3] += f"\n## LLM Confirmation on the shell script (Used to run testbench?):\n"
+        logs[3] += f"{confirmation_text}\n"
+
         if "yes" in confirmation_text:
             try:
                 # Run the shell script with a timeout of 250 seconds
@@ -209,30 +222,52 @@ def execute_testbench(shell_script_path, files_dict,verilog_tb_files_dict, pytho
                     timeout=250  # Timeout after 250 seconds
                 )
                 # Check if the exit code indicates success
+                # report result.returncode in logs[3]
+                logs[3] += f"\n## Return Code of Testbench Execution:\n"
+                logs[3] += f"{result.returncode}\n"
+                
                 if result.returncode == 0:
                     # check if cocotb_test is true 
                     if cocotb_test:
                         # check if the resultant xml indeed does not have any failures
                         _, num_failures = extract_test_results(find_file_path("results.xml"))
+                        # report results.xml content in logs[3]
+                        logs[3] += f"\n## Results.xml Content:\n"
+                        # read file content and report it
+                        with open(find_file_path("results.xml"), 'r') as file:
+                            logs[3] += f"```xml\n{file.read()}\n```\n"
+                        # report num_failures in logs[3]
+                        logs[3] += f"\n## Number of Failures:\n"
+                        logs[3] += f"{num_failures}\n"
                         if num_failures == 0:
-                            print("Testbench execution successful.")
+                            # report testbench execution status
+                            logs[3] += f"\n## Testbench Execution Status:\n"
+                            logs[3] += f"Testbench execution successful.\n"
                             return (1, 1)
                         else:
-                            print(f"Testbench execution failed with {num_failures} failures.")
+                            # report testbench execution status
+                            logs[3] += f"\n## Testbench Execution Status:\n"
+                            logs[3] += f"Testbench execution failed with {num_failures} failures.\n"
                             return (0, 1)
                     else: # then it is a verilog testbench
                         #check if the fatal macro is used in the testbench
                         if fatal_macro:
-                            print("Testbench execution successful.")
+                            # report testbench execution status
+                            logs[3] += f"\n## Testbench Execution Status:\n"
+                            logs[3] += f"Testbench execution successful.\n"
                             return (1, 1)
                         else:
-                            print("Testbench execution not trustworthy as $fatal macro is not used in the testbench.")
+                            # report testbench execution status
+                            logs[3] += f"\n## Testbench Execution Status:\n"
+                            logs[3] += f"Testbench execution not trustworthy as $fatal macro is not used in the testbench.\n"
                             # pass the result of running the command above to the llm with the question of wether this text indicates that all test cases has been passed and only ask the llm to answer only with yes or no
                             messages = [ 
                                 { "content": f"Answer only yes or no. Given the following output:\n```{result.stdout}```\n, does the output indicate that all test cases have passed?",
                                 "role": "user"}
                             ]
-                            print(f"messages for checking the stdout of running the testbench: {messages}")
+                            # report result.stdout in logs[3]
+                            logs[3] += f"\n## stdout of testbench execution:\n"
+                            logs[3] += f"```{result.stdout}\n```\n"
                             llm_response = litellm.completion(
                                 api_key=LITELLM_API_KEY,
                                 base_url=LITELLM_BASE_URL,
@@ -240,14 +275,15 @@ def execute_testbench(shell_script_path, files_dict,verilog_tb_files_dict, pytho
                                 messages=messages
                             ).json()
                             confirmation_text = llm_response['choices'][0]['message']['content'].lower()
+
+                            # report llm response in logs[3]
+                            logs[3] += f"\n## LLM Confirmation (stdout indicates successful execution?):\n"
+                            logs[3] += f"{confirmation_text}\n"
                             if "yes" in confirmation_text:
-                                print("Testbench execution successful and all test cases have passed.") 
                                 return (1, 1)
                             else:
-                                print("Some test cases didn't pass")
                                 return (0, 1)                            
                 else:
-                    print(f"Testbench execution failed with exit code {result.returncode}")
                     return (0, 1)
             except subprocess.TimeoutExpired:
                 print("Testbench execution timed out after 250 seconds.")
@@ -255,10 +291,12 @@ def execute_testbench(shell_script_path, files_dict,verilog_tb_files_dict, pytho
             except Exception as e:
                 print(f"Error executing testbench: {e}")
                 return (0, 1)
-        else:
-            print("script is not used to run the testbench")
+        else: # script is not used to run the testbench
             return (0, 1)
     else:
+        # report no shell script in logs[3]
+        logs[3] += f"\n## Shell Script Path:\n"
+        logs[3] += f"No shell script found in the workspace.\n"
         return (0, 1)
 
 
@@ -339,14 +377,16 @@ def build_workspace_content(files, file_type):
     Build a workspace content string that lists each file and its content
     in the given markdown format.
     """
-    content = ""
-    for file_name, content in files.items():
-        content += f"\n# {file_name}\n"
+    # content = "Content Gamma"
+    workspace_content = ""
+    for file_name, file_content in files.items():
+        workspace_content += f"\n#### {file_name}\n"
         if file_type == "any":
-            content += f"```\n{content}\n```\n"
+            workspace_content += f"```\n{file_content}\n```\n"
         else:   
-            content += f"```{file_type}\n{content}\n```\n"
-    return content
+            workspace_content += f"```{file_type}\n{file_content}\n```\n"
+    
+    return workspace_content
 
 def build_workspace_content_truncated(files, file_type, n):
     """
@@ -355,14 +395,14 @@ def build_workspace_content_truncated(files, file_type, n):
     """
     content_truncated = ""
     for file_name, content in files.items():
-        content_truncated += f"\n# {file_name}\n"
+        content_truncated += f"\n#### {file_name}\n"
         if file_type == "any":
             content_truncated += f"```\n{content[0:n]}\n```\n"
         else:   
             content_truncated += f"```{file_type}\n{content[0:n]}\n```\n"
     return content_truncated
 
-def check_with_llm_F(checkpoints, file_content): # to handle the case of functinality score
+def check_with_llm_F(checkpoints, file_content, file_type, logs): # to handle the case of functinality score
 
     if len(checkpoints) == 0:
         print(f"position 1: returning {(0, 0)}")
@@ -376,11 +416,15 @@ def check_with_llm_F(checkpoints, file_content): # to handle the case of functin
     ]
 
     llm_response = llm_complete(messages, file_content)
-
-    print("\n************************************Evaluation Report*******************************************")
     llm_response_txt = llm_response['choices'][0]['message']['content'].lower()
-    print(llm_response_txt)
-    print("*************************************************************************************************\n")
+
+    if (file_type == "verilog"):
+        logs[1] += f"\n## Evaluation Report:\n"
+        logs[1] += f"{llm_response_txt}"
+    elif (file_type == "verilog/python"):
+        logs[2] += f"\n## Evaluation Report:\n"
+        logs[2] += f"{llm_response_txt}"
+
 
 
     score = re.search(r'(?i)final\s+score:\s*(\d{1,2})/\d{1,2}', llm_response_txt)
@@ -471,11 +515,23 @@ def is_verilog_testbench(content):
 
 
 @grader
-def grade_checkpoint_llm(CHECK_POINTS, file_type, files_dict):
+def grade_checkpoint_llm(CHECK_POINTS, file_type, files_dict, logs):
     if files_dict:
         workspace_content = build_workspace_content(files_dict, file_type)
+        # report workspace content if file_type is verilog/python to include all files.
+        if file_type == 'verilog/python':
+            logs[0] += "\n## Workspace Content:\n"
+            # check if workspace_content is successfully returned
+            if not workspace_content:
+                logs[0] += "\n ### Workspace content is empty"
+            else:
+                # append workspace content to Main Module element in logs
+                logs[0] += f"\n{workspace_content}"
+        # just for debugging
+        # return (0, 0) # TODO delete this.
+
         print("calling check_with_llm_F function within grade_checkpoint_llm") 
-        return check_with_llm_F(CHECK_POINTS, workspace_content)
+        return check_with_llm_F(CHECK_POINTS, workspace_content, file_type, logs)
     else:
         print("Finished grade_checkpoint_llm function")
         print("workspace is empty")

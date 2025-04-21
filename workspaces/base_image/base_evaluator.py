@@ -31,6 +31,7 @@ class BaseEvaluator(ABC):
         self.files_dict = {}
         self.verilog_tb_files_dict = {}
         self.python_files_dict = {}
+        self.logs = ["# General","\n# Main Module","\n# Testbench","\n# Functionality","\n# OpenLane"]
         self.load_checkpoints()
         self.populate_files_dict()
         self.identify_testbenches()
@@ -77,7 +78,7 @@ class BaseEvaluator(ABC):
         
     def populate_files_dict(self, file_type='verilog/python'):
         """Populate the files_dict with Verilog and optionally Python files from specified paths"""
-        exclude = ['test_runner.py', 'cocotb_iverilog_dump.v', 'openhands/miniforge3']
+        exclude = ['test_runner.py', 'cocotb_iverilog_dump.v', 'openhands/miniforge3', 'parsetab.py']
         search_paths = ["/workspace", "/outputs", "/openhands/workspace/"]
 
         # Collect Verilog files (.v and .sv) from each search path
@@ -93,7 +94,15 @@ class BaseEvaluator(ABC):
                 python_files = collect_files(python_cmd, exclude)
                 self.files_dict.update(python_files)
                 self.python_files_dict.update(python_files)
-                
+        
+        # Append the files dict keys to the logs General part as  mardown list
+        self.logs.append("Files Dict:")
+        for filepath in self.files_dict.keys():
+            self.logs.append(f"- {filepath}")
+        self.logs.append("\n")
+            
+
+        
     def identify_testbenches(self):
         """Identify Verilog testbench files from files_dict and populate verilog_tb_files_dict"""
         for filepath, content in self.files_dict.items():
@@ -116,16 +125,17 @@ class BaseEvaluator(ABC):
             return (score[0] / score[1]) * weight
         return 0
 
-    def grade_checkpoints(self, trajectory: str = "") -> Result:
+    def grade_checkpoints(self, trajectory: str = "") -> Tuple[Result, List[str]]:
         """Grade all checkpoints and return final result"""
         checkpoints: List[Checkpoint] = []
         weights = self.get_default_weights()
 
         # Get scores for each checkpoint
+        # Each call to grade_checkpoint_llm builds the workspace_content out of the files_dict, this is not redundant, because in the first build we exclude python files.
         scores = {
-            'checkpoint_llm_module': grade_checkpoint_llm(self.CHECK_POINTS_MODULE, 'verilog', self.files_dict),
-            'checkpoint_llm_tb': grade_checkpoint_llm(self.CHECK_POINTS_TB, 'verilog/python', self.files_dict),
-            'checkpoint_llm_functionality': execute_testbench(find_file_path("run_test.sh"), self.files_dict, self.verilog_tb_files_dict, self.python_files_dict)
+            'checkpoint_llm_module': grade_checkpoint_llm(self.CHECK_POINTS_MODULE, 'verilog', self.files_dict, self.logs),
+            'checkpoint_llm_tb': grade_checkpoint_llm(self.CHECK_POINTS_TB, 'verilog/python', self.files_dict, self.logs),
+            'checkpoint_llm_functionality': execute_testbench(find_file_path("run_test.sh"), self.files_dict, self.verilog_tb_files_dict, self.python_files_dict, self.logs)
         }
 
         # Calculate weighted scores
@@ -148,7 +158,7 @@ class BaseEvaluator(ABC):
         for _, (score, total) in weighted_scores.items():
             checkpoints.append(Checkpoint(int(total), int(score)))
 
-        return Result(checkpoints=checkpoints)
+        return Result(checkpoints=checkpoints), self.logs
 
     @abstractmethod
     def custom_evaluation(self) -> None:

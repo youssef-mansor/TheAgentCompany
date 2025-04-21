@@ -4,10 +4,15 @@ from scoring import Result, Checkpoint
 
 import subprocess
 import logging
+import os
+from typing import Tuple, List
 
 
 class MultiplierPipelinedOpenLaneEvaluator(BaseEvaluator):
     """Evaluator for the 4-bit Unsigned Pipelined Multiplier OpenLane task"""
+
+    def __init__(self):
+        super().__init__()
 
     def custom_evaluation(self, trajectory: str) -> Result:
         """Custom evaluation logic for the Multiplier OpenLane task
@@ -80,16 +85,16 @@ class MultiplierPipelinedOpenLaneEvaluator(BaseEvaluator):
         return (score, 2)
 
 
-    def grade_checkpoints(self, trajectory="") -> Result:
+    def grade_checkpoints(self, trajectory="") -> Tuple[Result, List[str]]:
         """Override to add OpenLane evaluation"""
         checkpoints = []
         weights = self.get_default_weights()
 
         # Get scores for each checkpoint
         scores = {
-            'checkpoint_llm_module': grade_checkpoint_llm(self.CHECK_POINTS_MODULE, 'verilog', self.files_dict),
-            'checkpoint_llm_tb': grade_checkpoint_llm(self.CHECK_POINTS_TB, 'verilog/python', self.files_dict),
-            'checkpoint_llm_functionality': execute_testbench(find_file_path("run_test.sh"), self.files_dict, self.verilog_tb_files_dict, self.python_files_dict),
+            'checkpoint_llm_module': grade_checkpoint_llm(self.CHECK_POINTS_MODULE, 'verilog', self.files_dict, self.logs),
+            'checkpoint_llm_tb': grade_checkpoint_llm(self.CHECK_POINTS_TB, 'verilog/python', self.files_dict, self.logs),
+            'checkpoint_llm_functionality': execute_testbench(find_file_path("run_test.sh"), self.files_dict, self.verilog_tb_files_dict, self.python_files_dict, self.logs),
             'checkpoint_llm_openlane': self.grade_checkpoint_openlane()
         }
 
@@ -117,12 +122,24 @@ class MultiplierPipelinedOpenLaneEvaluator(BaseEvaluator):
         for _, (score, total) in weighted_scores.items():
             checkpoints.append(Checkpoint(int(total), int(score)))
 
-        return Result(checkpoints)
+        return Result(checkpoints), self.logs
 
 
 # Create a singleton instance
 evaluator = MultiplierPipelinedOpenLaneEvaluator()
 
 # Function to be called by the evaluation system
-def grade_checkpoints(trajectory="") -> Result:
+def grade_checkpoints(trajectory="") -> Tuple[Result, List[str]]:
+    # Test
+    #check if the file /outputs/report_multiplier-4bit-unsigned-pipelined-openlane.md exists and print informative message
+    #if it does exist append to it some text
+    #TODO Print the path for report
+    # path = find_file_path('report_multiplier-4bit-unsigned-pipelined-openlane.md')
+    # print(f"Returned value of find_file_path function: {path} Returned type: {type(path)}")
+    # if os.path.exists(path):
+    #     with open(path, 'a') as f:
+    #         f.write("This content is appended to the file")
+    #         print("Content appended to the report file")
+    # else:
+    #     print("Report file does not exist")
     return evaluator.grade_checkpoints(trajectory)

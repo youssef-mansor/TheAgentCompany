@@ -29,7 +29,7 @@ def get_config(
     config = AppConfig(
         run_as_openhands=False,
         max_budget_per_task=4,
-        max_iterations=5,
+        max_iterations=30,
         trajectories_path=os.path.join(mount_path_on_host, f'traj_{task_short_name}.json'),
         sandbox=SandboxConfig(
             base_container_image=base_container_image,
@@ -100,13 +100,14 @@ def run_solver(runtime: Runtime, task_name: str, config: AppConfig,
     return state
 
 
-def run_evaluator(runtime: Runtime, env_llm_config: LLMConfig, trajectory_path: str, result_path: str):
+def run_evaluator(runtime: Runtime, env_llm_config: LLMConfig, trajectory_path: str, result_path: str, report_path: str):
+    #TODO Print the report path
     command = (
         f"LITELLM_API_KEY={env_llm_config.api_key} "
         f"LITELLM_BASE_URL={env_llm_config.base_url} "
         f"LITELLM_MODEL={env_llm_config.model} "
         f"DECRYPTION_KEY='theagentcompany is all you need' "  # Hardcoded Key
-        f"python3 /utils/eval.py --trajectory_path {trajectory_path} --result_path {result_path} " #TODO add path for report file also depending on task short name.
+        f"python3 /utils/eval.py --trajectory_path {trajectory_path} --result_path {result_path} --report_path {report_path}"
     )
     action = CmdRunAction(command=command)
     action.timeout = 600
@@ -199,9 +200,12 @@ if __name__ == '__main__':
     # this path is the absolute path in the runtime container
     trajectory_path = f'/outputs/traj_{task_short_name}.json'
     result_path = f'/outputs/eval_{task_short_name}.json'
+    report_path = f'/outputs/report_{task_short_name}.md'
 
-    run_evaluator(runtime, env_llm_config, trajectory_path, result_path)
+    run_evaluator(runtime, env_llm_config, trajectory_path, result_path, report_path)
 
     # finally, move trajectory file and evaluation result from mount path on host (temp dir) to outputs path
     shutil.move(os.path.join(temp_dir, f'traj_{task_short_name}.json'), os.path.join(os.path.abspath(args.outputs_path), f'traj_{task_short_name}.json'))
     shutil.move(os.path.join(temp_dir, f'eval_{task_short_name}.json'), os.path.join(os.path.abspath(args.outputs_path), f'eval_{task_short_name}.json'))
+    shutil.move(os.path.join(temp_dir, f'report_{task_short_name}.md'), os.path.join(os.path.abspath(args.outputs_path), f'report_{task_short_name}.md'))
+    

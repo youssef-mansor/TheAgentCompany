@@ -13,6 +13,7 @@ import cryptography
 from cryptography.fernet import Fernet
 
 from scoring import Result
+from common import find_file_path
 
 def pad_key(key):
     while len(key) < 32:
@@ -74,10 +75,11 @@ def main():
     # decrypt evaluator.py
     decrypt_and_execute()
 
-    # Set up argument parser
+    # Set up argument parser #TODO there will be an argument for report path
     parser = argparse.ArgumentParser(description='Grade checkpoints from trajectory and save results')
     parser.add_argument('--trajectory_path', required=False, default=None, help='Path to the trajectory file')
     parser.add_argument('--result_path', required=False, default='./result.json', help='Path to save the evaluation result JSON')
+    parser.add_argument('--report_path', required=False, default='./report.md', help='Path to save the evaluation report JSON')
 
     # Parse arguments
     args = parser.parse_args()
@@ -90,8 +92,17 @@ def main():
         else:
             trajectory = load_trajectory(args.trajectory_path)
         
-        result = grade_checkpoints(trajectory)
-
+        # TODO Print the report file path here
+        # print("********** test report_path **********")
+        # report_path_retrieved = find_file_path('report_multiplier-4bit-unsigned-pipelined-openlane.md')
+        # print("In eval.py prior to calling grade_checkpoints")
+        # print(f"Report path retrieved: {report_path_retrieved}. Type: {type(report_path_retrieved)}")
+        # print("********** compare with result.json ******")
+        # result_path_retrieved = find_file_path('eval_multiplier-4bit-unsigned-pipelined-openlane.json')
+        # print(f"Result path retrieved: {result_path_retrieved}. Type: {type(result_path_retrieved)}")
+        
+        result, logs = grade_checkpoints(trajectory) # the returned result is used to write into result.json, but grade_checkpoints itself didn't modify results.json
+        # TODO, return content of the report.
         if not isinstance(result, Result):
             raise TypeError(f"grade_checkpoints must return Result type, got {type(result)}")
         
@@ -103,6 +114,15 @@ def main():
         logging.info(f'result is: {result_json}')
         with open(args.result_path, 'w') as f:
             json.dump(result_json, f, indent=4)
+
+        #TODO append "hello" in report path
+        print("writting into the report file")
+        with open(args.report_path, 'a') as f:
+            f.write(logs[0])
+            f.write(logs[1])
+            f.write(logs[2])
+            f.write(logs[3])
+            f.write(logs[4])    
             
     except Exception:
         logging.error("Failed to grade the task", exc_info=True)
