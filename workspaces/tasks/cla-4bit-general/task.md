@@ -1,27 +1,7 @@
-# Verilog 4-bit Carry Lookahead Adder Implementation and Testing
+write a 4-bit carry lookahead adder in verilog. it should use the usual generate/propagate signals for the lookahead logic. also needs to handle a carry-in and output a carry-out along with the 4-bit sum.
 
-## Step 1: Implement a 4-bit Carry Lookahead Adder
-Design a 4-bit CLA in Verilog with the following interface:
-- `A` (4-bit input)
-- `B` (4-bit input)
-- `cin` (carry-in)
-- `S` (4-bit sum output)
-- `cout` (carry-out)
+then make a testbench that checks it properly. test random inputs for A, B, and cin, and don’t forget edge cases like all zeros or all ones (e.g. 15). use assertions - make sure to use $fatal if something fails in case the testbench is a verilog testbench.
 
-The CLA should use generate (G) and propagate (P) signals for implementation of lookahead logic
+if the test doesn’t pass, fix the design or the testbench until everything’s working.
 
-## Step 2: Create a Self-Checking Testbench
-- Develop a comprehensive testbench for the CLA modulewith asserstions that covers all possible cases.  
-- If a test case fails, the assertion should terminate the testbench execution. If you are using a Verilog testbench, you must use the **$fatal** macro.
-
-Ensure to Test random combinations of inputs (A, B, cin)
-
-Ensure to test edge cases (e.g. zero, 15)
-
-## Step 3: Debug and Fix Issues
-- If the module does not pass all test cases, revisit and refine the Verilog code.
-- Modify the design until all test cases pass successfully.
-
-## Step 4: `run_test.sh` File Creation
-- Create a shel script `run_test.sh` that contains the command to only run the testbench.
-- execute the `run_test.sh` to make sure it successfully runs the testbench.
+you must make a run_test.sh script that just runs the testbench. run it and make sure it works.
