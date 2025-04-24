@@ -207,7 +207,7 @@ def execute_testbench(shell_script_path, files_dict,verilog_tb_files_dict, pytho
         # Extract the confirmation text and check for 'yes'
         confirmation_text = llm_response['choices'][0]['message']['content'].lower()
         # report llm response in logs[3]
-        logs[3] += f"\n## LLM Confirmation on the shell script (Used to run testbench?):\n"
+        logs[3] += f"\n## LLM Confirmation text on the shell script (Used to run testbench?):\n"
         logs[3] += f"{confirmation_text}\n"
 
         if "yes" in confirmation_text:
@@ -228,7 +228,14 @@ def execute_testbench(shell_script_path, files_dict,verilog_tb_files_dict, pytho
                 
                 if result.returncode == 0:
                     # check if cocotb_test is true 
+                    # report execution success in logs[3]
+                    logs[3] += f"\n## Testbench Execution Status:\n"
+                    logs[3] += f"Testbench execution successful.\n"
                     if cocotb_test:
+                        # report cocotb test in logs[3]
+                        logs[3] += f"\n## Test Type:\n"
+                        logs[3] += f"Cocotb test.\n"
+                        
                         # check if the resultant xml indeed does not have any failures
                         _, num_failures = extract_test_results(find_file_path("results.xml"))
                         # report results.xml content in logs[3]
@@ -241,26 +248,25 @@ def execute_testbench(shell_script_path, files_dict,verilog_tb_files_dict, pytho
                         logs[3] += f"{num_failures}\n"
                         if num_failures == 0:
                             # report testbench execution status
-                            logs[3] += f"\n## Testbench Execution Status:\n"
-                            logs[3] += f"Testbench execution successful.\n"
+                            logs[3] += f"\n## Test cases passed Status:\n"
+                            logs[3] += f"Test cases passed.\n"
                             return (1, 1)
                         else:
                             # report testbench execution status
-                            logs[3] += f"\n## Testbench Execution Status:\n"
-                            logs[3] += f"Testbench execution failed with {num_failures} failures.\n"
+                            logs[3] += f"\n## Test cases passed Status:\n"
+                            logs[3] += f"Test cases failed with {num_failures} failures.\n"
                             return (0, 1)
                     else: # then it is a verilog testbench
                         #check if the fatal macro is used in the testbench
                         if fatal_macro:
-                            # report testbench execution status
-                            logs[3] += f"\n## Testbench Execution Status:\n"
-                            logs[3] += f"Testbench execution successful.\n"
+                            # report testbench type
+                            logs[3] += f"\n## Testbench Type:\n"
+                            logs[3] += f"Verilog testbench.\n"
+                            # report testbench tests passed status
+                            logs[3] += f"\n## Test cases passed Status:\n"
+                            logs[3] += f"Test cases passed.\n"
                             return (1, 1)
                         else:
-                            # report testbench execution status
-                            logs[3] += f"\n## Testbench Execution Status:\n"
-                            logs[3] += f"Testbench execution not trustworthy as $fatal macro is not used in the testbench.\n"
-                            # pass the result of running the command above to the llm with the question of wether this text indicates that all test cases has been passed and only ask the llm to answer only with yes or no
                             messages = [ 
                                 { "content": f"Answer only yes or no. Given the following output:\n```{result.stdout}```\n, does the output indicate that all test cases have passed?",
                                 "role": "user"}
@@ -280,10 +286,19 @@ def execute_testbench(shell_script_path, files_dict,verilog_tb_files_dict, pytho
                             logs[3] += f"\n## LLM Confirmation (stdout indicates successful execution?):\n"
                             logs[3] += f"{confirmation_text}\n"
                             if "yes" in confirmation_text:
+                                # report testbench tests passed status
+                                logs[3] += f"\n## Test cases passed Status:\n"
+                                logs[3] += f"Test cases passed.\n"
                                 return (1, 1)
                             else:
+                                # report testbench tests failed status
+                                logs[3] += f"\n## Test cases passed Status:\n"
+                                logs[3] += f"Test cases failed.\n"
                                 return (0, 1)                            
                 else:
+                    # report testbench execution status
+                    logs[3] += f"\n## Testbench Execution Status:\n"
+                    logs[3] += f"Testbench execution failed.\n"
                     return (0, 1)
             except subprocess.TimeoutExpired:
                 print("Testbench execution timed out after 250 seconds.")
@@ -292,6 +307,9 @@ def execute_testbench(shell_script_path, files_dict,verilog_tb_files_dict, pytho
                 print(f"Error executing testbench: {e}")
                 return (0, 1)
         else: # script is not used to run the testbench
+            # report shell script content does not run the test bench.
+            logs[3] += f"\n## Shell Script (Used to run shell script?):\n"
+            logs[3] += f"Shell script content does not run the testbench.\n"
             return (0, 1)
     else:
         # report no shell script in logs[3]

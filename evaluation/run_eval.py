@@ -29,7 +29,7 @@ def get_config(
     config = AppConfig(
         run_as_openhands=False,
         max_budget_per_task=4,
-        max_iterations=30,
+        max_iterations=70,
         trajectories_path=os.path.join(mount_path_on_host, f'traj_{task_short_name}.json'),
         sandbox=SandboxConfig(
             base_container_image=base_container_image,

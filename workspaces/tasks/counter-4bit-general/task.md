@@ -1,26 +1,7 @@
-# Verilog Four-Bit Counter Implementation and Testing
+Write a simple 4-bit counter. make sure it’s resettable and that it counts up correctly.
 
-## Step 1: Implement a Four-Bit Counter
-Design a four-bit counter in Verilog with the following interface:  
-- `clk` 
-- `reset`
-- `count` 
+then write a testbench for it. it should test normal incrementing and also make sure it wraps back to 0 after hitting 15. use assertions so that if anything breaks it stops right away (MUST use $fatal for that in case of a verilog testbench).
 
-## Step 2: Create a Self-Checking Testbench  
-- Develop a comprehensive testbench for the counter module with asserstions that covers all possible cases.  
-- If a test case fails, the assertion should terminate the testbench execution. If you are using a Verilog testbench, you must use the **$fatal** macro.
+debug any issues you find. if something’s off in your design or test, fix it until all tests pass.
 
-Ensure the following points are addressed within the test bench 
-
-**Normal Increment:**
-     Allow the counter to increment and observe proper functionality at trigerring edge.
-**Wrap-Around:**
-     Ensure the counter wraps back to 0 after reaching 15 (4-bit overflow).
-
-## Step 3: Debug and Fix Issues  
-- If the module does not pass all test cases, revisit and refine the Verilog code.  
-- Modify the design until all test cases pass successfully.  
-
-## Step 4: `run_test.sh` File Creation
-- Create a shel script `run_test.sh` that contains the command to only run the testbench.
-- execute the `run_test.sh` to make sure it successfully runs the testbench.
+you must make a shell script called run_test.sh that runs your testbench only. try running it to make sure it actually works.
