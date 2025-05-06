@@ -129,7 +129,7 @@ def llm_complete(checkpoints_list_msg, file_content=None):
 def llm_confirm(script=None, cocotb_test=False, verilog_tb_files_dict=None, python_files_dict=None, logs=None): # the function confirms the contents of sh script are used to run the testbench and that the testbench has assertions that stop execution on a failed test.
     # user assert to raise smooth error if any dict is empty such that if both is empty error is raised
     assert verilog_tb_files_dict or python_files_dict, "No verilog or python files found in the workspace."
-    # make warning if cocotb_test is true but python_files_Dict is empty or if python_files_dict is not empty but cocotb_test is false. pritn meaninful message
+    # make warning if cocotb_test is trullm_confirme but python_files_Dict is empty or if python_files_dict is not empty but cocotb_test is false. pritn meaninful message
     if cocotb_test and not python_files_dict:
         print("Warning: cocotb_test is true but no python files found in the workspace.")
     elif not cocotb_test and python_files_dict:
@@ -143,28 +143,47 @@ def llm_confirm(script=None, cocotb_test=False, verilog_tb_files_dict=None, pyth
     else:
         workspace_content_truncated = build_workspace_content_truncated(verilog_tb_files_dict, "verilog", 1000)
 
+    # report the boolean values for debugging
+    # logs[3] += f"\n## Boolean Variables:\n"
+    # logs[3] += f"iverilog present: {'iverilog' in script}\n"
+    # logs[3] += f"vvp present: {'vvp' in script}\n"
+    # logs[3] += f"test bench file present in script: {any(os.path.basename(file) in script for file in verilog_tb_files_dict.keys())}\n"
 
-    if TEST_MODE:
-        return {'choices': [{'message': {"content": "Hello, how are you?","role": "user"}}]}
+    # report the verilog_tb_files_dict list
+    # logs[3] += f"\n## Verilog Testbench Files:\n"
+    # for file in verilog_tb_files_dict.keys():
+    #     logs[3] += f"- {file}\n"    
+
+    # Check if inside the workspace_content_truncated, there is text "iverilog" and "vvp" and any of the files in verilog_tb_files_dict are present inside the script. if these 3 are present return true else false
+    if script:
+        if "iverilog" in script and "vvp" in script and any(file in script for file in verilog_tb_files_dict.keys()):
+            return True
+        else:
+            return False
+
+
+
+    # if TEST_MODE:
+    #     return {'choices': [{'message': {"content": "Hello, how are you?","role": "user"}}]}
     
-    messages = [
-        {
-            "content": f"Answer only yes or no. Given that the workspace contains the following files and their contents (only part of each file is shown): \n---\n{workspace_content_truncated}\n---\n, is the following script:\n```bash\n{script}\n```\nused to run the testbench?"  ,
-            "role": "user"}
-    ]
+    # messages = [
+    #     {
+    #         "content": f"Answer only yes or no. Given that the workspace contains the following files and their contents (only part of each file is shown): \n---\n{workspace_content_truncated}\n---\n, is the following script:\n```bash\n{script}\n```\nused to run the testbench?"  ,
+    #         "role": "user"}
+    # ]
 
-    # report messages in logs[3]
-    logs[3] += f"\n## LLM Confirmation Prompt (Used to run testbench?):\n"
-    logs[3] += f"{messages[0]['content']}\n"
+    # # report messages in logs[3]
+    # logs[3] += f"\n## LLM Confirmation Prompt (Used to run testbench?):\n"
+    # logs[3] += f"{messages[0]['content']}\n"
 
-    llm_response =  litellm.completion(
-        api_key=LITELLM_API_KEY,
-        base_url=LITELLM_BASE_URL,
-        model=LITELLM_MODEL,
-        messages=messages
-    ).json()
+    # llm_response =  litellm.completion(
+    #     api_key=LITELLM_API_KEY,
+    #     base_url=LITELLM_BASE_URL,
+    #     model=LITELLM_MODEL,
+    #     messages=messages
+    # ).json()
 
-    return llm_response
+    # return llm_response
 
 def execute_testbench(shell_script_path, files_dict,verilog_tb_files_dict, python_files_dict, logs):
 
@@ -203,14 +222,22 @@ def execute_testbench(shell_script_path, files_dict,verilog_tb_files_dict, pytho
         # Pass the file content to llm_confirm() and get the response
         llm_response = llm_confirm(script, cocotb_test, verilog_tb_files_dict, python_files_dict, logs) # is the script used to run a testbench?
 
+        # # Pass the file content to llm_confirm() and get the response
+        # llm_response = llm_confirm(script, cocotb_test, verilog_tb_files_dict, python_files_dict, logs) # is the script used to run a testbench?
 
-        # Extract the confirmation text and check for 'yes'
-        confirmation_text = llm_response['choices'][0]['message']['content'].lower()
-        # report llm response in logs[3]
-        logs[3] += f"\n## LLM Confirmation text on the shell script (Used to run testbench?):\n"
-        logs[3] += f"{confirmation_text}\n"
 
-        if "yes" in confirmation_text:
+        # # Extract the confirmation text and check for 'yes'
+        # confirmation_text = llm_response['choices'][0]['message']['content'].lower()
+        # # report llm response in logs[3]
+        # logs[3] += f"\n## LLM Confirmation text on the shell script (Used to run testbench?):\n"
+        # logs[3] += f"{confirmation_text}\n"
+        
+        # report that llm response is true or false
+        logs[3] += f"\n## Script Used to run testbench?:\n"
+        logs[3] += f"{llm_response}\n"
+
+        # if "yes" in confirmation_text:
+        if llm_response:
             try:
                 # Run the shell script with a timeout of 250 seconds
                 result = subprocess.run(

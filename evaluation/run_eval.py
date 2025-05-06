@@ -132,13 +132,6 @@ if __name__ == '__main__':
         help='Folder path to save trajectories and evaluation results'
     )
     parser.add_argument(
-        '--server-hostname',
-        type=str,
-        default='localhost',
-        help='Server hostname, e.g. localhost to access the host machine from the container, '
-        'assuming the task docker container is run with `--network host` flag'
-    )
-    parser.add_argument(
         '--agent-llm-config',
         type=str,
         default=None,
@@ -191,8 +184,6 @@ if __name__ == '__main__':
     config: AppConfig = get_config(args.task_image_name, task_short_name, temp_dir, agent_llm_config)
     runtime: Runtime = create_runtime(config)
     call_async_from_sync(runtime.connect)
-
-    # init_task_env(runtime, args.server_hostname, env_llm_config)
 
     state = run_solver(runtime, task_short_name, config,
                        save_final_state=True, state_dir=os.path.abspath(args.outputs_path))

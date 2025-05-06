@@ -32,9 +32,6 @@ echo "Using AGENT_LLM: $AGENT_LLM"
 
 OUTPUTS_PATH="outputs/$AGENT_LLM"
 
-# SERVER_HOSTNAME is the hostname of the server that hosts all the web services,
-# including RocketChat, ownCloud, GitLab, and Plane.
-SERVER_HOSTNAME="localhost"
 
 # VERSION is the version of the task images to use
 # If a task doesn't have a published image with this version, it will be skipped
@@ -57,10 +54,6 @@ while [[ $# -gt 0 ]]; do
             OUTPUTS_PATH="$2"
             shift 2
             ;;
-        --server-hostname)
-            SERVER_HOSTNAME="$2"
-            shift 2
-            ;;
         --version)
             VERSION="$2"
             shift 2
@@ -80,7 +73,6 @@ fi
 
 echo "Using evaluator LLM: $ENV_LLM_CONFIG"
 echo "Outputs path: $OUTPUTS_PATH"
-echo "Server hostname: $SERVER_HOSTNAME"
 
 # Iterate through each directory in tasks
 # for task_dir in "$TASKS_DIR"/*/; do
@@ -90,7 +82,7 @@ echo "Server hostname: $SERVER_HOSTNAME"
 for task_dir in "$TASKS_DIR"/*/; do
     # Get the task name
     task_name=$(basename "$task_dir")
-    task_name="neural-network-general"
+    task_name="multiplier-4bit-unsigned-pipelined-openlane"
     # task_name="riscv-general"
     # Skip specific tasks
     # if [[ "$task_name" == "multiplier-4bit-unsigned-pipelined-openlane" ||
@@ -117,7 +109,6 @@ for task_dir in "$TASKS_DIR"/*/; do
         --agent-llm-config "$AGENT_LLM_CONFIG" \
         --env-llm-config "$ENV_LLM_CONFIG" \
         --outputs-path "$OUTPUTS_PATH" \
-        --server-hostname "$SERVER_HOSTNAME" \
         --task-image-name "$task_image"
 
         # Prune unused images and volumes

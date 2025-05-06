@@ -39,6 +39,7 @@ class MultiplierPipelinedOpenLaneEvaluator(BaseEvaluator):
             'openlane': 50     # W_O - Weight for OpenLane results
         }
 
+ 
     def grade_checkpoint_openlane(self):
         """Grade OpenLane specific checkpoints"""
         score = 0
@@ -59,8 +60,10 @@ class MultiplierPipelinedOpenLaneEvaluator(BaseEvaluator):
                 logging.warning(f"Error searching for config.json: {e}")
 
         if config_found:
+            self.logs[4] += "\nconfig.json found\n"
             score += 1
         else:
+            self.logs[4] += "\nconfig.json not found\n"
             logging.warning("config.json not found")
 
         # Search for .gds files within any "/final/gds/" directory
@@ -78,22 +81,25 @@ class MultiplierPipelinedOpenLaneEvaluator(BaseEvaluator):
                 logging.warning(f"Error searching for GDS: {e}")
 
         if gds_found:
+            self.logs[4] += ".gds file found\n"
             score += 1
         else:
+            self.logs[4] += ".gds file not found\n"
             logging.warning("GDS file not found")
 
         return (score, 2)
-
 
     def grade_checkpoints(self, trajectory="") -> Tuple[Result, List[str]]:
         """Override to add OpenLane evaluation"""
         checkpoints = []
         weights = self.get_default_weights()
 
+        # Combine the verilog_tb_files_dict and python_files_dict into a single dictionary called testbench_files_dict
+        testbench_files_dict = {**self.verilog_tb_files_dict, **self.python_files_dict}
         # Get scores for each checkpoint
         scores = {
             'checkpoint_llm_module': grade_checkpoint_llm(self.CHECK_POINTS_MODULE, 'verilog', self.files_dict, self.logs),
-            'checkpoint_llm_tb': grade_checkpoint_llm(self.CHECK_POINTS_TB, 'verilog/python', self.files_dict, self.logs),
+            'checkpoint_llm_tb': grade_checkpoint_llm(self.CHECK_POINTS_TB, 'verilog/python', testbench_files_dict, self.logs),
             'checkpoint_llm_functionality': execute_testbench(find_file_path("run_test.sh"), self.files_dict, self.verilog_tb_files_dict, self.python_files_dict, self.logs),
             'checkpoint_llm_openlane': self.grade_checkpoint_openlane()
         }
@@ -122,7 +128,7 @@ class MultiplierPipelinedOpenLaneEvaluator(BaseEvaluator):
         for _, (score, total) in weighted_scores.items():
             checkpoints.append(Checkpoint(int(total), int(score)))
 
-        return Result(checkpoints), self.logs
+        return Result(checkpoints=checkpoints), self.logs
 
 
 # Create a singleton instance

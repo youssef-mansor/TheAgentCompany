@@ -4,11 +4,16 @@ from scoring import Result, Checkpoint
 
 import subprocess
 import logging
+import os
+from typing import Tuple, List
 
 
 class DFlipFlopOpenLaneEvaluator(BaseEvaluator):
     """Evaluator for the D Flip-Flop OpenLane task"""
 
+    def __init__(self):
+        super().__init__()
+        
     def custom_evaluation(self, trajectory: str) -> Result:
         """Custom evaluation logic for the D Flip-Flop OpenLane task
         
@@ -54,8 +59,10 @@ class DFlipFlopOpenLaneEvaluator(BaseEvaluator):
                 logging.warning(f"Error searching for config.json: {e}")
 
         if config_found:
+            self.logs[4] += "\nconfig.json found\n"
             score += 1
         else:
+            self.logs[4] += "\nconfig.json not found\n"
             logging.warning("config.json not found")
 
         # Search for .gds files within any "/final/gds/" directory
@@ -73,22 +80,26 @@ class DFlipFlopOpenLaneEvaluator(BaseEvaluator):
                 logging.warning(f"Error searching for GDS: {e}")
 
         if gds_found:
+            self.logs[4] += ".gds file found\n"
             score += 1
         else:
+            self.logs[4] += ".gds file not found\n"
             logging.warning("GDS file not found")
 
         return (score, 2)
 
-    def grade_checkpoints(self, trajectory="") -> Result:
+    def grade_checkpoints(self, trajectory="") -> Tuple[Result, List[str]]:
         """Override to add OpenLane evaluation"""
         checkpoints = []
         weights = self.get_default_weights()
 
+        # Combine the verilog_tb_files_dict and python_files_dict into a single dictionary called testbench_files_dict
+        testbench_files_dict = {**self.verilog_tb_files_dict, **self.python_files_dict}
         # Get scores for each checkpoint
         scores = {
-            'checkpoint_llm_module': grade_checkpoint_llm(self.CHECK_POINTS_MODULE, 'verilog'),
-            'checkpoint_llm_tb': grade_checkpoint_llm(self.CHECK_POINTS_TB, 'verilog/python'),
-            'checkpoint_llm_functionality': execute_testbench(find_file_path("run_test.sh")),
+            'checkpoint_llm_module': grade_checkpoint_llm(self.CHECK_POINTS_MODULE, 'verilog', self.files_dict, self.logs),
+            'checkpoint_llm_tb': grade_checkpoint_llm(self.CHECK_POINTS_TB, 'verilog/python', testbench_files_dict, self.logs),
+            'checkpoint_llm_functionality': execute_testbench(find_file_path("run_test.sh"), self.files_dict, self.verilog_tb_files_dict, self.python_files_dict, self.logs),
             'checkpoint_llm_openlane': self.grade_checkpoint_openlane()
         }
 
@@ -116,25 +127,11 @@ class DFlipFlopOpenLaneEvaluator(BaseEvaluator):
         for _, (score, total) in weighted_scores.items():
             checkpoints.append(Checkpoint(int(total), int(score)))
 
-        return Result(checkpoints)
+        return Result(checkpoints=checkpoints), self.logs
 
 # Create a singleton instance
 evaluator = DFlipFlopOpenLaneEvaluator()
 
 # Function to be called by the evaluation system
-def grade_checkpoints(trajectory="") -> Result:
+def grade_checkpoints(trajectory="") -> Tuple[Result, List[str]]:
     return evaluator.grade_checkpoints(trajectory)
-
-
-    scores_checkpoints = {
-        'checkpoint_llm_module':(M*W_M,W_M),
-        'checkpoint_llm_tb':(T*W_T, W_T),
-        'checkpoint_llm_functionality':(F*W_F, W_F),
-        'checkpoint_llm_openlane':(O*W_O, W_O)
-    }
-
-    for final_score_key, (final_score, total_score) in scores_checkpoints.items():
-        # Append the checkpoint with the total score and the calculated score
-        checkpoints.append(Checkpoint(int(total_score), int(final_score)))
-
-    return result

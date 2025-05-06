@@ -1,25 +1,6 @@
-# Verilog D Flip-Flop Implementation and Testing  
+Write a Verilog module for a D flip-flop.
+Then, write a self-checking testbench that makes sure it behaves correctly: `q` should follow `d` on the rising edge of `clk`, and go to 0 when `reset` is asserted. Use `$fatal` in the testbench to fail fast if anything goes wrong in case  your testbech was designed in verilog and not cocotb.
 
-## Step 1: Implement a D Flip-Flop  
-Design a D flip-flop in Verilog with the following interface:  
-- `clk`  
-- `reset`  
-- `d`  
-- `q`  
+After that, write a `run_test.sh` script that compiles and runs the testbench only — make sure it actually works.
 
-## Step 2: Create a Self-Checking Testbench  
-- Develop a comprehensive testbench for the D Flip Flop module with asserstions that covers all possible cases.  
-- If a test case fails, the assertion should terminate the testbench execution. If you are using a Verilog testbench, you must use the **$fatal** macro.
-
-## Step 3: Debug and Fix Issues  
-- If the module does not pass all test cases, revisit and refine the Verilog code.  
-- Modify the design until all test cases pass successfully.  
-
-## Step 4: `run_test.sh` File Creation
-- Create a shel script `run_test.sh` that contains the command to only run the testbench.
-- execute the `run_test.sh` to make sure it successfully runs the testbench.
-
-
-## Step 5: OpenLane Flow
-- Harden the top module using the OpenLane flow.  
-- Ensure the hardening process is power, performance, and area (PPA) efficient, leading to the successful generation of the final GDSII.
+Once everything passes, use OpenLane to harden the top module. Make sure the flow completes and generates a GDSII file. Try to keep PPA (power, performance, area) reasonable.
