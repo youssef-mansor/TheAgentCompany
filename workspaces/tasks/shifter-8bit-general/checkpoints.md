@@ -15,7 +15,7 @@
     If `reset` is active, the contents of the shift register should be reset to 0, regardless of the clock or direction.
 
 ### 4. Interface (1 pt)
-    The module should define the ports appropriately as specified in the prompt:  
+    The module should define the ports appropriately as specified in the prompt, something like:  
     clk;           // Clock signal  
     reset;         // Reset signal  
     [7:0] shift_in; // 8-bit input data for shifting  

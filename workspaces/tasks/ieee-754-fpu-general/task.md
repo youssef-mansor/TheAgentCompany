@@ -1,64 +1,24 @@
-# Verilog IEEE 754 Single-Precision FPU Implementation and Testing
+build a pipelined single-precision floating point unit (FPU) in Verilog. it should support basic arithmetic: add, sub, mul, div. also needs to do int-to-float and float-to-int conversions. use IEEE 754 standard, so make sure rounding works (round to nearest, toward zero, toward +inf, toward -inf). rounding_mode is 2 bits. operation is 3 bits — 000 for add, 001 sub, 010 mul, 011 div, 100 int->float, 101 float->int.
 
-## Step 1: Implement an IEEE 754 Single-Precision FPU
-Design a pipelined single-precision floating-point unit (FPU) in Verilog with the following interface:
-   clk,                   // Clock signal for pipelining
-   [1:0] rounding_mode,   // Selects the rounding mode
-   [2:0] operation,       // Selects the FPU operation
-   [31:0] operand_A,      // First operand (single-precision)
-   [31:0] operand_B,      // Second operand (single-precision)
-   [31:0] out,            // Result of the operation
-   overflow,              // Overflow exception
-   underflow,             // Underflow exception
-   div_by_zero,           // Division by zero exception
-   inexact,               // Inexact result exception
-   invalid_operation      // Invalid operation exception
+you’ll also need to handle exceptions: overflow, underflow, div_by_zero, inexact, and invalid_operation. make it pipelined so it can handle new inputs every clock.
 
+inputs: clk, rounding_mode, operation, operand_A, operand_B
+outputs: out, and all the exception flags
 
-The FPU must implement:
-- Basic arithmetic operations (add, subtract, multiply, divide)
-- Format conversions (int-to-float, float-to-int)
-- IEEE 754 rounding modes:
-  - Round to nearest even (00)
-  - Round toward zero (01)
-  - Round toward +∞ (10)
-  - Round toward -∞ (11)
-- Operation codes:
-  - Addition (000)
-  - Subtraction (001)
-  - Multiplication (010)
-  - Division (011)
-  - Int-to-Float (100)
-  - Float-to-Int (101)
-- Exception handling
-- Pipelined architecture for high throughput
+then write a testbench that checks:
 
-## Step 2: Create a Self-Checking Testbench
-- Develop a comprehensive testbench for the FPU that covers all operations with asserstions.
-- If a test case fails, the assertion should terminate the testbench execution. If you are using a Verilog testbench, you must use the **$fatal** macro.
+basic arithmetic with known values
 
+NaN, Inf, and 0 handling
 
-Ensure the following points are addressed within the testbench:
+all rounding modes
 
-### Basic Operations:
-   - Test all arithmetic operations with simple cases.
+exception cases (like divide by zero)
 
-### Special Values:
-   - Test NaN, Infinity, and Zero handling.
+the conversions (int ↔ float)
 
-### Rounding Modes:
-   - Test all four rounding modes.
+use assertions and make sure you use $fatal if something goes wrong. Using $fatal in case of a verilog testbench is obligatory.
 
-### Exceptions:
-   - Test all exception conditions.
+debug until everything works right.
 
-### Conversions:
-   - Test int-to-float and float-to-int conversions.
-
-## Step 3: Debug and Fix Issues
-- If the module does not pass all test cases, revisit and refine the Verilog code.
-- Modify the design until all test cases pass successfully.  
-
-## Step 4: `run_test.sh` File Creation
-- Create a shel script `run_test.sh` that contains the command to only run the testbench.
-- execute the `run_test.sh` to make sure it successfully runs the testbench.
+make a run_test.sh script that only runs the testbench, and run it to make sure it works.

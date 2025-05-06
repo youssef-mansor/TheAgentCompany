@@ -1,43 +1,21 @@
-# Verilog Vending Machine FSM Implementation and Testing  
+make a vending machine FSM in verilog. it should let you pick one of 3 products (A, B, or C), and you can insert money in 5, 10, or 20 units. prices are: A is 5, B is 10, C is 15. if you put in more than needed, it should return the extra as change. if you cancel before finishing, it should give back all the money. if not enough money is inserted, it should wait for more.
 
-## Step 1: Implement a Vending Machine FSM  
-Design a vending machine FSM in Verilog with the following interface:  
-- **Inputs:**  
-  - `clk` (clock signal)  
-  - `reset` (reset signal)  
-  - `money` (inserted amount:  5,  10,  20)  
-  - `select_product` (product selection: 2-bit input)  
-  - `extra_cash` (additional money inserted)  
+the inputs are clk, reset, money, select_product (2-bit), and extra_cash (for more money after the first insert). outputs are prodA, prodB, prodC, and balance.
 
-- **Outputs:**  
-  - `prodA` (dispense product A)  
-  - `prodB` (dispense product B)  
-  - `prodC` (dispense product C)  
-  - `balance` (remaining balance to return)  
+then write a testbench that checks:
 
-The FSM should handle:  
-- Selection of one of three products:  
-  - **Product A:**  5  
-  - **Product B:**  10  
-  - **Product C:**  15  
-- Money insertion in denominations of  5,  10, and  20.  
-- Returning change when the inserted amount exceeds the product price.  
-- Returning the full amount if the purchase is canceled before completion.  
-- Waiting for additional money if the inserted amount is insufficient.  
+all money types (5, 10, 20)
 
-## Step 2: Create a Self-Checking Testbench  
-- Develop a comprehensive testbench for the vending machine FSM with asserstions that covers all possible cases.  
-- If a test case fails, the assertion should terminate the testbench execution. If you are using a Verilog testbench, you must use the **$fatal** macro.
+buying each product
 
+change being returned correctly
 
-Ensure the testbench addresses the following points:  
-- Tests with all possible money denominations.  
-- Testing with all products.  
+full amount returned if canceled
 
-## Step 3: Debug and Fix Issues  
-- If the module does not pass all test cases, revisit and refine the Verilog code.  
-- Modify the design until all test cases pass successfully.  
+needing more money if not enough is inserted
 
-## Step 4: `run_test.sh` File Creation
-- Create a shel script `run_test.sh` that contains the command to only run the testbench.
-- execute the `run_test.sh` to make sure it successfully runs the testbench.
+use assertions and make sure to use $fatal (this is a must) if anything fails in case of a verilog testbench.
+
+fix any bugs in your design or testbench until all tests pass.
+
+you must create a run_test.sh script that just runs your testbench. try running it and see that it works.

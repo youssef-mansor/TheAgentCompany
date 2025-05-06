@@ -537,7 +537,7 @@ def grade_checkpoint_llm(CHECK_POINTS, file_type, files_dict, logs):
     if files_dict:
         workspace_content = build_workspace_content(files_dict, file_type)
         # report workspace content if file_type is verilog/python to include all files.
-        if file_type == 'verilog/python':
+        if file_type == 'verilog':
             logs[0] += "\n## Workspace Content:\n"
             # check if workspace_content is successfully returned
             if not workspace_content:

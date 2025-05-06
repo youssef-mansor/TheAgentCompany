@@ -132,9 +132,12 @@ class BaseEvaluator(ABC):
 
         # Get scores for each checkpoint
         # Each call to grade_checkpoint_llm builds the workspace_content out of the files_dict, this is not redundant, because in the first build we exclude python files.
+        
+        # Combine the verilog_tb_files_dict and python_files_dict into a single dictionary called testbench_files_dict
+        testbench_files_dict = {**self.verilog_tb_files_dict, **self.python_files_dict}
         scores = {
             'checkpoint_llm_module': grade_checkpoint_llm(self.CHECK_POINTS_MODULE, 'verilog', self.files_dict, self.logs),
-            'checkpoint_llm_tb': grade_checkpoint_llm(self.CHECK_POINTS_TB, 'verilog/python', self.files_dict, self.logs),
+            'checkpoint_llm_tb': grade_checkpoint_llm(self.CHECK_POINTS_TB, 'verilog/python', testbench_files_dict, self.logs),
             'checkpoint_llm_functionality': execute_testbench(find_file_path("run_test.sh"), self.files_dict, self.verilog_tb_files_dict, self.python_files_dict, self.logs)
         }
 

@@ -1,32 +1,16 @@
-# Verilog Rising-Edge Detector Implementation and Testing  
+write a rising-edge detector in verilog. it should have clk, reset, signal_in, and signal_out signals. signal_out should go high for one clock cycle whenever signal_in has a rising edge.
 
-## Step 1: Implement a Rising-Edge Detector  
-Design a rising-edge detector in Verilog with the following interface:  
-- `clk`  
-- `reset`  
-- `signal_in`  
-- `signal_out`  
+then make a testbench for it. test all the important stuff:
 
+make sure signal_out is 1 only on a rising edge
 
-## Step 2: Create a Self-Checking Testbench  
-- Develop a comprehensive testbench for the rising-edge detector module  with asserstions that covers all possible cases.  
-- If a test case fails, the assertion should terminate the testbench execution. If you are using a Verilog testbench, you must use the **$fatal** macro.
+if there are multiple rising edges, signal_out should pulse high for one clock cycle each time
 
-Ensure the following points are addressed within the test bench 
+make sure there’s no false positives when signal_in stays stable (either high or low)
 
-### Edge Detection:
-   - Verify that `signal_out` is `1` only when there is a rising edge on `signal_in`.
+use assertions to check everything and make sure to use $fatal (this is a must) if anything fails.
 
-### Multiple Edges:
-   - Apply multiple rising edges on `signal_in` and confirm that `signal_out` is asserted for one clock cycle for each rising edge.
+if something doesn’t work, fix the module or the testbench until it does.
 
-### No False Positives:
-   - Ensure that `signal_out` remains `0` when `signal_in` remains stable (high or low) between clock cycles.
+also you must create a run_test.sh script that only runs your testbench. test it and make sure it works.
 
-## Step 3: Debug and Fix Issues  
-- If the module does not pass all test cases, revisit and refine the Verilog code.  
-- Modify the design until all test cases pass successfully.  
-
-## Step 4: `run_test.sh` File Creation
-- Create a shel script `run_test.sh` that contains the command to only run the testbench.
-- execute the `run_test.sh` to make sure it successfully runs the testbench.

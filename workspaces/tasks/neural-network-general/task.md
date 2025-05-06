@@ -1,7 +1,5 @@
-# Verilog Neural Network Implementation and Testing
 
-## Step 1: Implement a Neural Network in Verilog
-Design a synthesizable neural network module in Verilog that implements the following Python model:
+build a synthesizable neural network in verilog that matches this tiny python model:
 
 ```python
 import torch
@@ -30,57 +28,38 @@ class CustomNN(nn.Module):
         return x
 ```
 
-The Verilog implementation must have the following interface:
-    // Clock and reset
-    clk,                  // Clock signal
-    rst,                  // Reset signal
-   
-     interface
-    [31:0] addr_in,       // Address input
-    [31:0] data_in,       // Data input
-    we,                   // Write enable
-    [31:0] data_out,     // Data output
-    ack_o,               // Acknowledge signal
-    
-    // Control interface
-    start,                // Start computation
-    ready                // Result ready
+your verilog module should implement the same thing. make sure the interface includes:
+- clock + reset
+- wishbone-style memory-mapped I/O (32 bits):
+   - addr_in, data_in, data_out, we, ack_o
+- control signals:
+   - start (kicks off computation)
+   - ready (goes high when result is ready)
+
+stuff it must support:
+- single-precision floating point (IEEE-754)
+- modular layout (break it up into clear units)
+- ReLU instead of sigmoid (yeah, the python model uses sigmoid, but we're switching to ReLU in hardware)
+- parallel hardware compute (for performance)
+- clean control flow using start and ready
 
 
-Requirements:
-- IEEE-754 single precision floating point compliance
-- Wishbone protocol for memory-mapped I/O
-- Modular design with separate functional units
-- Hardware parallelism for efficient computation
-- ReLU activation function implementation
-- Control signals for operation flow
-
-## Step 2: Create a Self-Checking Testbench
 - Develop a comprehensive testbench using cocotb that verifies the neural network against the Python model with asserstions that covers all possible cases.  
 - If a test case fails, the assertion should terminate the testbench execution. If you are using a Verilog testbench, you must use the **$fatal** macro.
 - The test bench should run the neural network in python one time and the verilog code another time and make sure outputs are the same.
 
-Ensure the following points are addressed within the testbench:
+now write a cocotb testbench that checks everything:
 
-### Basic Operations:
-   - Test input loading and weight initialization.
+* run the **same inputs** through the python model and your verilog module
+* compare results — if they don’t match, assert and blow up with `$fatal`
+* make sure the testbench covers:
 
-### Python Validation:
-   - Test against Python model outputs.
+  * input write + weight setup
+  * correct results vs. python
+  * proper wishbone read/write behavior
+  * start/ready control logic
+  * edge values, weird floats, etc.
 
-### Wishbone Protocol:
-   - Test memory-mapped I/O operations.
+debug until everything lines up with python.
 
-### Control Flow:
-   - Test start/ready signaling and computation flow.
-
-### Edge Cases:
-   - Test boundary conditions and special values.
-
-## Step 3: Debug and Fix Issues
-- If the module does not pass all test cases, revisit and refine the Verilog code.
-- Modify the design until all test cases pass successfully.  
-
-## Step 4: `run_test.sh` File Creation
-- Create a shel script `run_test.sh` that contains the command to only run the testbench.
-- execute the `run_test.sh` to make sure it successfully runs the testbench.
+last step: you must create a `run_test.sh` file that only runs your testbench. run it and make sure it works end-to-end.

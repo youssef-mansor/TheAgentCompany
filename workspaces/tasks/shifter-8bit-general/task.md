@@ -1,34 +1,9 @@
-# Verilog 8-Bit Shifter Implementation and Testing
+write an 8-bit shifter in verilog. it should shift left when direction is 1 and shift right when direction is 0. make sure it has clk, reset, shift_in and shift_out signals.
 
-## Step 1: Implement an 8-Bit Shifter
-Design an 8-bit shifter in Verilog with the following interface:
-- clk  
-- reset  
-- shift_in  
-- shift_out  
-- direction  (when 1 shift left)
-The module should be capable of performing both left and right shifts based on the value of the direction input.  
+then write a testbench for it. check that shifting left and right actually works like it should. when shifting left, bits should move left and zeros should come in from the right. when shifting right, bits should move right and zeros should come in from the left. also check boundary cases — make sure bits that are shifted out are gone and nothing weird shows up.
 
-## Step 2: Create a Self-Checking Testbench  
-- Develop a comprehensive testbench for the shifter module with asserstions that covers all possible cases.  
-- If a test case fails, the assertion should terminate the testbench execution. If you are using a Verilog testbench, you must use the **$fatal** macro.
+use assertions to check the outputs and you have to make sure to use $fatal if something fails.
 
+if it doesn’t work, debug the module or the testbench until everything passes.
 
-Ensure the following points are addressed within the testbench:
-
-### Left Shift: (1 pt)
-    Verify that when `direction = 1`, the register contents shift left, and `shift_out` holds the correct value after the shift.
-
-### Right Shift: (1 pt)
-    Verify that when `direction = 0`, the register contents shift right, and `shift_out` holds the correct value after the shift.
-
-### Boundary Tests: (1 pt)
-    Verify that bits shifted out of the register are discarded, and verify that no unexpected data appears at the empty positions.
-
-## Step 3: Debug and Fix Issues  
-- If the module does not pass all test cases, revisit and refine the Verilog code.  
-- Modify the design until all test cases pass successfully.
-
-## Step 4: `run_test.sh` File Creation
-- Create a shel script `run_test.sh` that contains the command to only run the testbench.
-- execute the `run_test.sh` to make sure it successfully runs the testbench.
+also you must make a run_test.sh script that only runs your testbench. run it and make sure it works.
