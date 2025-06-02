@@ -53,6 +53,12 @@ def calculate_cost(model: str, prompt_tokens: int, completion_tokens: int) -> fl
         return 0.0000008 * prompt_tokens + 0.0000032 * completion_tokens
     elif "deepseek-chat" in model.lower():
         return 0.00000075 * prompt_tokens + 0.0000011 * completion_tokens
+    elif "gemini-2.5-pro-preview" in model.lower():
+        return 0 * prompt_tokens + 0 * completion_tokens
+    elif "gpt-4.1" in model.lower():
+        return 0 * prompt_tokens + 0 * completion_tokens
+    elif "devstral-small" in model.lower():
+        return 0 * prompt_tokens + 0 * completion_tokens
     else:
         raise ValueError(f"Unknown model: {model}")
 
