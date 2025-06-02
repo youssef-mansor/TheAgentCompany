@@ -29,7 +29,7 @@ def get_config(
     config = AppConfig(
         run_as_openhands=False,
         max_budget_per_task=4,
-        max_iterations=10,
+        max_iterations=100,
         trajectories_path=os.path.join(mount_path_on_host, f'traj_{task_short_name}.json'),
         sandbox=SandboxConfig(
             base_container_image=base_container_image,
@@ -141,7 +141,7 @@ if __name__ == '__main__':
         '--env-llm-config',
         type=str,
         default=None,
-        help='LLM config for evaluation environment (NPC & llm-based evaluator)',
+        help='LLM config for evaluation environment (llm-based evaluator)',
     )
     args, _ = parser.parse_known_args()
 

@@ -1,248 +1,119 @@
-import os
-import ast
-import sys
-import logging
-import subprocess
-import time
-import re
-import subprocess
-
-
-
-from typing import List
+from base_evaluator import BaseEvaluator
 from scoring import Result, Checkpoint
-from common import *
+from common import find_file_path, grade_checkpoint_llm
+import subprocess
+import logging
+import os
+import re
+from typing import List, Tuple
 
 
-def find_file(file_name):
-    try:
-        result = subprocess.check_output(['find', '/', '-name', file_name], text=True).strip()
-        return result
-    except subprocess.CalledProcessError:
-        return "File not found"
-    except Exception as e:
-        return f"Error: {e}"
-    
-# def find_file_specific(file_name):
-#     try:
-#         result = subprocess.check_output(['find', '/', '-name', file_name], text=True).strip()
-#         lines = result.split("\n")  # Split the output into lines
-#         for line in lines:
-#             if "rtl/{file_name}" in line or "workspace/{file_name}" in line or "outputs/{file_name}":
-#                 return line  # Return the first matching line
-#         return "No matching file found"
-#     except subprocess.CalledProcessError:
-#         return "File not found"
-#     except Exception as e:
-#         return f"Error: {e}"
-    
+class GPIOCaravelEvaluator(BaseEvaluator):
+    """Evaluator for the GPIO Caravel Integration task"""
 
-def find_file_specific(filename = "user_project_wrapper.v"):
-    search_paths = ["/openhands", "/home", "/outputs", "/workspace"]
-    for path in search_paths:
+    def __init__(self):
+        super().__init__()
+        # Initialize Caravel-specific variables
+        self.wrapper_path = "caravel_user_project_ol2/verilog/rtl/user_project_wrapper.v"
+        self.CHECK_POINTS_INTEGRATION = self.load_checkpoints()
+        
+    def get_default_weights(self):
+        """Override weights for Caravel evaluation"""
+        return {
+            'module': 70,      # Weight for integration implementation (W_M)
+            'template': 30,     # Weight for template structure (W_A)
+        }
+
+    def check_template_structure(self) -> Tuple[float, float]:
+        """Check if the required Caravel template files exist"""
+        score = 0.0
+        max_score = 2.0
+        print("why the heck not writting into logs[5]")
+        self.logs[5] += "\n## Checking Caravel template structure"
+
         try:
-            result = subprocess.check_output(['find', path, '-name', filename], text=True).strip()
-            lines = result.split("\n")
-            for line in lines:
-                if line.strip():
-                    return line  # Return the first matching result
-        except subprocess.CalledProcessError:
-            continue  # If no results are found in this path, continue to the next
-    
-    return "No matching file found"
+            wrapper_path = find_file_path(self.wrapper_path)
+            if wrapper_path and os.path.isfile(wrapper_path):
+                score += 2
+                self.logs[5] += "\nFound user_project_wrapper.v in Caravel template structure"
+            else:
+                self.logs[5] += "\nuser_project_wrapper.v not found in Caravel template"
+                # Check alternative locations
+                try:
+                    alt_paths = [
+                        find_file_path("user_proj_wrapper.v"),
+                        find_file_path("user_project_wrapper.v")
+                    ]
+                    if any(path and os.path.isfile(path) for path in alt_paths if path):
+                        score += 1
+                        self.logs[5] += "\nFound wrapper file in alternative location"
+                    else:
+                        self.logs[5] += "\nNo wrapper file found in any location"
+                except Exception as alt_err:
+                    logging.warning(f"Error checking alternative paths: {alt_err}")
+                    self.logs[5] += "\nError occurred while checking alternative locations"
+        except Exception as e:
+            logging.warning(f"Error checking template structure: {e}")
+            self.logs[5] += "\nError occurred while checking template structure"
+            # Return 0 score but don't fail the evaluation
+            self.logs[5] += "\nError occurred while checking template structure"
+
+            return (0, max_score)
+
+        return (score, max_score)
+
+    def grade_checkpoints(self, trajectory="") -> Tuple[Result, List[str]]:
+        """Override to implement Caravel-specific grading"""
+        checkpoints = []
+        weights = self.get_default_weights()
+
+        # Get scores for each checkpoint
+        scores = {
+            'template': self.check_template_structure(),
+            'module': grade_checkpoint_llm(self.CHECK_POINTS_INTEGRATION, 'verilog', self.files_dict, self.logs)
+        }
+
+        # Calculate weighted scores
+        weighted_scores = {
+            'template': (
+                self.calculate_score(scores['template'], weights['template']),
+                weights['template']
+            ),
+            'module': (
+                self.calculate_score(scores['module'], weights['module']),
+                weights['module']
+            )
+        }
+
+        # Create checkpoints
+        for _, (score, total) in weighted_scores.items():
+            checkpoints.append(Checkpoint(int(total), int(score)))
+
+        return Result(checkpoints=checkpoints), self.logs
+
+    def custom_evaluation(self, trajectory: str) -> Result:
+        """Custom evaluation logic for GPIO Caravel integration"""
+        # This can be implemented if additional custom evaluation is needed
+        return Result()
 
 
+    def load_checkpoints(self):
+        with open('/instruction/checkpoints.md', 'r') as f:
+            content = f.read()
 
-REPO_DIR = '/workspace/openhands/'
-UT_FILE = REPO_DIR + 'tests/unit/test_agent_skill.py'
-COV_FILE = REPO_DIR + 'tests/unit/test_agent_skill_coverage.xml'
+        # Split by lines containing only hyphens (allowing extra dashes)
+        sections = re.split(r'\n\s*-{3,}\s*\n', content)
 
-with open('/instruction/checkpoints.md', 'r') as f:
-    content = f.read()
+        # sections[0]: Action Checkpoints (ignored)
+        # sections[1]: Integration Checkpoints
 
-# Split by lines containing only hyphens (allowing extra dashes)
-sections = re.split(r'\n\s*-{3,}\s*\n', content)
-
-# sections[0]: Action Checkpoints (ignored)
-# sections[1]: Integration Checkpoints
-
-CHECK_POINTS_INTEGRATION = sections[1].strip()
-
-def config_env(dir_path):
-    """configure enviroment"""
-    try:
-        os.chdir(dir_path)
-
-        subprocess.run(["poetry", "--version"], check=True, capture_output=True)
-    except Exception as e:
-        logging.warning(f"is_test_run configure step 1. {e}")
-        subprocess.run([sys.executable, "-m", "pip", "install", "poetry"], check=True)
-        time.sleep(5)
-
-    logging.info(f"Installing dependencies...")
-    try:
-        result = subprocess.run(["poetry", "install"], capture_output=True, text=True)
-    except Exception as e:
-        logging.warning(f"is_test_run configure step 2. {e}")
-        return False
-
-    if result.returncode != 0:
-        logging.warning(f"Error installing dependencies. {e}")
-        logging.warning(f"{result.stderr}")
-        return False
-    else:
-        logging.info(f"Dependencies installed successfully.")
-    
-def check_with_llm_F(checkpoints, file_content): # to handle the case of functinality score
-
-    if len(checkpoints) == 0:
-        return (0, 0)
-
-    messages = [
-        {
-            "content": f"{checkpoints}",
-            "role": "user"}
-    ]
-
-    llm_response = llm_complete(messages, file_content)
-
-    print("\n************************************Evaluation Report*******************************************")
-    llm_response_txt = llm_response['choices'][0]['message']['content'].lower()
-    print(llm_response_txt)
-    print("*************************************************************************************************\n")
+        CHECK_POINTS_INTEGRATION = sections[1].strip()
+        return CHECK_POINTS_INTEGRATION
 
 
-    score = re.search(r'(?i)final\s+score:\s*(\d{1,2})/\d{1,2}', llm_response_txt)
-    total_score = re.search(r'(?i)final\s+score:\s*\d{1,2}/(\d{1,3})', llm_response_txt)
-    if score:
-        return (int(score.group(1)), int(total_score.group(1)))
-    else:
-        return (0, 0)
+# Create a singleton instance
+evaluator = GPIOCaravelEvaluator()
 
-
-def is_file_exist(file_path):
-    """
-     Check if a file exists at the given path.
-    """
-    if not file_path:
-        logging.warning("is_file_exist: Empty path provided")
-        return False
-
-    abs_path = os.path.abspath(file_path)
-
-    try:
-        return os.path.isfile(abs_path)
-    except Exception as e:
-        logging.warning(f"Error in is_file_exist: {e}")
-        return False
-
-@grader
-def grade_checkpoint1():
-    score = 0.0
-    if is_file_exist(find_file_path("caravel_user_project_ol2/verilog/rtl/user_project_wrapper.v")):
-        score += 2
-    else:
-        print("file user_project_wrapper.v doesn't exist as part of caravel template")
-        if is_file_exist(find_file_path("user_proj_wrapper.v") or find_file_path("user_project_wrapper.v")):
-            score += 1
-        else:
-            print("file user_proj_wrapper.v and user_project_wrapper.v  don't exist at all")
-    # if is_file_exist(find_file_path("report.md")):
-    #     score += 1
-    # else:
-    #     print("file report.md does not exist")        
-    return score
-
-def grade_checkpoint_llm(CHECK_POINTS, file_path, file_type):
-    print(f"file_path inside grade_checkpoint: {file_path}")
-    try:
-        file_content = None
-        
-        # Try the primary file path first
-        if is_file_exist(file_path):
-            print(f"[INFO] Found file at '{file_path}'. Attempting to read it...")
-            try:
-                with open(file_path, 'r') as file:
-                    file_content = file.read()
-                file_content = f"\n{file_type}```\n" + file_content + "\n```\n"
-                print(f"[SUCCESS] Successfully read file at '{file_path}'.")
-                return check_with_llm_F(CHECK_POINTS, file_content)
-            except Exception as read_err:
-                print(f"[ERROR] Failed to read file at '{file_path}': {read_err}")
-                return (0, 0)
-        
-        # If the primary file isn't found, try the alternative file
-        alt_file_path = find_file_path("user_project_wrapper.v")
-        if is_file_exist(alt_file_path):
-            print(f"[INFO] Primary file not found. Found alternative file at '{alt_file_path}'. Attempting to read it...")
-            try:
-                with open(alt_file_path, 'r') as file:
-                    file_content = file.read()
-                file_content = f"\n{file_type}```\n" + file_content + "\n```\n"
-                print(f"[SUCCESS] Successfully read alternative file at '{alt_file_path}'.")
-                return check_with_llm_F(CHECK_POINTS, file_content)
-            except Exception as read_err:
-                print(f"[ERROR] Failed to read alternative file at '{alt_file_path}': {read_err}")
-                return (0, 0)
-        
-        # Neither file exists
-        print(f"[ERROR] Neither the primary file '{file_path}' nor the alternative file '{alt_file_path}' exists.")
-        return (0, 0)
-    
-    except Exception as e:
-        print(f"[CRITICAL] An unexpected error occurred in grade_checkpoint_llm: {e}")
-        return (0, 0)
-
-
-
-def grade_checkpoints(trajectory="") -> Result:
-    checkpoints: List[Checkpoint] = []
-    result = Result(checkpoints)
-
-    # # Define the total scores corresponding to each checkpoint function with unique keys
-    # scores = {
-    #     'checkpoint1': (grade_checkpoint1(), 2),
-    #     'checkpoint_llm_integration': grade_checkpoint_llm(CHECK_POINTS_INTEGRATION, find_file_path("caravel_user_project_ol2/verilog/rtl/user_project_wrapper.v"), 'verilog')
-    # }
-
-    scores = {
-        'checkpoint1': (grade_checkpoint1(), 2),
-        'checkpoint_llm_integration': grade_checkpoint_llm(CHECK_POINTS_INTEGRATION, find_file_path("caravel_user_project_ol2/verilog/rtl/user_project_wrapper.v"), 'verilog')
-    }
-
-    # print scores
-    print(f"Scores: {scores}")
-
-
-    W_A = 30
-    W_M = 70
-    Final = 0
-
-    # Checkpoint 1
-    if scores['checkpoint1'][1] != 0:
-        A = scores['checkpoint1'][0] / scores['checkpoint1'][1]
-        print(f"A: {A}")
-    else:
-        A = 0
-
-    print(f"find_file_specific('user_project_wrapper.v'): {find_file_specific('user_project_wrapper.v')}")
-    print(f"find_file('user_project_wrapper.v'): {find_file('user_project_wrapper.v')}")
-
-
-    # Checkpoint LLM Module
-    if scores["checkpoint_llm_integration"][1] != 0:
-        M = scores["checkpoint_llm_integration"][0] / scores["checkpoint_llm_integration"][1]
-    else:
-        M = 0
-
-    scores_checkpoints = {
-        'checkpoint1':(A*W_A, W_A),
-        'checkpoint_llm_integration':(M*W_M,W_M)
-    }
-
-    print(find_file("user_project_wrapper.v"))
-    for final_score_key, (final_score, total_score) in scores_checkpoints.items():
-        # Append the checkpoint with the total score and the calculated score
-        checkpoints.append(Checkpoint(int(total_score), int(final_score)))
-
-    return result
+# Function to be called by the evaluation system
+def grade_checkpoints(trajectory="") -> Tuple[Result, List[str]]:
+    return evaluator.grade_checkpoints(trajectory)

@@ -125,6 +125,9 @@ def llm_complete(checkpoints_list_msg, file_content=None):
     ).json()
 
 
+def print_dict(d):
+    for key in d:
+        print(key)
 
 def llm_confirm(script=None, cocotb_test=False, verilog_tb_files_dict=None, python_files_dict=None, logs=None): # the function confirms the contents of sh script are used to run the testbench and that the testbench has assertions that stop execution on a failed test.
     # user assert to raise smooth error if any dict is empty such that if both is empty error is raised
@@ -137,11 +140,35 @@ def llm_confirm(script=None, cocotb_test=False, verilog_tb_files_dict=None, pyth
     
     workspace_content_truncated = None
 
+    print('script actual\n')
+    print(script)
+
     # instead workspace_content_truncated, will be assigned such that if cocotb_test is true, the build function will be passed the python_files_dict else the verilog_tb_files_dict  will be assigned
     if cocotb_test:
         workspace_content_truncated = build_workspace_content_truncated(python_files_dict, "python", 1000)
+        # check if python or python3 as a command followed by one of the files in python_files_dict is in the script
+        print("python_files_dict\n")
+        print_dict(python_files_dict)
+        if script:
+            return any(
+                f"python3 {filename}" in script or
+                f"python {filename}" in script or
+                f"python3 {os.path.basename(filename)}" in script or
+                f"python {os.path.basename(filename)}" in script
+                for filename in python_files_dict.keys()
+            )
+
+
     else:
         workspace_content_truncated = build_workspace_content_truncated(verilog_tb_files_dict, "verilog", 1000)
+        # Check if inside the workspace_content_truncated, there is text "iverilog" and "vvp" and any of the files in verilog_tb_files_dict are present inside the script. if these 3 are present return true else false
+        print("verilog_tb_files_dict\n")
+        print_dict(verilog_tb_files_dict)
+        if script:
+            if ("iverilog" in script and "vvp" in script and any(file in script or os.path.basename(file) in script for file in verilog_tb_files_dict.keys())):
+                return True
+            else:
+                return False
 
     # report the boolean values for debugging
     # logs[3] += f"\n## Boolean Variables:\n"
@@ -154,12 +181,7 @@ def llm_confirm(script=None, cocotb_test=False, verilog_tb_files_dict=None, pyth
     # for file in verilog_tb_files_dict.keys():
     #     logs[3] += f"- {file}\n"    
 
-    # Check if inside the workspace_content_truncated, there is text "iverilog" and "vvp" and any of the files in verilog_tb_files_dict are present inside the script. if these 3 are present return true else false
-    if script:
-        if "iverilog" in script and "vvp" in script and any(file in script for file in verilog_tb_files_dict.keys()):
-            return True
-        else:
-            return False
+    
 
 
 
@@ -191,7 +213,12 @@ def execute_testbench(shell_script_path, files_dict,verilog_tb_files_dict, pytho
     fatal_macro = any("$fatal" in content for content in verilog_tb_files_dict.values())
 
     # Assigning the boolean cocotb_test true if test_runner.py is found as the name of one of the files in files_dict
-    cocotb_test = any("test_runner.py" in content for content in files_dict.keys())
+    # cocotb_test = any("test_runner.py" in content for content in files_dict.keys())
+
+    # Assign cocotb_test true if any of the python files in the workspace has the decoration @cocotb.test() in it
+    cocotb_test = any('@cocotb.test(' in content for content in files_dict.values())
+
+
 
     # report boolean variables in logs[3]
     logs[3] += f"\n## Boolean Variables:\n"
@@ -264,7 +291,9 @@ def execute_testbench(shell_script_path, files_dict,verilog_tb_files_dict, pytho
                         logs[3] += f"Cocotb test.\n"
                         
                         # check if the resultant xml indeed does not have any failures
+                        print("about to enter extract_test_results\n")
                         _, num_failures = extract_test_results(find_file_path("results.xml"))
+                        print("num_failures: ", num_failures)
                         # report results.xml content in logs[3]
                         logs[3] += f"\n## Results.xml Content:\n"
                         # read file content and report it
@@ -362,6 +391,10 @@ def find_files(pattern=None, search_paths=None, command=None, first_match_only=F
             # Direct command execution mode
             result = subprocess.run(command, shell=True, stdout=subprocess.PIPE,
                                   stderr=subprocess.PIPE, text=True)
+            print("command actual: ")
+            print(command)
+            print("Command output:")
+            print(result.stdout)
         else:
             # Pattern-based search mode
             if search_paths is None:
@@ -406,6 +439,8 @@ def collect_files(find_cmd, exclude):
     """
     files = {}
     file_paths = run_find_command(find_cmd)
+    print("file_paths")
+    print(file_paths)
     for file_path in file_paths:
         # Skip files that contain any substring from the exclude list
         if any(sub in file_path for sub in exclude):
@@ -559,7 +594,7 @@ def is_verilog_testbench(content):
     return False
 
 
-@grader
+
 def grade_checkpoint_llm(CHECK_POINTS, file_type, files_dict, logs):
     if files_dict:
         workspace_content = build_workspace_content(files_dict, file_type)

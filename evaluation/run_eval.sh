@@ -82,13 +82,19 @@ echo "Outputs path: $OUTPUTS_PATH"
 for task_dir in "$TASKS_DIR"/*/; do
     # Get the task name
     task_name=$(basename "$task_dir")
-    task_name="multiplier-4bit-unsigned-pipelined-openlane"
+    # task_name="gpio-integration-caravel"
     # task_name="riscv-general"
     # Skip specific tasks
-    # if [[ "$task_name" == "multiplier-4bit-unsigned-pipelined-openlane" ||
-    #       "$task_name" == "d-flip-flop-openlane" ]]; then
-    #     continue
-    # fi
+    if [[ "$task_name" == "aes-128-openlane" ||
+        "$task_name" == "matrix-multiplication" ||
+        "$task_name" == "memory-bug-fix" ||
+        "$task_name" == "Verilog-C++-DPI-Validation-2bit-adder" ||
+        "$task_name" == "wishbone-bridge-bug-fix" ||
+        "$task_name" == "ipm-caravel" ]]; then
+        continue
+    fi
+
+
 
     # Check if evaluation file exists
     if [ -f "$OUTPUTS_PATH/eval_${task_name}.json" ]; then
@@ -117,7 +123,7 @@ for task_dir in "$TASKS_DIR"/*/; do
         docker images "$task_name" -q | xargs -r docker rmi -f
         docker volume prune -f
         docker system prune -f
-        
+
         break
 
 done

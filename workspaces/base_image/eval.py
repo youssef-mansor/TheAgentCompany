@@ -123,6 +123,7 @@ def main():
             f.write(logs[2])
             f.write(logs[3])
             f.write(logs[4])    
+            f.write(logs[5])
             
     except Exception:
         logging.error("Failed to grade the task", exc_info=True)

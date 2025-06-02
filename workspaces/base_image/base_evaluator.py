@@ -19,6 +19,10 @@ class GlobalVarIndices(IntEnum):
 from scoring import Result, Checkpoint
 from common import grade_checkpoint_llm, execute_testbench, find_file_path, collect_files, is_verilog_testbench
 
+def print_dict(d):
+    for key in d:
+        print(key)
+
 class BaseEvaluator(ABC):
     REPO_DIR = '/workspace/openhands/'
     UT_FILE = REPO_DIR + 'tests/unit/test_agent_skill.py'
@@ -31,7 +35,7 @@ class BaseEvaluator(ABC):
         self.files_dict = {}
         self.verilog_tb_files_dict = {}
         self.python_files_dict = {}
-        self.logs = ["# General","\n# Main Module","\n# Testbench","\n# Functionality","\n# OpenLane"]
+        self.logs = ["# General","\n# Main Module","\n# Testbench","\n# Functionality","\n# OpenLane","\n# Caravel"]
         self.load_checkpoints()
         self.populate_files_dict()
         self.identify_testbenches()
@@ -78,7 +82,7 @@ class BaseEvaluator(ABC):
         
     def populate_files_dict(self, file_type='verilog/python'):
         """Populate the files_dict with Verilog and optionally Python files from specified paths"""
-        exclude = ['test_runner.py', 'cocotb_iverilog_dump.v', 'openhands/miniforge3', 'parsetab.py']
+        exclude = ['cocotb_iverilog_dump.v', 'openhands/miniforge3', 'parsetab.py'] # used to exclude test_runner.py
         search_paths = ["/workspace", "/outputs", "/openhands/workspace/"]
 
         # Collect Verilog files (.v and .sv) from each search path
@@ -86,6 +90,7 @@ class BaseEvaluator(ABC):
             verilog_cmd = f"find {directory} -type f \( -name '*.v' -o -name '*.sv' \) -not -path '*/runs/*'"
             verilog_files = collect_files(verilog_cmd, exclude)
             self.files_dict.update(verilog_files)
+                
         
         # Optionally include Python files if file_type is 'verilog/python'
         if file_type == 'verilog/python':
@@ -94,6 +99,8 @@ class BaseEvaluator(ABC):
                 python_files = collect_files(python_cmd, exclude)
                 self.files_dict.update(python_files)
                 self.python_files_dict.update(python_files)
+        
+        
         
         # Append the files dict keys to the logs General part as  mardown list
         self.logs.append("Files Dict:")
@@ -125,6 +132,10 @@ class BaseEvaluator(ABC):
             return (score[0] / score[1]) * weight
         return 0
 
+
+    # make a fucntion that prints dictionary
+
+
     def grade_checkpoints(self, trajectory: str = "") -> Tuple[Result, List[str]]:
         """Grade all checkpoints and return final result"""
         checkpoints: List[Checkpoint] = []
@@ -135,6 +146,14 @@ class BaseEvaluator(ABC):
         
         # Combine the verilog_tb_files_dict and python_files_dict into a single dictionary called testbench_files_dict
         testbench_files_dict = {**self.verilog_tb_files_dict, **self.python_files_dict}
+
+        print("python_files_dict\n")
+        print_dict(self.python_files_dict)
+        print("files_dict\n")
+        print_dict(self.files_dict)
+        print("testbench_files_dict\n")
+        print_dict(testbench_files_dict)
+
         scores = {
             'checkpoint_llm_module': grade_checkpoint_llm(self.CHECK_POINTS_MODULE, 'verilog', self.files_dict, self.logs),
             'checkpoint_llm_tb': grade_checkpoint_llm(self.CHECK_POINTS_TB, 'verilog/python', testbench_files_dict, self.logs),
