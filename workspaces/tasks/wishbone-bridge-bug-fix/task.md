@@ -74,4 +74,4 @@ module bus_bridge #(
 endmodule
 ```
 
-make sure it runs or else fix any bugs you find till it compiles successfully.
+make sure it compiles or else fix any bugs you find till it compiles successfully.

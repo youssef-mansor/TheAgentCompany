@@ -32,29 +32,8 @@ RUN pip install cryptography==44.0.0
 
 #############################################################
 
-################## NPC SETUP ################################
-# For simplicity, we set up necessary environments needed
-# by NPCs in the base image, even though some simple tasks
-# don't require NPCs
-
-# Install Python libraries needed to launch NPCs
-RUN pip install rocketchat_API==1.32.0
-RUN pip install sotopia==0.1.2
-# sotopia requires a specific hiredis version
-RUN pip install hiredis==3.0.0
 RUN pip install litellm==1.23.16
-
-# create npc directory
-RUN mkdir -p /npc
-COPY ./npc  /npc
-
-ENV CREDENTIAL_FILE_PATH /npc/npc_credential.json
-ENV SCENARIOS_FILE_PATH /npc/scenarios.json
-
-################## rocketchat NPC sotopia SETUP ######################
-ENV REDIS_OM_URL redis://default:theagentcompany@the-agent-company.com/:6379
-ENV BOT_URL http://the-agent-company.com:3000
-#############################################################
+RUN pip install -q google-generativeai
 
 ################## LLM Evaluator/rocketchat NPC SETUP ###############
 # If the task needs to use LLM-based evaluator OR involves NPCs, then

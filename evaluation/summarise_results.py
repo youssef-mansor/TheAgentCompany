@@ -59,6 +59,8 @@ def calculate_cost(model: str, prompt_tokens: int, completion_tokens: int) -> fl
         return 0 * prompt_tokens + 0 * completion_tokens
     elif "devstral-small" in model.lower():
         return 0 * prompt_tokens + 0 * completion_tokens
+    elif "claude" in model.lower():
+        return 0 * prompt_tokens + 0 * completion_tokens
     else:
         raise ValueError(f"Unknown model: {model}")
 

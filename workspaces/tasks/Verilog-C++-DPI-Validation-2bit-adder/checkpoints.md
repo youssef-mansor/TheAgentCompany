@@ -1,3 +1,0 @@
-- The agent spots the upper limit of the for loop to be wrong 1048575 where the correct value is for (i = 0; i < 1048576; i = i + 1) (20%)
-- The agent spots that the condiction if (!we)  is reversed and it should be if (we) (20%)
-- The test bench runs and the expected values matches the results (60%)

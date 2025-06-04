@@ -85,12 +85,9 @@ for task_dir in "$TASKS_DIR"/*/; do
     # task_name="gpio-integration-caravel"
     # task_name="riscv-general"
     # Skip specific tasks
-    if [[ "$task_name" == "aes-128-openlane" ||
-        "$task_name" == "matrix-multiplication" ||
-        "$task_name" == "memory-bug-fix" ||
-        "$task_name" == "Verilog-C++-DPI-Validation-2bit-adder" ||
-        "$task_name" == "wishbone-bridge-bug-fix" ||
-        "$task_name" == "ipm-caravel" ]]; then
+    if [[ "$task_name" == "Verilog-C++-DPI-Validation-2bit-adder" || \
+        "$task_name" == "ipm-caravel" || \
+        "$task_name" == "gpio-integration-caravel" ]]; then
         continue
     fi
 
@@ -124,7 +121,7 @@ for task_dir in "$TASKS_DIR"/*/; do
         docker volume prune -f
         docker system prune -f
 
-        break
+        
 
 done
 

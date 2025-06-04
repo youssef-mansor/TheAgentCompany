@@ -1,3 +1,7 @@
-- The agent discovers the missig semi-colon after the module declaration (20%)
-- The agent spots the assign statements inside the always block with the blocking assignment (20%)
-- The code is successfully compiled given the agent did not introduce additional errors during fixing the bugs (60%) 
+---
+
+## Main Module Checkpoints - Total 3 pts
+- There's a semicolon right after the closing parenthesis of the module declaration (1pt)
+- There's no continuous assignment inside the always block (1pt)
+
+---

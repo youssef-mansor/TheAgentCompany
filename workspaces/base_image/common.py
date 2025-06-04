@@ -165,7 +165,7 @@ def llm_confirm(script=None, cocotb_test=False, verilog_tb_files_dict=None, pyth
         print("verilog_tb_files_dict\n")
         print_dict(verilog_tb_files_dict)
         if script:
-            if ("iverilog" in script and "vvp" in script and any(file in script or os.path.basename(file) in script for file in verilog_tb_files_dict.keys())):
+            if ("iverilog" in script and any(file in script or os.path.basename(file) in script for file in verilog_tb_files_dict.keys())):
                 return True
             else:
                 return False

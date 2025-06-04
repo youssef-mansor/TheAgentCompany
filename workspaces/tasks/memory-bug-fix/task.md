@@ -93,3 +93,7 @@ module tb_memory_1mb;
     end
 endmodule
 ```
+
+- You have to fix the bug in the memory module and produce a new verilog file, delete the old one or edit inplace.
+- You have to use the provided testbench to make sure the bug is fixed
+- You to create shell script to run the testbench and make sure it works
