@@ -85,12 +85,10 @@ for task_dir in "$TASKS_DIR"/*/; do
     # task_name="gpio-integration-caravel"
     # task_name="riscv-general"
     # Skip specific tasks
-    if [[ "$task_name" == "Verilog-C++-DPI-Validation-2bit-adder" || \
-        "$task_name" == "ipm-caravel" || \
+    if [[ "$task_name" == "ipm-caravel" || \
         "$task_name" == "gpio-integration-caravel" ]]; then
         continue
     fi
-
 
 
     # Check if evaluation file exists
@@ -121,7 +119,6 @@ for task_dir in "$TASKS_DIR"/*/; do
         docker volume prune -f
         docker system prune -f
 
-        
 
 done
 

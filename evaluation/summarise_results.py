@@ -16,51 +16,53 @@ def calculate_cost(model: str, prompt_tokens: int, completion_tokens: int) -> fl
     elif "gpt-4o" in model.lower():
         # https://openai.com/api/pricing/, accessed 12/11/2024
         return 0.0000025 * prompt_tokens + 0.00001 * completion_tokens
-    elif "gemini-1.5-pro" in model.lower():
-        # https://ai.google.dev/pricing#1_5pro, accessed 12/11/2024
-        # assuming prompts up to 128k tokens
-        cost = 0.00000125 * prompt_tokens + 0.000005 * completion_tokens
-        if prompt_tokens > 128000:
-            cost *= 2
-        return cost
-    elif "gemini-2.0-flash-exp" in model.lower():
-        # price unknown for gemini-2.0-flash-exp, assuming same price as gemini-1.5-flash
-        cost = 0.000000075 * prompt_tokens + 0.0000003 * completion_tokens
-        if prompt_tokens > 128000:
-            cost *= 2
-        return cost
-    elif "qwen2-72b" in model.lower():
-        # assuming hosted on Together
-        # https://www.together.ai/pricing, accessed 12/11/2024
-        return 0.0000009 * (prompt_tokens + completion_tokens)
-    elif "qwen2p5-72b" in model.lower():
-        # assuming hosted on Together
-        # https://www.together.ai/pricing, accessed 12/14/2024
-        return 0.0000012 * (prompt_tokens + completion_tokens)
-    elif "llama-v3p1-405b-instruct" in model.lower():
-        # assuming hosted on Fireworks AI
-        # https://fireworks.ai/pricing, accessed 12/11/2024
-        return 0.000003 * (prompt_tokens + completion_tokens)
-    elif "llama-v3p1-70b-instruct" in model.lower():
-        # assuming hosted on Fireworks AI
-        return 0.0000009 * (prompt_tokens + completion_tokens)
-    elif "llama-v3p3-70b-instruct" in model.lower():
-        # assuming hosted on Fireworks AI
-        return 0.0000009 * (prompt_tokens + completion_tokens)
-    elif "amazon.nova-pro-v1:0" in model.lower():
-        # assuming hosted on Amazon Bedrock
-        # https://aws.amazon.com/bedrock/pricing/, accessed 12/11/2024
-        return 0.0000008 * prompt_tokens + 0.0000032 * completion_tokens
-    elif "deepseek-chat" in model.lower():
-        return 0.00000075 * prompt_tokens + 0.0000011 * completion_tokens
-    elif "gemini-2.5-pro-preview" in model.lower():
-        return 0 * prompt_tokens + 0 * completion_tokens
+    # elif "gemini-1.5-pro" in model.lower():
+    #     # https://ai.google.dev/pricing#1_5pro, accessed 12/11/2024
+    #     # assuming prompts up to 128k tokens
+    #     cost = 0.00000125 * prompt_tokens + 0.000005 * completion_tokens
+    #     if prompt_tokens > 128000:
+    #         cost *= 2
+    #     return cost
+    # elif "gemini-2.0-flash-exp" in model.lower():
+    #     # price unknown for gemini-2.0-flash-exp, assuming same price as gemini-1.5-flash
+    #     cost = 0.000000075 * prompt_tokens + 0.0000003 * completion_tokens
+    #     if prompt_tokens > 128000:
+    #         cost *= 2
+    #     return cost
+    # elif "qwen2-72b" in model.lower():
+    #     # assuming hosted on Together
+    #     # https://www.together.ai/pricing, accessed 12/11/2024
+    #     return 0.0000009 * (prompt_tokens + completion_tokens)
+    # elif "qwen2p5-72b" in model.lower():
+    #     # assuming hosted on Together
+    #     # https://www.together.ai/pricing, accessed 12/14/2024
+    #     return 0.0000012 * (prompt_tokens + completion_tokens)
+    # elif "llama-v3p1-405b-instruct" in model.lower():
+    #     # assuming hosted on Fireworks AI
+    #     # https://fireworks.ai/pricing, accessed 12/11/2024
+    #     return 0.000003 * (prompt_tokens + completion_tokens)
+    # elif "llama-v3p1-70b-instruct" in model.lower():
+    #     # assuming hosted on Fireworks AI
+    #     return 0.0000009 * (prompt_tokens + completion_tokens)
+    # elif "llama-v3p3-70b-instruct" in model.lower():
+    #     # assuming hosted on Fireworks AI
+    #     return 0.0000009 * (prompt_tokens + completion_tokens)
+    # elif "amazon.nova-pro-v1:0" in model.lower():
+    #     # assuming hosted on Amazon Bedrock
+    #     # https://aws.amazon.com/bedrock/pricing/, accessed 12/11/2024
+    #     return 0.0000008 * prompt_tokens + 0.0000032 * completion_tokens
+    # elif "deepseek-chat" in model.lower():
+    #     return 0.00000075 * prompt_tokens + 0.0000011 * completion_tokens
+    # elif "gemini-2.5-pro-preview" in model.lower():
+    #     return 0 * prompt_tokens + 0 * completion_tokens
     elif "gpt-4.1" in model.lower():
         return 0 * prompt_tokens + 0 * completion_tokens
-    elif "devstral-small" in model.lower():
-        return 0 * prompt_tokens + 0 * completion_tokens
     elif "claude" in model.lower():
-        return 0 * prompt_tokens + 0 * completion_tokens
+        return 0.000003 * prompt_tokens + 0.000015 * completion_tokens
+    elif "gpt" in model.lower():
+        return 0.000002 * prompt_tokens + 0.000008 * completion_tokens
+    elif "gemini" in model.lower():
+        return 0.000002 * prompt_tokens + 0.000008 * completion_tokens
     else:
         raise ValueError(f"Unknown model: {model}")
 

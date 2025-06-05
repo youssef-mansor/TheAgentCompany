@@ -129,6 +129,30 @@ def print_dict(d):
     for key in d:
         print(key)
 
+def get_all_path_variants(filepath):
+    """
+    Generate all possible path variants for a given filepath.
+    For example, for path1/path2/path3/file, it returns:
+    ['path1/path2/path3/file', 'path2/path3/file', 'path3/file', 'file']
+    
+    Args:
+        filepath (str): The full path to the file
+        
+    Returns:
+        list: All possible path variants
+    """
+    parts = filepath.split('/')
+    variants = []
+    
+    # Add the full path
+    variants.append(filepath)
+    
+    # Add all possible relative paths
+    for i in range(1, len(parts)):
+        variants.append('/'.join(parts[i:]))
+    
+    return variants
+
 def llm_confirm(script=None, cocotb_test=False, verilog_tb_files_dict=None, python_files_dict=None, logs=None): # the function confirms the contents of sh script are used to run the testbench and that the testbench has assertions that stop execution on a failed test.
     # user assert to raise smooth error if any dict is empty such that if both is empty error is raised
     assert verilog_tb_files_dict or python_files_dict, "No verilog or python files found in the workspace."
@@ -151,10 +175,8 @@ def llm_confirm(script=None, cocotb_test=False, verilog_tb_files_dict=None, pyth
         print_dict(python_files_dict)
         if script:
             return any(
-                f"python3 {filename}" in script or
-                f"python {filename}" in script or
-                f"python3 {os.path.basename(filename)}" in script or
-                f"python {os.path.basename(filename)}" in script
+                any(f"python3 {path_part}" in script or f"python {path_part}" in script
+                    for path_part in get_all_path_variants(filename))
                 for filename in python_files_dict.keys()
             )
 

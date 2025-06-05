@@ -1,5 +1,5 @@
-IMAGE_NAME=memory-bug-fix
-CONTAINER_NAME=memory-bug-fix
+IMAGE_NAME=verilog-cpp-dpi
+CONTAINER_NAME=verilog-cpp-dpi
 
 .PHONY: build run stop
 
