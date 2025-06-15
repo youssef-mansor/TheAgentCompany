@@ -30,7 +30,7 @@ endmodule
 
 The above code doesn't behave properly, although it compiles. Could you tell me why?
 
-use this testbench to make sure you fixed the bug:
+use this testbench to make sure you fixed the bug (don't change anything here!):
 
 ```verilog
 module tb_memory_1mb;
@@ -68,7 +68,7 @@ module tb_memory_1mb;
         addr = 20'h00000;
 
         @(posedge clk);
-        $display("Read from address 0: %h (Expected: A5A5A5A5)", data_out);
+        $display("Read from address 0: %h (Expected: a5a5a5a5)", data_out);
 
         // Test 2: Write to address 1
         @(posedge clk);
@@ -81,7 +81,7 @@ module tb_memory_1mb;
         addr = 20'h00001;
 
         @(posedge clk);
-        $display("Read from address 1: %h (Expected: 5A5A5A5A)", data_out);
+        $display("Read from address 1: %h (Expected: 5a5a5a5a)", data_out);
 
         // Test 3: Check uninitialized memory
         @(posedge clk);
@@ -95,5 +95,5 @@ endmodule
 ```
 
 - You have to fix the bug in the memory module and produce a new verilog file, delete the old one or edit inplace.
-- You have to use the provided testbench to make sure the bug is fixed
+- You have to use the provided testbench as it is to make sure the bug is fixed (just run it).
 - You to create shell script to run the testbench and make sure it works

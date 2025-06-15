@@ -10,6 +10,9 @@ import re
 from typing import List
 from scoring import Result, Checkpoint
 from common import *
+from typing import Tuple
+from common import find_file_path
+
 
 REPO_DIR = '/workspace/openhands/'
 UT_FILE = REPO_DIR + 'tests/unit/test_agent_skill.py'
@@ -25,6 +28,15 @@ with open('/instruction/checkpoints.md', 'r') as f:
 # # sections[1]: Integration Checkpoints
 
 # CHECK_POINTS_INTEGRATION = sections[1].strip()
+
+logs = [
+    "# N/A",        # Index 0
+    "\n# N/A",  # Index 1
+    "\n# N/A",    # Index 2
+    "\n# N/A",# Index 3
+    "\n# N/A",     # Index 4
+    "\n# N/A"       # Index 5
+]
 
 def config_env(dir_path):
     """configure enviroment"""
@@ -85,6 +97,7 @@ def is_file_exist(file_path):
     """
     if not file_path:
         logging.warning("is_file_exist: Empty path provided")
+        logs[1] += "\nEmpty path provided"
         return False
 
     abs_path = os.path.abspath(file_path)
@@ -93,16 +106,19 @@ def is_file_exist(file_path):
         return os.path.isfile(abs_path)
     except Exception as e:
         logging.warning(f"Error in is_file_exist: {e}")
+        logs[1] += f"\nError in is_file_exist: {e}"
         return False
 
 @grader
 def grade_checkpoint1():
 
     score = 0.0
-    if is_file_exist("/outputs/ip/EF_I2S/hdl/rtl/EF_I2S.v"):
+    if find_file_path("EF_I2S.v"):
         score += 1
+        logs[1] += "\nFile EF_I2S.v exists"
     else:
         print("file EF_I2S.v doesn't exist")
+        logs[1] += "\nFile EF_I2S.v doesn't exist"
     
     # round score to the nearest integer
     return int(score)
@@ -113,7 +129,7 @@ def grade_checkpoint1():
 def grade_checkpoint_llm(CHECK_POINTS, file_path, file_type):
     file_content = None
     # check if the file /openhands/workspace/shifter.v exists
-    if is_file_exist(file_path):
+    if find_file_path(file_path):
         # read it content into file
         with open(file_path, 'r') as file:
             file_content = file.read()
@@ -123,10 +139,11 @@ def grade_checkpoint_llm(CHECK_POINTS, file_path, file_type):
     
     else:
         print(f"{file_path} does not exist")
+        logs[1] += "\nFile EF_I2S.v doesn't exist"
         return (0, 0)
 
 
-def grade_checkpoints(trajectory="") -> Result:
+def grade_checkpoints(trajectory="") -> Tuple[Result, List[str]]:
     checkpoints: List[Checkpoint] = []
     result = Result(checkpoints)
 
@@ -166,6 +183,4 @@ def grade_checkpoints(trajectory="") -> Result:
 
     print("result being returned")
 
-    return result
-
-
+    return result, logs

@@ -70,7 +70,10 @@ class GPIOCaravelEvaluator(BaseEvaluator):
         # Get scores for each checkpoint
         scores = {
             'template': self.check_template_structure(),
-            'module': grade_checkpoint_llm(self.CHECK_POINTS_INTEGRATION, 'verilog', self.files_dict, self.logs)
+            'module': grade_checkpoint_llm(self.CHECK_POINTS_INTEGRATION, 'verilog', 
+                                            {k: v for k, v in self.files_dict.items() if k.endswith('user_project_wrapper.v')} 
+                                            if any(k.endswith('user_project_wrapper.v') for k in self.files_dict) 
+                                            else {}, self.logs)
         }
 
         # Calculate weighted scores

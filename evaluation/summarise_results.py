@@ -56,13 +56,13 @@ def calculate_cost(model: str, prompt_tokens: int, completion_tokens: int) -> fl
     # elif "gemini-2.5-pro-preview" in model.lower():
     #     return 0 * prompt_tokens + 0 * completion_tokens
     elif "gpt-4.1" in model.lower():
-        return 0 * prompt_tokens + 0 * completion_tokens
+        return 0.000002 * prompt_tokens + 0.000008 * completion_tokens
     elif "claude" in model.lower():
         return 0.000003 * prompt_tokens + 0.000015 * completion_tokens
     elif "gpt" in model.lower():
         return 0.000002 * prompt_tokens + 0.000008 * completion_tokens
     elif "gemini" in model.lower():
-        return 0.000002 * prompt_tokens + 0.000008 * completion_tokens
+        return 0.00000187 * prompt_tokens + 0.0000125 * completion_tokens
     else:
         raise ValueError(f"Unknown model: {model}")
 

@@ -420,7 +420,7 @@ def find_files(pattern=None, search_paths=None, command=None, first_match_only=F
         else:
             # Pattern-based search mode
             if search_paths is None:
-                search_paths = ["/workspace", "/outputs", "/openhands/workspace"]
+                search_paths = ["/workspace", "/outputs", "/openhands/workspace", "/root/.ipm", "/home/openhands"]
             
             for path in search_paths:
                 try:

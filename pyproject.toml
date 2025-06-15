@@ -17,4 +17,4 @@ python = "^3.12"
 pyyaml = "*"
 # openhands-ai = "0.14.2"
 openhands-ai = { git = "https://github.com/youssef-mansor/RTL-Agent", branch = "auth" } 
-
+openhands-aci = { git = "https://github.com/0xallam/openhands-aci", branch = "main" }
